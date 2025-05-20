@@ -1,0 +1,13 @@
+package net.tfminecraft.AdvancedCrafting.Enums;
+
+public enum StationFeedback {
+	SUCCESS,
+	FAILURE,
+	EXISTS,
+	CAPACITY,
+	WRONG_BASE,
+	NOT_INGREDIENT,
+	WRONG_TYPE,
+	NONE,
+	LACKING_ITEMS,
+}
