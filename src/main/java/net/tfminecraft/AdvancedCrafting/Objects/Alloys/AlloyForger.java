@@ -126,7 +126,6 @@ public class AlloyForger {
 		}
 		List<StatModifier> merge = new ArrayList<>();
 		for(Ingredient i : station.getCatalysts()) {
-			System.out.println(i.getId());
 			for(StatModifier m : i.getIngredientData().getStatData().getModifiers()) {
 				if(base.containsKey(m.getType())) {
 					StatModifier n = new StatModifier(m.getType(), m.getAmount()-base.get(m.getType()).getAmount());
@@ -139,7 +138,9 @@ public class AlloyForger {
 		stats = new StatData();
 		merge(base, max, merge);
 		for(String s : base.keySet()) {
-			stats.addModifier(base.get(s));
+			StatModifier mod = base.get(s);
+			mod.setAmount(Math.round(mod.getAmount()*100.0)/100.0);
+			stats.addModifier(mod);
 		}
 	}
 	
@@ -164,7 +165,7 @@ public class AlloyForger {
 			}
 		}
 		for(String s : base.keySet()) {
-			if(base.get(s).getAmount() > max.get(s).getAmount()) {
+			if(max.containsKey(s) && base.get(s).getAmount() > max.get(s).getAmount()) {
 				base.put(s, max.get(s));
 			}
 		}

@@ -13,6 +13,10 @@ import org.bukkit.inventory.ItemStack;
 
 import dev.lone.itemsadder.api.CustomStack;
 import io.lumine.mythic.lib.api.item.NBTItem;
+import me.Plugins.TLibs.TLibs;
+import me.Plugins.TLibs.Enums.APIType;
+import me.Plugins.TLibs.Objects.API.BlockAPI;
+import net.tfminecraft.AdvancedCrafting.Cache.Cache;
 import net.tfminecraft.AdvancedCrafting.Objects.CraftStack;
 import net.tfminecraft.AdvancedCrafting.Objects.Ingredients.Ingredient;
 
@@ -27,12 +31,18 @@ public class IngredientManager implements Listener{
 		if(!ingredients.containsKey(path)) return null;
 		return ingredients.get(path);
 	}
+
+	public boolean isIngredientStation(Block b) {
+		String path = Cache.ingredientStation;
+		BlockAPI api = (BlockAPI) TLibs.getApiInstance(APIType.BLOCK_API);
+		return api.getChecker().checkBlock(b, path);
+	}
 	
 	@EventHandler
 	public void convertItem(PlayerInteractEvent e) {
 		if(!e.getAction().equals(Action.RIGHT_CLICK_BLOCK)) return;
 		Block b = e.getClickedBlock();
-		if(!b.getType().equals(Material.OBSERVER)) return;
+		if(!isIngredientStation(b)) return;
 		Player p = e.getPlayer();
 		ItemStack i = p.getInventory().getItemInMainHand();
 		CraftStack cs = new CraftStack(i);

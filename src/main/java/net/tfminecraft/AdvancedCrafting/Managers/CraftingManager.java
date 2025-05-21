@@ -24,7 +24,6 @@ import net.tfminecraft.AdvancedCrafting.AdvancedCrafting;
 import net.tfminecraft.AdvancedCrafting.Enums.StationFeedback;
 import net.tfminecraft.AdvancedCrafting.Loaders.CategoryLoader;
 import net.tfminecraft.AdvancedCrafting.Loaders.RecipeLoader;
-import net.tfminecraft.AdvancedCrafting.Objects.Alloys.AlloyStation;
 import net.tfminecraft.AdvancedCrafting.Objects.Crafting.CraftingRecipe;
 import net.tfminecraft.AdvancedCrafting.Objects.Crafting.CraftingStation;
 import net.tfminecraft.AdvancedCrafting.Objects.Crafting.RecipeCategory;
@@ -82,15 +81,15 @@ public class CraftingManager implements Listener{
 			if(i == null) return;
 			StationFeedback f = station.addMaterial(p, i);
 			if(f.equals(StationFeedback.NOT_INGREDIENT)) {
-				p.sendMessage("§cThis item cannot be used for crafting");
+				p.sendMessage("Â§cThis item cannot be used for crafting");
 				return;
 			}
 			if(f.equals(StationFeedback.WRONG_TYPE)) {
-				p.sendMessage("§cThis item type is not needed for the recipe");
+				p.sendMessage("Â§cThis item type is not needed for the recipe");
 				return;
 			}
 			if(f.equals(StationFeedback.CAPACITY)) {
-				p.sendMessage("§cYou already have the needed amount of this type");
+				p.sendMessage("Â§cYou already have the needed amount of this type");
 				return;
 			}
 			return;
@@ -111,22 +110,23 @@ public class CraftingManager implements Listener{
 		if(!hasStation(b.getLocation())) return;
 		ItemStack i = p.getInventory().getItemInMainHand();
 		if(i == null) return;
+		if(i.getType().equals(Material.AIR)) return;
 		CraftingStation station = get(b.getLocation());
 		StationFeedback f = station.hit(p, i);
 		if(f.equals(StationFeedback.LACKING_ITEMS)) {
-			p.sendMessage("§cYou have to add all the items before smithing");
+			p.sendMessage("Â§cYou have to add all the items before smithing");
 			return;
 		}
 		if(f.equals(StationFeedback.WRONG_TYPE)) {
-			p.sendMessage("§cThis item cannot be used for crafting hits");
+			p.sendMessage("Â§cThis item cannot be used for crafting hits");
 			return;
 		}
 		if(f.equals(StationFeedback.NONE)) {
-			p.sendMessage("§cThis tool is not needed for this craft");
+			p.sendMessage("Â§cThis tool is not needed for this craft");
 			return;
 		}
 		if(f.equals(StationFeedback.CAPACITY)) {
-			p.sendMessage("§cYou dont need more hits with this tool");
+			p.sendMessage("Â§cYou dont need more hits with this tool");
 			return;
 		}
 		p.getWorld().playSound(station.getLoc(), Sound.BLOCK_ANVIL_USE, 1f, 1f);
@@ -135,7 +135,7 @@ public class CraftingManager implements Listener{
 	@EventHandler
 	public void invenClick(InventoryClickEvent e) {
 		Player p = (Player) e.getWhoClicked();
-		if(e.getView().getTitle().equalsIgnoreCase("§7Select Category")) {
+		if(e.getView().getTitle().equalsIgnoreCase("Â§7Select Category")) {
 			e.setCancelled(true);
 			ItemStack i = e.getCurrentItem();
 			if(i == null) return;
@@ -146,7 +146,7 @@ public class CraftingManager implements Listener{
 			InventoryManager inv = new InventoryManager();
 			inv.recipeView(p, c);
 			return;
-		} else if(e.getView().getTitle().equalsIgnoreCase("§7Select Recipe")) {
+		} else if(e.getView().getTitle().equalsIgnoreCase("Â§7Select Recipe")) {
 			e.setCancelled(true);
 			ItemStack i = e.getCurrentItem();
 			if(i == null) return;
@@ -157,11 +157,11 @@ public class CraftingManager implements Listener{
 			CraftingStation station = currentStation.get(p);
 			p.closeInventory();
 			if(station.hasRecipe()) {
-				p.sendMessage("§cStation already has a recipe selected");
+				p.sendMessage("Â§cStation already has a recipe selected");
 				return;
 			}
 			station.setRecipe(recipe);
-			p.sendMessage("§aRecipe "+recipe.getName()+ " §aselected!");
+			p.sendMessage("Â§aRecipe "+recipe.getName()+ " Â§aselected!");
 			return;
 		}
 		

@@ -22,7 +22,8 @@ public class ConfigLoader implements LoaderInterface{
 		
 		Cache.scrap = config.getString("scrap-path");
 		
-		Cache.alloyStation = config.getString("alloy-station");
+		Cache.alloyStation = config.getString("alloy-station", "v(BLAST_FURNACE)");
+		Cache.ingredientStation = config.getString("ingredient-station", "v(OBSERVER)");
 	}
 
 }

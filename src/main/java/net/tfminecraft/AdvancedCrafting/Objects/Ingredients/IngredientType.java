@@ -10,10 +10,7 @@ public class IngredientType {
 	
 	public IngredientType(String key, ConfigurationSection config) {
 		id = key;
-		name = config.getString("name");
-		if(name.contains("#")) {
-			name = StringFormatter.formatHex(name);
-		}
+		name = StringFormatter.formatHex(config.getString("name"));
 	}
 
 	public String getId() {

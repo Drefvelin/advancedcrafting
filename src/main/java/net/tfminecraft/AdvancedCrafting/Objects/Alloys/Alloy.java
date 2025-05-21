@@ -29,6 +29,7 @@ import net.tfminecraft.AdvancedCrafting.Objects.Data.AlloyData;
 import net.tfminecraft.AdvancedCrafting.Objects.Data.StatData;
 import net.tfminecraft.AdvancedCrafting.Objects.Ingredients.Ingredient;
 import net.tfminecraft.AdvancedCrafting.Objects.Stats.StatModifier;
+import net.tfminecraft.AdvancedCrafting.Utils.StatToString;
 
 public class Alloy {
 	private String id;
@@ -38,6 +39,7 @@ public class Alloy {
 	public Alloy(String n, Ingredient base, StatData stats, HashMap<CraftingHit, Integer> hits) {
 		name = n;
 		id = (new String(name)).replace(" ", "_").toLowerCase();
+		System.out.println(name);
 		name = StringFormatter.formatHex("#"+base.getIngredientData().getScheme().getColourScheme().randomColour()+name);
 		data = new AlloyData(base, stats, hits);
 	}
@@ -63,11 +65,11 @@ public class Alloy {
             mmo.setStatHistory(ItemStats.NAME, hist);
         }
 		List<String> loreList = new ArrayList<>();
-		loreList.add("§7Type: §f"+data.getType().getName());
+		loreList.add(StringFormatter.formatHex("#cf7c72Type: #d9bb93"+data.getType().getName()));
 		loreList.add(" ");
-		loreList.add("§7Properties:");
+		loreList.add(StringFormatter.formatHex("#c4b9a1Properties:"));
 		for(StatModifier sm : data.getStatData().getModifiers()) {
-			loreList.add("§f- §e"+WordUtils.capitalize(sm.getType()).replace("_", " ")+" §a+"+sm.getAmount());
+			loreList.add(StringFormatter.formatHex("Â§f- #acdb86"+StatToString.get(sm.getType())+" #e0e677+"+sm.getAmount()));
 		}
 		StringListData lore = new StringListData(loreList);
 		mmo.setData(ItemStats.LORE, lore);

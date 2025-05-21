@@ -4,4 +4,5 @@ public class Cache {
 	public static String scrap;
 	
 	public static String alloyStation;
+	public static String ingredientStation;
 }

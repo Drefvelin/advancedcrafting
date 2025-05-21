@@ -5,6 +5,8 @@ import java.util.List;
 
 import org.bukkit.configuration.ConfigurationSection;
 
+import me.Plugins.TLibs.Objects.API.SubAPI.StringFormatter;
+
 public class Quality {
 	private String id;
 	private double amount;
@@ -16,7 +18,7 @@ public class Quality {
 		id = key;
 		amount = config.getDouble("amount");
 		value = config.getInt("value");
-		name = config.getString("name");
+		name = StringFormatter.formatHex(config.getString("name"));
 		if(config.contains("gem-slots")) {
 			slots = config.getStringList("gem-slots");
 		}

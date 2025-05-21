@@ -211,20 +211,20 @@ public class CraftingStation {
 				hitTypes.put(h.getType(), counter);
 			}
 		}
-		p.sendMessage("§e==========================");
+		p.sendMessage("Â§e==========================");
 		for(IngredientType t : types.keySet()) {
 			p.sendMessage(t.getName()+": "+types.get(t).getCurrent()+"/"+types.get(t).getNeeded());
 		}
-		p.sendMessage("§e==========================");
+		p.sendMessage("Â§e==========================");
 		for(CraftingHit h : hits.keySet()) {
 			p.sendMessage(h.getName()+": "+hits.get(h).getCurrent()+"/"+hits.get(h).getNeeded());
 		}
-		p.sendMessage("§e==========================");
+		p.sendMessage("Â§e==========================");
 		for(HitType h : hitTypes.keySet()) {
 			p.sendMessage(h.getName()+" hits: "+hitTypes.get(h).getCurrent()+"/"+hitTypes.get(h).getNeeded());
 		}
-		p.sendMessage("§e==========================");
-		p.sendTitle("§aAdded "+name, type.getName() + " §e"+types.get(type).getCurrent()+"/"+types.get(type).getNeeded(), 5, 20, 5);
+		p.sendMessage("Â§e==========================");
+		p.sendTitle("Â§aAdded "+name, type.getName() + " Â§e"+types.get(type).getCurrent()+"/"+types.get(type).getNeeded(), 5, 20, 5);
 		p.getInventory().getItemInMainHand().setAmount(p.getInventory().getItemInMainHand().getAmount()-1);
 		return StationFeedback.SUCCESS;
 	}
@@ -258,7 +258,7 @@ public class CraftingStation {
 			IntCounter c = types.get(t);
 			if(!c.isEqual()) {
 				complete = false;
-				p.sendMessage("§cYou only have "+c.getCurrent()+" out of "+c.getNeeded() + " " +t.getName()+ "§c items.");
+				p.sendMessage("Â§cYou only have "+c.getCurrent()+" out of "+c.getNeeded() + " " +t.getName()+ "Â§c items.");
 			}
 		}
 		return complete;
@@ -270,7 +270,7 @@ public class CraftingStation {
 			IntCounter c = hitTypes.get(t);
 			if(!c.isEqual()) {
 				complete = false;
-				p.sendMessage("§cYou only have "+c.getCurrent()+" out of "+c.getNeeded() + " " +t.getName()+ "§c hits.");
+				p.sendMessage("Â§cYou only have "+c.getCurrent()+" out of "+c.getNeeded() + " " +t.getName()+ "Â§c hits.");
 			}
 		}
 		return complete;
@@ -347,7 +347,7 @@ public class CraftingStation {
 		double percentage = calculatePercentage();
 		Quality q = getQuality(percentage);
 		p.sendMessage("Quality: "+q.getName());
-		p.sendMessage("Hit Percenage: §e"+percentage+"%");
+		p.sendMessage("Hit Percenage: Â§e"+percentage+"%");
 		List<String> sockets = new ArrayList<String>();
 		for(String s : q.getSlots()) {
 			sockets.add(s);
@@ -356,7 +356,7 @@ public class CraftingStation {
 		net.Indyuce.mmoitems.stat.data.type.StatData finalStat = gemData;
 		mmo.setData(ItemStats.GEM_SOCKETS, finalStat);
 		List<String> loreList = new ArrayList<String>();
-		loreList.add("§fQuality: "+q.getName());
+		loreList.add("Â§fQuality: "+q.getName());
 		StringListData lore = new StringListData(loreList);
 		mmo.setData(ItemStats.LORE, lore);
 		ItemStack finalItem = mmo.newBuilder().build();
@@ -407,7 +407,7 @@ public class CraftingStation {
 			hits.put(hit, counter);
 		}
 		hitTypes.get(hit.getType()).increaseCurrent(1);
-		p.sendTitle("§a+1 "+hit.getName(), hit.getType().getName() + " hits: "+hitTypes.get(hit.getType()).getCurrent()+"/"+hitTypes.get(hit.getType()).getNeeded(), 5, 20, 5);
+		p.sendTitle("Â§a+1 "+hit.getName(), hit.getType().getName() + " hits: "+hitTypes.get(hit.getType()).getCurrent()+"/"+hitTypes.get(hit.getType()).getNeeded(), 5, 20, 5);
 	}
 	
 	public void drop() {

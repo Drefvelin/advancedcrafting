@@ -75,7 +75,7 @@ public class AlloyManager implements Listener{
 		ItemStack i = p.getInventory().getItemInMainHand();
 		CraftStack cs = new CraftStack(i);
 		if(!cs.isIngredient()) {
-			p.sendMessage("§cThis item is not an ingredient");
+			p.sendMessage("Â§cThis item is not an ingredient");
 			return;
 		}
 		Ingredient ing = cs.getIngredient();
@@ -88,18 +88,18 @@ public class AlloyManager implements Listener{
 		}
 		StationFeedback fb = station.addIngredient(ing);
 		if(fb.equals(StationFeedback.EXISTS)) {
-			p.sendMessage("§cThis ingredient is already part of the recipe");
+			p.sendMessage("Â§cThis ingredient is already part of the recipe");
 			return;
 		} else if(fb.equals(StationFeedback.CAPACITY)) {
-			p.sendMessage("§cThe alloy forge cannot fit any more ingredients");
+			p.sendMessage("Â§cThe alloy forge cannot fit any more ingredients");
 			return;
 		} else if(fb.equals(StationFeedback.WRONG_BASE)) {
-			p.sendMessage("§cThis ingredient cannot be used as the base");
+			p.sendMessage("Â§cThis ingredient cannot be used as the base");
 			return;
 		}
 		i.setAmount(i.getAmount()-1);
 		p.getWorld().playSound(station.getLocation(), Sound.BLOCK_ANVIL_HIT, 1f, 1f);
-		p.sendTitle("§aAdded "+i.getItemMeta().getDisplayName(), station.getStatus(), 5, 30, 5);
+		p.sendTitle("Â§aAdded "+i.getItemMeta().getDisplayName(), station.getStatus(), 5, 30, 5);
 	}
 	public void forgeAlloy(PlayerInteractEvent e) {
 		Block b = e.getClickedBlock();
@@ -108,7 +108,7 @@ public class AlloyManager implements Listener{
 		if(!hasStation(b.getLocation())) return;
 		AlloyStation station = get(b.getLocation());
 		if(station.getIngredients().size() < 2) {
-			p.sendMessage("§cYou need at least 2 ingredients to make an alloy");
+			p.sendMessage("Â§cYou need at least 2 ingredients to make an alloy");
 			return;
 		}
 		AlloyForger forger = new AlloyForger(station);

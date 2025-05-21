@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.bukkit.configuration.ConfigurationSection;
 
+import me.Plugins.TLibs.Objects.API.SubAPI.StringFormatter;
 import net.tfminecraft.AdvancedCrafting.Loaders.CategoryLoader;
 
 public class CraftingRecipe {
@@ -22,7 +23,7 @@ public class CraftingRecipe {
 	public CraftingRecipe(String key, ConfigurationSection config) {
 		this.id = key;
 		this.template = config.getString("template");
-		this.name = config.getString("name");
+		this.name = StringFormatter.formatHex(config.getString("name"));
 		this.type = config.getString("type");
 		CategoryLoader.getByString(config.getString("category")).addRecipe(this);
 		for(String r : config.getStringList("recipe")) {

@@ -5,6 +5,8 @@ import java.util.List;
 
 import org.bukkit.configuration.ConfigurationSection;
 
+import me.Plugins.TLibs.Objects.API.SubAPI.StringFormatter;
+
 public class RecipeCategory {
 	private String id;
 	private String name;
@@ -13,7 +15,7 @@ public class RecipeCategory {
 	
 	public RecipeCategory(String key, ConfigurationSection config) {
 		this.id = key;
-		this.name = config.getString("name");
+		this.name = StringFormatter.formatHex(config.getString("name"));
 		if(config.contains("permission")) {
 			this.permission = config.getString("permission");
 		}

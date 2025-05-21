@@ -14,9 +14,11 @@ import org.bukkit.persistence.PersistentDataType;
 import me.Plugins.TLibs.TLibs;
 import me.Plugins.TLibs.Enums.APIType;
 import me.Plugins.TLibs.Objects.API.ItemAPI;
+import me.Plugins.TLibs.Objects.API.SubAPI.StringFormatter;
 import net.tfminecraft.AdvancedCrafting.AdvancedCrafting;
 import net.tfminecraft.AdvancedCrafting.Objects.Data.IngredientData;
 import net.tfminecraft.AdvancedCrafting.Objects.Stats.StatModifier;
+import net.tfminecraft.AdvancedCrafting.Utils.StatToString;
 
 public class Ingredient {
 	private String id;
@@ -47,11 +49,11 @@ public class Ingredient {
 			lore = new ArrayList<String>();
 		}
 		lore.add(" ");
-		lore.add("§7Type: §f"+data.getType().getName());
+		lore.add(StringFormatter.formatHex("#cf7c72Type: #d9bb93"+data.getType().getName()));
 		lore.add(" ");
-		lore.add("§7Properties:");
+		lore.add(StringFormatter.formatHex("#c4b9a1Properties:"));
 		for(StatModifier sm : data.getStatData().getModifiers()) {
-			lore.add("§f- §e"+WordUtils.capitalize(sm.getType()).replace("_", " ")+" §a+"+sm.getAmount());
+			lore.add(StringFormatter.formatHex("Â§f- #acdb86"+StatToString.get(sm.getType())+" #e0e677+"+sm.getAmount()));
 		}
 		m.setLore(lore);
 		i.setItemMeta(m);

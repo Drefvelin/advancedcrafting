@@ -14,6 +14,7 @@ import org.bukkit.persistence.PersistentDataType;
 import me.Plugins.TLibs.TLibs;
 import me.Plugins.TLibs.Enums.APIType;
 import me.Plugins.TLibs.Objects.API.ItemAPI;
+import me.Plugins.TLibs.Objects.API.SubAPI.StringFormatter;
 import net.tfminecraft.AdvancedCrafting.AdvancedCrafting;
 import net.tfminecraft.AdvancedCrafting.Loaders.CategoryLoader;
 import net.tfminecraft.AdvancedCrafting.Loaders.TypeLoader;
@@ -24,7 +25,7 @@ import net.tfminecraft.AdvancedCrafting.Objects.Ingredients.IngredientType;
 
 public class InventoryManager {
 	public void categoryView(Player p) {
-		Inventory i = AdvancedCrafting.plugin.getServer().createInventory(null, 27, "§7Select Category");
+		Inventory i = AdvancedCrafting.plugin.getServer().createInventory(null, 27, "Â§7Select Category");
 		int x = 0;
 		for(String key : CategoryLoader.get().keySet()) {
 			i.setItem(x, getCategoryItem(CategoryLoader.getByString(key)));
@@ -35,7 +36,7 @@ public class InventoryManager {
 			if(i.getItem(slotn) == null) {
 				ItemStack fill = new ItemStack(Material.GRAY_STAINED_GLASS_PANE);
 				ItemMeta fm = fill.getItemMeta();
-				fm.setDisplayName("§8 ");
+				fm.setDisplayName("Â§8 ");
 				fill.setItemMeta(fm);
 				i.setItem(slotn, fill);
 			}
@@ -44,7 +45,7 @@ public class InventoryManager {
 		p.openInventory(i);
 	}
 	public void recipeView(Player p, RecipeCategory c) {
-		Inventory i = AdvancedCrafting.plugin.getServer().createInventory(null, 27, "§7Select Recipe");
+		Inventory i = AdvancedCrafting.plugin.getServer().createInventory(null, 27, "Â§7Select Recipe");
 		int x = 0;
 		for(CraftingRecipe recipe : c.getRecipes()) {
 			i.setItem(x, getRecipeItem(recipe));
@@ -55,7 +56,7 @@ public class InventoryManager {
 			if(i.getItem(slotn) == null) {
 				ItemStack fill = new ItemStack(Material.GRAY_STAINED_GLASS_PANE);
 				ItemMeta fm = fill.getItemMeta();
-				fm.setDisplayName("§8 ");
+				fm.setDisplayName("Â§8 ");
 				fill.setItemMeta(fm);
 				i.setItem(slotn, fill);
 			}
@@ -70,21 +71,23 @@ public class InventoryManager {
 			ItemMeta m = i.getItemMeta();
 			m.setDisplayName(c.getName());
 			List<String> lore = new ArrayList<>();
-			lore.add("§7No entries");
+			lore.add("Â§7No entries");
 			m.setLore(lore);
 			i.setItemMeta(m);
 			return i;
 		}
 		ItemAPI api = (ItemAPI) TLibs.getApiInstance(APIType.ITEM_API);
 		ItemStack template = api.getCreator().getItemFromPath("m."+c.getRecipes().get(0).getTemplate());
-		i.setType(template.getType());
+		if(template != null) {
+			i.setType(template.getType());
+		} 
 		ItemMeta m = i.getItemMeta();
-		if(template.getItemMeta().hasCustomModelData()) {
+		if(template != null && template.getItemMeta().hasCustomModelData()) {
 			m.setCustomModelData(template.getItemMeta().getCustomModelData());
 		}
 		m.setDisplayName(c.getName());
 		List<String> lore = new ArrayList<>();
-		lore.add("§a"+c.getRecipes().size()+" §eEntries");
+		lore.add(StringFormatter.formatHex("#e0e677"+c.getRecipes().size()+" #b2db93Entries"));
 		m.setLore(lore);
 		NamespacedKey key = new NamespacedKey(AdvancedCrafting.plugin, "ac_category");
 		m.getPersistentDataContainer().set(key, PersistentDataType.STRING, c.getId());
@@ -101,12 +104,12 @@ public class InventoryManager {
 		if(template.getItemMeta().hasCustomModelData()) {
 			m.setCustomModelData(template.getItemMeta().getCustomModelData());
 		}
-		m.setDisplayName("§7"+r.getName());
+		m.setDisplayName("Â§7"+r.getName());
 		List<String> lore = new ArrayList<>();
-		lore.add("§eRecipe:");
+		lore.add(StringFormatter.formatHex("#d1a566Recipe:"));
 		for(String s : r.getRecipe().keySet()) {
 			IngredientType t = TypeLoader.getIngredientTypeByString(s);
-			lore.add(t.getName()+"§7: §ex"+r.getRecipe().get(s));
+			lore.add(StringFormatter.formatHex(t.getName()+"Â§7: #6dd695x"+r.getRecipe().get(s)));
 		}
 		m.setLore(lore);
 		NamespacedKey key = new NamespacedKey(AdvancedCrafting.plugin, "ac_recipe");

@@ -61,13 +61,13 @@ public class AlloyStation {
 		}
 	}
 	public String getStatus() {
-		String s = "§eBase: ";
+		String s = "Â§eBase: ";
 		if(baseItem != null) {
-			s=s+"§71/1 ";
+			s=s+"Â§71/1 ";
 		} else {
-			s=s+"§70/1 ";
+			s=s+"Â§70/1 ";
 		}
-		s = s+"§eCatalysts: §7"+catalysts.size()+"/4";
+		s = s+"Â§eCatalysts: Â§7"+catalysts.size()+"/4";
 		return s;
 	}
 	public int getTotalValue() {
