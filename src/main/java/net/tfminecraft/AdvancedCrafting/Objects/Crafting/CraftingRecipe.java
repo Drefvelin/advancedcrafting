@@ -8,6 +8,7 @@ import org.bukkit.configuration.ConfigurationSection;
 
 import me.Plugins.TLibs.Objects.API.SubAPI.StringFormatter;
 import net.tfminecraft.AdvancedCrafting.Loaders.CategoryLoader;
+import net.tfminecraft.AdvancedCrafting.Objects.Stats.StatModifier;
 
 public class CraftingRecipe {
 	private String id;
@@ -19,6 +20,9 @@ public class CraftingRecipe {
 	private HashMap<String, Integer> recipe = new HashMap<>();
 	
 	private List<String> ignore = new ArrayList<>();
+
+	private List<StatModifier> modify = new ArrayList<>();
+	private List<StatModifier> base = new ArrayList<>();
 	
 	public CraftingRecipe(String key, ConfigurationSection config) {
 		this.id = key;
@@ -33,6 +37,16 @@ public class CraftingRecipe {
 		}
 		if(config.contains("ignore-stats")) {
 			ignore = config.getStringList("ignore-stats");
+		}
+		if(config.contains("modify-stats")) {
+			for(String s : config.getStringList("modify-stats")) {
+				modify.add(new StatModifier(s));
+			}
+		}
+		if(config.contains("base-stats")) {
+			for(String s : config.getStringList("base-stats")) {
+				base.add(new StatModifier(s));
+			}
 		}
 	}
 	
@@ -59,5 +73,13 @@ public class CraftingRecipe {
 
 	public HashMap<String, Integer> getRecipe() {
 		return recipe;
+	}
+
+	public List<StatModifier> getModifyStats() {
+		return modify;
+	}
+
+	public List<StatModifier> getBaseStats() {
+		return base;
 	}
 }

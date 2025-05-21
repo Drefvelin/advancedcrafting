@@ -41,6 +41,7 @@ import net.tfminecraft.AdvancedCrafting.Objects.Ingredients.Ingredient;
 import net.tfminecraft.AdvancedCrafting.Objects.Ingredients.IngredientType;
 import net.tfminecraft.AdvancedCrafting.Objects.Schemes.ModelScheme;
 import net.tfminecraft.AdvancedCrafting.Objects.Stats.StatModifier;
+import net.tfminecraft.AdvancedCrafting.Utils.StatFactors;
 
 public class CraftingStation {
 	private Location loc;
@@ -211,6 +212,7 @@ public class CraftingStation {
 				hitTypes.put(h.getType(), counter);
 			}
 		}
+		//This is debug
 		p.sendMessage("§e==========================");
 		for(IngredientType t : types.keySet()) {
 			p.sendMessage(t.getName()+": "+types.get(t).getCurrent()+"/"+types.get(t).getNeeded());
@@ -231,6 +233,8 @@ public class CraftingStation {
 	
 	public StationFeedback craft(Player p){
 		createStats();
+		applyRecipeStats();
+		cleanStats();
 		return createItem(p);
 	}
 	
@@ -248,6 +252,35 @@ public class CraftingStation {
 				for(int i = 0; i<currentMaterials.get(s); i++) {
 					stats.mergeFrom(AlloyManager.getAlloyById(mId).getData().getStatData());
 				}
+			}
+		}
+	}
+
+	private void applyRecipeStats() {
+		for(StatModifier mod : stats.getModifiers()) {
+			for(StatModifier modify : recipe.getModifyStats()) {
+				if(mod.getType().equalsIgnoreCase(modify.getType())){
+					mod.setAmount(mod.getAmount()+modify.getAmount());
+				}
+			}
+		}
+		for(StatModifier base : recipe.getBaseStats()) {
+			boolean found = false;
+			for(StatModifier mod : stats.getModifiers()) {
+				if(mod.getType().equalsIgnoreCase(base.getType())){
+					mod.setAmount(base.getAmount());
+					found = true;
+				}
+			}
+			if(!found) stats.addModifier(new StatModifier(base.getType(), base.getAmount()));
+		}
+	}
+
+	private void cleanStats() {
+		for(StatModifier mod : stats.getModifiers()) {
+			if(StatFactors.has(mod.getType())) {
+				double amount = Math.round(mod.getAmount()/StatFactors.get(mod.getType())*100.0)/100.0;
+				mod.setAmount(amount);
 			}
 		}
 	}
@@ -364,7 +397,7 @@ public class CraftingStation {
 			finalItem = applyModel(finalItem, scheme);
 			System.out.println("Applying");
 		}
-		Location dropLoc = new Location(loc.getWorld(), loc.getX(), loc.getY()+1, loc.getZ());
+		Location dropLoc = loc.clone().add(0, 1, 0);
 		dropLoc.getWorld().dropItem(dropLoc, finalItem);
 		return StationFeedback.SUCCESS;
 	}

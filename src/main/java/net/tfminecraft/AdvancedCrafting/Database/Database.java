@@ -76,6 +76,7 @@ public class Database {
     }
 	@SuppressWarnings("unchecked")
 	public void saveStation(CraftingStation s) {
+		if(!s.hasRecipe()) return;
 		try {
 			File file = new File("plugins/AdvancedCrafting/data/stations",UUID.randomUUID().toString()+".json");
 			if(file.exists() == true) {

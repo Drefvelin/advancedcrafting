@@ -57,7 +57,7 @@ public class AlloyForger {
 		} else {
 			a = AlloyManager.getAlloyById(result);
 		}
-		Location loc = new Location(station.getLocation().getWorld(), station.getLocation().getX(), station.getLocation().getY()+1, station.getLocation().getZ());
+		Location loc = station.getLocation().clone().add(0, 2, 0);
 		if(scrap) {
 			String scrapType = Cache.scrap.split("\\.")[0].toUpperCase();
 			String scrapId = Cache.scrap.split("\\.")[1].toUpperCase();
@@ -118,7 +118,8 @@ public class AlloyForger {
 	public void mergeStats() {
 		HashMap<String, StatModifier> base = new HashMap<>();
 		HashMap<String, StatModifier> max = new HashMap<>();
-		for(StatModifier m : station.getBaseItem().getIngredientData().getStatData().getModifiers()) {
+		Ingredient baseItem = station.getBaseItem();
+		for(StatModifier m : baseItem.getIngredientData().getStatData().getModifiers()) {
 			base.put(m.getType(), m.copy());
 			StatModifier copy = m.copy();
 			copy.setAmount(copy.getAmount()*1.5);
@@ -127,6 +128,7 @@ public class AlloyForger {
 		List<StatModifier> merge = new ArrayList<>();
 		for(Ingredient i : station.getCatalysts()) {
 			for(StatModifier m : i.getIngredientData().getStatData().getModifiers()) {
+				if(baseItem.getIngredientData().statIsProtected(m)) continue;
 				if(base.containsKey(m.getType())) {
 					StatModifier n = new StatModifier(m.getType(), m.getAmount()-base.get(m.getType()).getAmount());
 					merge.add(n);

@@ -1,6 +1,8 @@
 package net.tfminecraft.AdvancedCrafting.Objects.Data;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import org.bukkit.configuration.ConfigurationSection;
 
@@ -11,6 +13,7 @@ import net.tfminecraft.AdvancedCrafting.Objects.Crafting.Hits.CraftingHit;
 import net.tfminecraft.AdvancedCrafting.Objects.Ingredients.IngredientType;
 import net.tfminecraft.AdvancedCrafting.Objects.Schemes.ModelScheme;
 import net.tfminecraft.AdvancedCrafting.Objects.Schemes.NamingScheme;
+import net.tfminecraft.AdvancedCrafting.Objects.Stats.StatModifier;
 
 public class IngredientData {
 	private int weight;
@@ -23,6 +26,7 @@ public class IngredientData {
 	private StatData statData;
 	
 	private HashMap<CraftingHit, Integer> hits = new HashMap<>();
+	private List<String> protectedStats = new ArrayList<>();
 	public IngredientData(ConfigurationSection config) {
 		if(config.contains("weight")) {
 			weight = config.getInt("weight");
@@ -48,6 +52,13 @@ public class IngredientData {
 			int a = Integer.parseInt(s.split("\\.")[1]);
 			hits.put(HitLoader.getByString(hit), a);
 		}
+		if(config.contains("protected-stats")) {
+			protectedStats = config.getStringList("protected-stats");
+		}
+	}
+
+	public boolean statIsProtected(StatModifier mod) {
+		return protectedStats.contains(mod.getType());
 	}
 	
 	public boolean canBeBase() {

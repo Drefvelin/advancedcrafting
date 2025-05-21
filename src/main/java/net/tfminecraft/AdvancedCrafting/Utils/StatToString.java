@@ -7,6 +7,7 @@ import org.apache.commons.lang.WordUtils;
 public class StatToString {
     public static HashMap<String, String> map = new HashMap<>();
 
+
     public static void add(String key, String value) {
         map.put(key, value);
     }
