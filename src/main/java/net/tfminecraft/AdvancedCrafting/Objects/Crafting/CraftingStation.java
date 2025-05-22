@@ -257,12 +257,15 @@ public class CraftingStation {
 	}
 
 	private void applyRecipeStats() {
-		for(StatModifier mod : stats.getModifiers()) {
-			for(StatModifier modify : recipe.getModifyStats()) {
+		for(StatModifier modify : recipe.getModifyStats()) {
+			boolean found = false;
+			for(StatModifier mod : stats.getModifiers()) {
 				if(mod.getType().equalsIgnoreCase(modify.getType())){
 					mod.setAmount(mod.getAmount()+modify.getAmount());
+					found = true;
 				}
 			}
+			if(!found) stats.addModifier(new StatModifier(modify.getType(), modify.getAmount()));
 		}
 		for(StatModifier base : recipe.getBaseStats()) {
 			boolean found = false;
@@ -354,27 +357,53 @@ public class CraftingStation {
 		String type = max.split("\\.")[0];
 		String mId = max.split("\\.")[1];
 		String name = "";
-		if(type.equalsIgnoreCase("ingredient")) {
+		if (type.equalsIgnoreCase("ingredient")) {
 			Ingredient ing = IngredientLoader.getByString(mId);
 			ItemStack i = ing.build();
 			scheme = ing.getIngredientData().getModelScheme();
-			if(i.getItemMeta().hasDisplayName()) {
+			if (i.getItemMeta().hasDisplayName()) {
 				name = new String(i.getItemMeta().getDisplayName()).replace(" Ingot", "");
 			} else {
 				name = new String(WordUtils.capitalize(i.getType().toString().toLowerCase().replace("_ingot", "")));
 			}
-			
-		} else if(type.equalsIgnoreCase("alloy")) {
+
+		} else if (type.equalsIgnoreCase("alloy")) {
 			Alloy a = AlloyManager.getAlloyById(mId);
 			name = a.getName();
 			scheme = a.getData().getModelScheme();
 		}
-		itemName.setString(name + " "+recipe.getName());
+
+		// ✅ New logic starts here — replaces the old itemName.setString(...) line
+
+		// Extract hex color code from the beginning of 'name'
+		String colorPrefix = "";
+		String recipeName = new String(recipe.getName());
+		if (name.startsWith("§x") && name.length() >= 14) {
+			colorPrefix = name.substring(0, 14); // e.g. §x§5§6§c§7§d§6
+		}
+
+		// Strip color code from name for re-use
+		String strippedName = name;
+		if (!colorPrefix.isEmpty()) {
+			strippedName = name.substring(14);
+		}
+
+		// Replace %material% in the recipe name
+		String result = recipeName.replace("%material%", strippedName);
+
+		// Ensure the rest of the string inherits the color
+		if (!colorPrefix.isEmpty() && !result.startsWith(colorPrefix)) {
+			result = colorPrefix + result;
+		}
+
+		itemName.setString(result);
+
+
 		mmo.replaceData(ItemStats.NAME, itemName);
 		StatHistory hist = StatHistory.from(mmo, ItemStats.NAME);
 		if (hist != null) {
             NameData og = (NameData) hist.getOriginalData();
-            og.setString(name + " "+recipe.getName());
+            og.setString(result);
             mmo.setStatHistory(ItemStats.NAME, hist);
         }
 		double percentage = calculatePercentage();

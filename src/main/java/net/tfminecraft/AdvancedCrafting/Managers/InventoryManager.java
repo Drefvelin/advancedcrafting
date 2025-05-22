@@ -104,7 +104,7 @@ public class InventoryManager {
 		if(template.getItemMeta().hasCustomModelData()) {
 			m.setCustomModelData(template.getItemMeta().getCustomModelData());
 		}
-		m.setDisplayName("§7"+r.getName());
+		m.setDisplayName("§7"+new String(r.getName()).replace("%material% ", ""));
 		List<String> lore = new ArrayList<>();
 		lore.add(StringFormatter.formatHex("#d1a566Recipe:"));
 		for(String s : r.getRecipe().keySet()) {

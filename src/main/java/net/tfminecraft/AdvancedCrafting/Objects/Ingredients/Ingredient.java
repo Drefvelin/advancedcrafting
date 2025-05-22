@@ -2,9 +2,12 @@ package net.tfminecraft.AdvancedCrafting.Objects.Ingredients;
 
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang.WordUtils;
+import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.inventory.ItemStack;
@@ -23,13 +26,23 @@ import net.tfminecraft.AdvancedCrafting.Utils.StatToString;
 public class Ingredient {
 	private String id;
 	private String path;
+	private String hex;
 	
 	private IngredientData data;
 	
 	public Ingredient(String key, ConfigurationSection config) {
 		id = key;
 		path = config.getString("path");
+		hex = config.getString("hex", "none");
 		data = new IngredientData(config);
+	}
+
+	public boolean hasHex() {
+		return !hex.equalsIgnoreCase("none");
+	}
+
+	public String getHex() {
+		return hex;
 	}
 
 	public String getId() {
@@ -39,11 +52,23 @@ public class Ingredient {
 	public IngredientData getIngredientData() {
 		return data;
 	}
+
+	public String getNiceItemName(Material material) {
+		String[] words = material.name().toLowerCase().split("_");
+		return Arrays.stream(words)
+					.map(word -> word.substring(0, 1).toUpperCase() + word.substring(1))
+					.collect(Collectors.joining(" "));
+	}
+
 	
 	public void buildTo(ItemStack i) {
 		ItemMeta m = i.getItemMeta();
 		NamespacedKey key = new NamespacedKey(AdvancedCrafting.plugin, "ac_ingredient_id");
 		m.getPersistentDataContainer().set(key, PersistentDataType.STRING, id);
+		if (!m.hasDisplayName()) {
+			String defaultName = getNiceItemName(i.getType()); // e.g. "Iron Ingot"
+			m.setDisplayName(StringFormatter.formatHex(hex + defaultName));
+		}
 		List<String> lore = m.getLore();
 		if(lore == null) {
 			lore = new ArrayList<String>();

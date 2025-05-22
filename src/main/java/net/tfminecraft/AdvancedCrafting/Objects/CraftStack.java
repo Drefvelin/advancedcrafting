@@ -21,6 +21,7 @@ public class CraftStack {
 	public boolean isIngredient() {
 		if(item == null) return false;
 		ItemMeta m = item.getItemMeta();
+		if(m == null) return false;
 		NamespacedKey key = new NamespacedKey(AdvancedCrafting.plugin, "ac_ingredient_id");
 		String id = m.getPersistentDataContainer().get(key, PersistentDataType.STRING);
 		if(id != null) {
@@ -31,6 +32,7 @@ public class CraftStack {
 	public boolean isAlloy() {
 		if(item == null) return false;
 		ItemMeta m = item.getItemMeta();
+		if(m == null) return false;
 		NamespacedKey key = new NamespacedKey(AdvancedCrafting.plugin, "ac_alloy_id");
 		String id = m.getPersistentDataContainer().get(key, PersistentDataType.STRING);
 		if(id != null) {
