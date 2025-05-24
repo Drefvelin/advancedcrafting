@@ -8,13 +8,19 @@ import org.bukkit.configuration.ConfigurationSection;
 public class ColourScheme {
 	private String id;
 	
+	private String item;
 	private List<Integer> models = new ArrayList<>();
 	private List<String> hexCodes = new ArrayList<>();
 	
 	public ColourScheme(String key, ConfigurationSection config) {
 		this.id = key;
+		item = config.getString("item", "v.IRON_INGOT");
 		models = config.getIntegerList("models");
 		hexCodes = config.getStringList("colours");
+	}
+
+	public String getItem() {
+		return item;
 	}
 
 	public String getId() {

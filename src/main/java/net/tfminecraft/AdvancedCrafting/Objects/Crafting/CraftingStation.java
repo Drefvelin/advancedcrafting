@@ -282,7 +282,7 @@ public class CraftingStation {
 	private void cleanStats() {
 		for(StatModifier mod : stats.getModifiers()) {
 			if(StatFactors.has(mod.getType())) {
-				double amount = Math.round(mod.getAmount()/StatFactors.get(mod.getType())*100.0)/100.0;
+				double amount = Math.round((mod.getAmount() / (double) StatFactors.get(mod.getType())) * 100.0) / 100.0;
 				mod.setAmount(amount);
 			}
 		}
@@ -424,7 +424,6 @@ public class CraftingStation {
 		ItemStack finalItem = mmo.newBuilder().build();
 		if(scheme != null) {
 			finalItem = applyModel(finalItem, scheme);
-			System.out.println("Applying");
 		}
 		Location dropLoc = loc.clone().add(0, 1, 0);
 		dropLoc.getWorld().dropItem(dropLoc, finalItem);
@@ -433,7 +432,6 @@ public class CraftingStation {
 	
 	private ItemStack applyModel(ItemStack i, ModelScheme scheme) {
 		String path = scheme.getModel(recipe.getType());
-		System.out.println(path);
 		String type = path.split("\\.")[0];
 		if(type.equalsIgnoreCase("v")) {
 			i.setType(Material.valueOf(path.split("\\.")[1].toUpperCase()));

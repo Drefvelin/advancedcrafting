@@ -74,7 +74,6 @@ public class AdvancedCrafting extends JavaPlugin{
 		getServer().getPluginManager().registerEvents(ingredientManager, this);
 	}
 	public void loadConfigs() {
-		configLoader.load(new File(getDataFolder(), "config.yml"));
 		/*
 		stationLoader.load(new File(getDataFolder(), "stations.yml"));
 		*/
@@ -109,6 +108,7 @@ public class AdvancedCrafting extends JavaPlugin{
 		hitLoader.load(new File(getDataFolder(), "crafting-hits.yml"));
 		qualityLoader.load(new File(getDataFolder(), "qualities.yml"));
 		ingredientLoader.load(new File(getDataFolder(), "ingredients.yml"));
+		configLoader.load(new File(getDataFolder(), "config.yml"));
 		
 	}
 	public void startManagers() {

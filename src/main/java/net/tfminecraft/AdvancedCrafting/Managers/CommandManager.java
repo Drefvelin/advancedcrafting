@@ -7,14 +7,14 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 
 public class CommandManager implements Listener, CommandExecutor{
-	public String cmd1 = "advancedcrafting";
+	public String cmd1 = "ac";
 	
 	@Override
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
 		if(sender instanceof Player) {
 			Player p = (Player) sender;
-			if(cmd.getName().equalsIgnoreCase(cmd1) && args[0].equalsIgnoreCase("test") && args.length == 1) {
-				p.sendMessage("bing");
+			if(cmd.getName().equalsIgnoreCase(cmd1) && args[0].equalsIgnoreCase("name") && args.length == 1) {
+				
 			}
 		}
 		return false;

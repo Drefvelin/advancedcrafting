@@ -30,7 +30,7 @@ public class AlloyForger {
 	}
 	
 	@SuppressWarnings("deprecation")
-	public void forge() {
+	public NamableAlloy forge() {
 		AlloyDatabase db = new AlloyDatabase();
 		String result = db.getResult(station);
 		Alloy a = null;
@@ -64,9 +64,10 @@ public class AlloyForger {
 			ItemManager itemManager = MMOItems.plugin.getItems();
 			ItemStack template = itemManager.getMMOItem(MMOItems.plugin.getTypes().get(scrapType),scrapId).newBuilder().build();
 			loc.getWorld().dropItem(loc, template);
-			return;
+			return null;
 		}
-		loc.getWorld().dropItem(loc, a.build());
+		ItemStack item = loc.getWorld().dropItem(loc, a.build()).getItemStack();
+		return new NamableAlloy(a, item);
 	}
 	private void generateHits() {
 		for(Ingredient i : station.getIngredients()) {
@@ -133,7 +134,7 @@ public class AlloyForger {
 					StatModifier n = new StatModifier(m.getType(), m.getAmount()-base.get(m.getType()).getAmount());
 					merge.add(n);
 				} else {
-					merge.add(m.copy());
+					if(Math.random()*100 < (20+i.getIngredientData().getValue()*3)) merge.add(m.copy());
 				}
 			}
 		}

@@ -63,6 +63,10 @@ public class CraftingRecipe {
 		return name;
 	}
 
+	public String getCleanedName() {
+		return new String(name).replace("%material% ", "");
+	}
+
 	public String getTemplate() {
 		return template;
 	}

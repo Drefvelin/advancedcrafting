@@ -29,6 +29,7 @@ import net.tfminecraft.AdvancedCrafting.Objects.Data.AlloyData;
 import net.tfminecraft.AdvancedCrafting.Objects.Data.StatData;
 import net.tfminecraft.AdvancedCrafting.Objects.Ingredients.Ingredient;
 import net.tfminecraft.AdvancedCrafting.Objects.Ingredients.IngredientType;
+import net.tfminecraft.AdvancedCrafting.Objects.Schemes.ColourScheme;
 import net.tfminecraft.AdvancedCrafting.Objects.Schemes.ModelScheme;
 import net.tfminecraft.AdvancedCrafting.Objects.Stats.StatModifier;
 
@@ -44,6 +45,7 @@ public class AlloyDatabase {
     				String id = (String) json.get("id");
     				String name = (String) json.get("name");
     				int model = (int) Math.round((Double) json.get("model"));
+					ColourScheme colourScheme = SchemeLoader.getColourSchemeByString((String) json.get("colour-scheme"));
     				IngredientType type = TypeLoader.getIngredientTypeByString((String) json.get("type"));
     				ModelScheme scheme = SchemeLoader.getModelSchemeByString((String) json.get("scheme"));
     				StatData stats = new StatData();
@@ -66,7 +68,7 @@ public class AlloyDatabase {
     					hits.put(HitLoader.getByString(hit), amount);
     					i++;
     				}
-    				AlloyManager.addAlloy(new Alloy(id, name, new AlloyData(model, type, scheme, stats, hits)));
+    				AlloyManager.addAlloy(new Alloy(id, name, new AlloyData(colourScheme, model, type, scheme, stats, hits)));
     			} catch (Exception ex) {
     				ex.printStackTrace();
     			}

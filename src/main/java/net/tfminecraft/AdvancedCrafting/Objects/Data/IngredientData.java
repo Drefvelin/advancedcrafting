@@ -44,8 +44,8 @@ public class IngredientData {
 			base = false;
 		}
 		type = TypeLoader.getIngredientTypeByString(config.getString("type"));
-		scheme = SchemeLoader.getNamingSchemeByString(config.getString("scheme"));
-		modelScheme = SchemeLoader.getModelSchemeByString(config.getString("model-scheme"));
+		scheme = SchemeLoader.getNamingSchemeByString(config.getString("scheme", "default"));
+		modelScheme = SchemeLoader.getModelSchemeByString(config.getString("model-scheme", "default"));
 		statData = new StatData(config.getStringList("stats"));
 		for(String s : config.getStringList("hits")) {
 			String hit = s.split("\\.")[0];

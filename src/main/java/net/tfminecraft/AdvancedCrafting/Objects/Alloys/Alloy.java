@@ -13,6 +13,9 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 
 import io.lumine.mythic.lib.api.item.NBTItem;
+import me.Plugins.TLibs.TLibs;
+import me.Plugins.TLibs.Enums.APIType;
+import me.Plugins.TLibs.Objects.API.ItemAPI;
 import me.Plugins.TLibs.Objects.API.SubAPI.StringFormatter;
 import net.Indyuce.mmoitems.ItemStats;
 import net.Indyuce.mmoitems.MMOItems;
@@ -52,8 +55,8 @@ public class Alloy {
 	
 	@SuppressWarnings("deprecation")
 	public ItemStack build() {
-		ItemManager itemManager = MMOItems.plugin.getItems();
-		ItemStack template = itemManager.getMMOItem(MMOItems.plugin.getTypes().get("CRAFTING"),"ALLOY").newBuilder().build();
+		ItemAPI api = (ItemAPI) TLibs.getApiInstance(APIType.ITEM_API);
+		ItemStack template = api.getCreator().getItemFromPath(data.getColourScheme().getItem());
 		MMOItem mmo = new LiveMMOItem(NBTItem.get(template));
 		StringData itemName = (StringData) mmo.getData(ItemStats.NAME);
 		itemName.setString(name);
@@ -82,6 +85,14 @@ public class Alloy {
 		m.getPersistentDataContainer().set(key, PersistentDataType.STRING, id);
 		i.setItemMeta(m);
 		return i;
+	}
+
+	public void setId(String s) {
+		id = s;
+	}
+
+	public void setName(String n) {
+		name = n;
 	}
 
 	public String getId() {

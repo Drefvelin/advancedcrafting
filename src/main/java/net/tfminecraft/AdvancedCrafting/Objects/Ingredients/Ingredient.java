@@ -33,7 +33,7 @@ public class Ingredient {
 	public Ingredient(String key, ConfigurationSection config) {
 		id = key;
 		path = config.getString("path");
-		hex = config.getString("hex", "none");
+		hex = config.getString("hex", "#FFFFFF");
 		data = new IngredientData(config);
 	}
 
@@ -53,20 +53,13 @@ public class Ingredient {
 		return data;
 	}
 
-	public String getNiceItemName(Material material) {
-		String[] words = material.name().toLowerCase().split("_");
-		return Arrays.stream(words)
-					.map(word -> word.substring(0, 1).toUpperCase() + word.substring(1))
-					.collect(Collectors.joining(" "));
-	}
-
 	
 	public void buildTo(ItemStack i) {
 		ItemMeta m = i.getItemMeta();
 		NamespacedKey key = new NamespacedKey(AdvancedCrafting.plugin, "ac_ingredient_id");
 		m.getPersistentDataContainer().set(key, PersistentDataType.STRING, id);
 		if (!m.hasDisplayName()) {
-			String defaultName = getNiceItemName(i.getType()); // e.g. "Iron Ingot"
+			String defaultName = StringFormatter.getVanillaName(i.getType()); // e.g. "Iron Ingot"
 			m.setDisplayName(StringFormatter.formatHex(hex + defaultName));
 		}
 		List<String> lore = m.getLore();
@@ -78,7 +71,7 @@ public class Ingredient {
 		lore.add(" ");
 		lore.add(StringFormatter.formatHex("#c4b9a1Properties:"));
 		for(StatModifier sm : data.getStatData().getModifiers()) {
-			lore.add(StringFormatter.formatHex("§f- #acdb86"+StatToString.get(sm.getType())+" #e0e677+"+sm.getAmount()));
+			lore.add(StatToString.getFullString(sm));
 		}
 		m.setLore(lore);
 		i.setItemMeta(m);

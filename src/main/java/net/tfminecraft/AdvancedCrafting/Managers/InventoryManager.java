@@ -99,12 +99,15 @@ public class InventoryManager {
 		ItemStack i = new ItemStack(Material.BARRIER, 1);
 		ItemAPI api = (ItemAPI) TLibs.getApiInstance(APIType.ITEM_API);
 		ItemStack template = api.getCreator().getItemFromPath("m."+r.getTemplate());
+		if(template == null) {
+			return i;
+		}
 		i.setType(template.getType());
 		ItemMeta m = i.getItemMeta();
 		if(template.getItemMeta().hasCustomModelData()) {
 			m.setCustomModelData(template.getItemMeta().getCustomModelData());
 		}
-		m.setDisplayName("§7"+new String(r.getName()).replace("%material% ", ""));
+		m.setDisplayName("§7"+r.getCleanedName());
 		List<String> lore = new ArrayList<>();
 		lore.add(StringFormatter.formatHex("#d1a566Recipe:"));
 		for(String s : r.getRecipe().keySet()) {

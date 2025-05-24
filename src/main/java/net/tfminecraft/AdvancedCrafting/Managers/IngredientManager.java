@@ -57,7 +57,6 @@ public class IngredientManager implements Listener{
 		NBTItem nbt = NBTItem.get(i);
 		if(nbt.hasType()) {
 			path = "m."+nbt.getType().toLowerCase()+"."+nbt.getString("MMOITEMS_ITEM_ID").toLowerCase();
-			System.out.println(path);
 			return get(path);
 		}
 		if(CustomStack.byItemStack(i) != null) {

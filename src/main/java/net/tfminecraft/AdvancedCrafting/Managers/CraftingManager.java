@@ -162,7 +162,7 @@ public class CraftingManager implements Listener{
 				return;
 			}
 			station.setRecipe(recipe);
-			p.sendMessage("§aRecipe "+recipe.getName()+ " §aselected!");
+			p.sendMessage("§aRecipe "+recipe.getCleanedName()+ " §aselected!");
 			return;
 		}
 		

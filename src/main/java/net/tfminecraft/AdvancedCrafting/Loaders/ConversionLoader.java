@@ -21,7 +21,6 @@ public class ConversionLoader{
         }
 		
 		for(String key : config.getStringList("conversions")) {
-			System.out.println(key);
 			String path = key.split("\\(")[0];
 			Ingredient i = IngredientLoader.getByString(key.split("\\(")[1].replace(")", ""));
 			map.put(path, i);

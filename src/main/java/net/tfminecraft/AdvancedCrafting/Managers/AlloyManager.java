@@ -18,12 +18,14 @@ import io.lumine.mythic.lib.api.item.NBTItem;
 import me.Plugins.TLibs.TLibs;
 import me.Plugins.TLibs.Enums.APIType;
 import me.Plugins.TLibs.Objects.API.BlockAPI;
+import me.Plugins.TLibs.Objects.API.SubAPI.StringFormatter;
 import net.tfminecraft.AdvancedCrafting.Cache.Cache;
 import net.tfminecraft.AdvancedCrafting.Enums.StationFeedback;
 import net.tfminecraft.AdvancedCrafting.Objects.CraftStack;
 import net.tfminecraft.AdvancedCrafting.Objects.Alloys.Alloy;
 import net.tfminecraft.AdvancedCrafting.Objects.Alloys.AlloyForger;
 import net.tfminecraft.AdvancedCrafting.Objects.Alloys.AlloyStation;
+import net.tfminecraft.AdvancedCrafting.Objects.Alloys.NamableAlloy;
 import net.tfminecraft.AdvancedCrafting.Objects.Ingredients.Ingredient;
 
 public class AlloyManager implements Listener{
@@ -31,6 +33,8 @@ public class AlloyManager implements Listener{
 	private HashMap<Location, AlloyStation> stations = new HashMap<>();
 	private HashMap<Player, Long> cooldown = new HashMap<>();
 	private static HashMap<String, Alloy> alloys = new HashMap<>();
+
+	private HashMap<Player, NamableAlloy> naming = new HashMap<>();
 	
 	public static Alloy getAlloyById(String s) {
 		if(alloys.containsKey(s)) return alloys.get(s);
@@ -112,10 +116,31 @@ public class AlloyManager implements Listener{
 			return;
 		}
 		AlloyForger forger = new AlloyForger(station);
-		forger.forge();
+		NamableAlloy alloy = forger.forge();
 		p.getWorld().playSound(station.getLocation(), Sound.BLOCK_ANVIL_USE, 1f, 1f);
 		p.getInventory().getItemInMainHand().setType(Material.BUCKET);
 		removeStation(station);
+		if(alloy != null) {
+			naming.put(p, alloy);
+		}
+	}
+
+	public void nameAlloy(Player p, String s) {
+		if(naming.containsKey(p)) {
+			p.sendMessage("§cYou have no alloy to name");
+			return;
+		}
+		String name = StringFormatter.formatHex(new String(s));
+		NamableAlloy alloy = naming.get(p);
+		String id = StringFormatter.clean(s);
+		alloy.getAlloy().setId(id);
+		alloy.getAlloy().setName(name);
+		ItemStack i = alloy.getItem();
+		ItemStack newItem = alloy.getAlloy().build();
+		i.setType(newItem.getType());
+		i.setItemMeta(newItem.getItemMeta());
+		p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_CHIME, 1f, 1f);
+		p.sendMessage("§aNamed the new alloy "+name);
 	}
 	
 	@EventHandler
