@@ -127,6 +127,21 @@ public class AlloyDatabase {
 		}
 		return path;
 	}
+	public void editAlloy(Alloy newAlloy, String oldId) {
+		try {
+			// Delete old file
+			File oldFile = new File("plugins/AdvancedCrafting/data/alloys", oldId + ".json");
+			if (oldFile.exists()) {
+				oldFile.delete();
+			}
+
+			// Save new alloy with new ID
+			saveAlloy(newAlloy);
+			
+		} catch (Throwable ex) {
+			ex.printStackTrace();
+		}
+	}
 	@SuppressWarnings("unchecked")
 	public void saveAlloy(Alloy a) {
 		try {

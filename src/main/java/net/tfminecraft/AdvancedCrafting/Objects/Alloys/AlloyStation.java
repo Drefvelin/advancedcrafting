@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.bukkit.Location;
+
+import net.tfminecraft.AdvancedCrafting.Cache.Cache;
 import net.tfminecraft.AdvancedCrafting.Enums.StationFeedback;
 import net.tfminecraft.AdvancedCrafting.Objects.Ingredients.Ingredient;
 
@@ -36,6 +38,7 @@ public class AlloyStation {
 		if(baseItem == null && !i.getIngredientData().canBeBase()) return StationFeedback.WRONG_BASE;
 		if(hasIngredient(i)) return StationFeedback.EXISTS;
 		if(catalysts.size() == 4) return StationFeedback.CAPACITY;
+		if(baseItem != null && !Cache.canCombine(baseItem.getIngredientData().getType(), i.getIngredientData().getType())) return StationFeedback.INCOMPATIBLE_TYPE;
 		if(baseItem == null) {
 			baseItem = i;
 		} else {

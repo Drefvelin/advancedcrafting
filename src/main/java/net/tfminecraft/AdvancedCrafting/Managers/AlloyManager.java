@@ -1,6 +1,8 @@
 package net.tfminecraft.AdvancedCrafting.Managers;
 
 import java.util.HashMap;
+import java.util.Map;
+
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -12,6 +14,7 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import dev.lone.itemsadder.api.CustomStack;
 import io.lumine.mythic.lib.api.item.NBTItem;
@@ -19,7 +22,9 @@ import me.Plugins.TLibs.TLibs;
 import me.Plugins.TLibs.Enums.APIType;
 import me.Plugins.TLibs.Objects.API.BlockAPI;
 import me.Plugins.TLibs.Objects.API.SubAPI.StringFormatter;
+import net.tfminecraft.AdvancedCrafting.AdvancedCrafting;
 import net.tfminecraft.AdvancedCrafting.Cache.Cache;
+import net.tfminecraft.AdvancedCrafting.Database.AlloyDatabase;
 import net.tfminecraft.AdvancedCrafting.Enums.StationFeedback;
 import net.tfminecraft.AdvancedCrafting.Objects.CraftStack;
 import net.tfminecraft.AdvancedCrafting.Objects.Alloys.Alloy;
@@ -58,6 +63,25 @@ public class AlloyManager implements Listener{
 		String path = Cache.alloyStation;
 		BlockAPI api = (BlockAPI) TLibs.getApiInstance(APIType.BLOCK_API);
 		return api.getChecker().checkBlock(b, path);
+	}
+
+	public void start() {
+		tickCycle();
+	}
+
+	public void tickCycle() {
+		new BukkitRunnable() {
+			@SuppressWarnings("unchecked")
+			@Override
+			public void run() {
+				for(Map.Entry<Player, NamableAlloy> entry : ((HashMap<Player, NamableAlloy>) naming.clone()).entrySet()) {
+					if(entry.getValue().tick()) {
+						entry.getKey().sendMessage("§cNaming timed out.");
+						naming.remove(entry.getKey());
+					}
+				}
+			}
+		}.runTaskTimer(AdvancedCrafting.plugin, 0, 20L);
 	}
 	
 	@EventHandler
@@ -100,10 +124,13 @@ public class AlloyManager implements Listener{
 		} else if(fb.equals(StationFeedback.WRONG_BASE)) {
 			p.sendMessage("§cThis ingredient cannot be used as the base");
 			return;
+		} else if(fb.equals(StationFeedback.INCOMPATIBLE_TYPE)) {
+			p.sendMessage("§cA §f"+station.getBaseItem().getIngredientData().getType().getName()+" §cbase cannot be mixed with a §f"+ing.getIngredientData().getType().getName()+" §ccatalyst");
+			return;
 		}
-		i.setAmount(i.getAmount()-1);
 		p.getWorld().playSound(station.getLocation(), Sound.BLOCK_ANVIL_HIT, 1f, 1f);
 		p.sendTitle("§aAdded "+i.getItemMeta().getDisplayName(), station.getStatus(), 5, 30, 5);
+		i.setAmount(i.getAmount()-1);
 	}
 	public void forgeAlloy(PlayerInteractEvent e) {
 		Block b = e.getClickedBlock();
@@ -121,26 +148,39 @@ public class AlloyManager implements Listener{
 		p.getInventory().getItemInMainHand().setType(Material.BUCKET);
 		removeStation(station);
 		if(alloy != null) {
+			p.sendTitle(StringFormatter.formatHex("#d1743fNew Alloy"), StringFormatter.formatHex("#b0a996Use #36e3a4/ac name #b0a996to name it!"), 10, 80, 10);
+			p.sendMessage("§cThe naming prompt times out in 30 seconds.");
 			naming.put(p, alloy);
 		}
 	}
 
 	public void nameAlloy(Player p, String s) {
-		if(naming.containsKey(p)) {
+		if(!naming.containsKey(p)) {
 			p.sendMessage("§cYou have no alloy to name");
 			return;
 		}
-		String name = StringFormatter.formatHex(new String(s));
+		String name = StringFormatter.formatHex(new String(s).replace("_", " "));
 		NamableAlloy alloy = naming.get(p);
+		String oldId = alloy.getAlloy().getId();
 		String id = StringFormatter.clean(s);
 		alloy.getAlloy().setId(id);
 		alloy.getAlloy().setName(name);
 		ItemStack i = alloy.getItem();
 		ItemStack newItem = alloy.getAlloy().build();
+		for (int slot = 0; slot < p.getInventory().getSize(); slot++) {
+			ItemStack current = p.getInventory().getItem(slot);
+			if (current != null && current.equals(i)) {
+				p.getInventory().setItem(slot, newItem);
+				break;
+			}
+		}
 		i.setType(newItem.getType());
 		i.setItemMeta(newItem.getItemMeta());
+		AlloyDatabase db = new AlloyDatabase();
+		db.editAlloy(alloy.getAlloy(), oldId);
 		p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_CHIME, 1f, 1f);
 		p.sendMessage("§aNamed the new alloy "+name);
+		naming.remove(p);
 	}
 	
 	@EventHandler

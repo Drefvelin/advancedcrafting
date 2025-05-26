@@ -35,6 +35,7 @@ public class AlloyForger {
 		String result = db.getResult(station);
 		Alloy a = null;
 		boolean scrap = false;
+		boolean isNew = false;
 		if(result == null) {
 			if(isScrap()) {
 				scrap = true;
@@ -50,6 +51,7 @@ public class AlloyForger {
 					db.saveAlloy(a);
 					db.saveRecipe(station, a.getId());
 					AlloyManager.addAlloy(a);
+					isNew = true;
 				}
 			}
 		} else if(result.equalsIgnoreCase("scrap")) {
@@ -67,7 +69,8 @@ public class AlloyForger {
 			return null;
 		}
 		ItemStack item = loc.getWorld().dropItem(loc, a.build()).getItemStack();
-		return new NamableAlloy(a, item);
+		if(isNew) return new NamableAlloy(a, item);
+		return null;
 	}
 	private void generateHits() {
 		for(Ingredient i : station.getIngredients()) {

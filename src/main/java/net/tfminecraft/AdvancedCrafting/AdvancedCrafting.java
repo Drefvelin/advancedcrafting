@@ -40,7 +40,7 @@ public class AdvancedCrafting extends JavaPlugin{
 	
 	private final CommandManager commandManager = new CommandManager();
 	private final CraftingManager craftingManager = new CraftingManager();
-	private final AlloyManager alloyManager = new AlloyManager();
+	private static final AlloyManager alloyManager = new AlloyManager();
 	private final IngredientManager ingredientManager = new IngredientManager();
 	
 	private final AlloyDatabase alloyDatabase = new AlloyDatabase();
@@ -55,6 +55,7 @@ public class AdvancedCrafting extends JavaPlugin{
 		loadConfigs();
 		registerListeners();
 		getCommand(commandManager.cmd1).setExecutor(commandManager);
+		getCommand(commandManager.cmd2).setExecutor(commandManager);
 		alloyDatabase.loadAlloys();
 		startManagers();
 	}
@@ -114,6 +115,7 @@ public class AdvancedCrafting extends JavaPlugin{
 	public void startManagers() {
 		ingredientManager.set(conversionLoader.load(new File(getDataFolder(), "conversions.yml")));
 		craftingManager.set(db.loadStations());
+		alloyManager.start();
 	}
 	public void createFolders() {
 		if (!getDataFolder().exists()) getDataFolder().mkdir();
@@ -162,5 +164,9 @@ public class AdvancedCrafting extends JavaPlugin{
 		p.sendMessage(ChatColor.GREEN + "[AdvancedCrafting]" + ChatColor.YELLOW + " Reloading plugin...");
 		reload();
 		p.sendMessage(ChatColor.GREEN + "[AdvancedCrafting]" + ChatColor.YELLOW + " Reloading complete!");
+	}
+
+	public static AlloyManager getAlloyManager() {
+		return alloyManager;
 	}
 }
