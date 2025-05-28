@@ -158,7 +158,7 @@ public class AlloyManager implements Listener{
 		p.getInventory().getItemInMainHand().setType(Material.BUCKET);
 		removeStation(station);
 		if(alloy != null) {
-			p.sendTitle(StringFormatter.formatHex("#d1743fNew Alloy"), StringFormatter.formatHex("#b0a996Use #36e3a4/ac name #b0a996to name it!"), 10, 80, 10);
+			p.sendTitle(StringFormatter.formatHex("#d1743fNew Alloy"), StringFormatter.formatHex("#b0a996Use #36e3a4/alloy name #b0a996to name it!"), 10, 80, 10);
 			p.sendMessage("§cThe naming prompt times out in 30 seconds.");
 			naming.put(p, alloy);
 		}

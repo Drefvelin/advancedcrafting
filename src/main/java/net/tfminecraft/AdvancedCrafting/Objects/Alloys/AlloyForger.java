@@ -85,6 +85,7 @@ public class AlloyForger {
 	}
 
 	public String getXP() {
+		if(!station.getBaseItem().getIngredientData().hasXP()) return null;
 		String raw = station.getBaseItem().getIngredientData().getXP();
 		String type = raw.split("\\(")[0];
 		double current = Double.parseDouble(raw.split("\\(")[1].replace(")", ""));
@@ -92,6 +93,7 @@ public class AlloyForger {
 		double max = current;
 		
 		for(Ingredient i : station.getCatalysts()) {
+			if(!i.getIngredientData().hasXP()) continue;
 			raw = i.getIngredientData().getXP();
 			if(!type.equalsIgnoreCase(raw.split("\\(")[0])) continue;
 			current = Double.parseDouble(raw.split("\\(")[1].replace(")", ""));

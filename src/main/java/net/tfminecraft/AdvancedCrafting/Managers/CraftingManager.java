@@ -34,6 +34,7 @@ import net.tfminecraft.AdvancedCrafting.Objects.Crafting.CraftingStation;
 import net.tfminecraft.AdvancedCrafting.Objects.Crafting.RecipeCategory;
 
 public class CraftingManager implements Listener{
+	private HashMap<Player, Long> cooldown = new HashMap<>();
 	private HashMap<Player, CraftingStation> currentStation = new HashMap<>();
 	private HashMap<Location, CraftingStation> stations = new HashMap<>();
 
@@ -65,29 +66,28 @@ public class CraftingManager implements Listener{
 		if(!b.getType().equals(Material.ANVIL)) return;
 		e.setCancelled(true);
 		Player p = e.getPlayer();
-		ItemStack i = p.getInventory().getItemInMainHand();
-		if(Cache.brandingTool != null) {
-			if(i == null) return;
-			if(i.getType().equals(Material.AIR)) return;
-			if(!api.getChecker().checkItemWithPath(i, Cache.brandingTool)) return;
+		if(cooldown.containsKey(p)) {
+			if(cooldown.get(p) > System.currentTimeMillis()) {
+				return;
+			}
 		}
+		cooldown.put(p, System.currentTimeMillis() + (100));
+		ItemStack i = p.getInventory().getItemInMainHand();
 		if(hasStation(b.getLocation())) {
 			CraftingStation station = stations.get(b.getLocation());
-			if(!station.hasRecipe()) {
+			if(Cache.brandingTool != null) {
+				if(i == null) return;
+				if(i.getType().equals(Material.AIR)) return;
+				if(api.getChecker().checkItemWithPath(i, Cache.brandingTool) && !station.hasRecipe()) {
+					currentStation.put(p, station);
+					InventoryManager inv = new InventoryManager();
+					inv.categoryView(p);
+					return;
+				}
+			} else if(!station.hasRecipe()) {
 				currentStation.put(p, station);
 				InventoryManager inv = new InventoryManager();
 				inv.categoryView(p);
-				return;
-			}
-			if(p.isSneaking()) {
-				StationFeedback f = station.craft(p);
-				if(f.equals(StationFeedback.SUCCESS)) {
-					p.getWorld().playSound(station.getLoc(), Sound.BLOCK_ANVIL_PLACE, 1f, 1f);
-					stations.remove(b.getLocation());
-					if(currentStation.containsKey(p)) {
-						currentStation.remove(p, station);
-					}
-				}
 				return;
 			}
 			if(i == null) return;
@@ -126,6 +126,25 @@ public class CraftingManager implements Listener{
 		if(i == null) return;
 		if(i.getType().equals(Material.AIR)) return;
 		CraftingStation station = get(b.getLocation());
+		if(api.getChecker().checkItemWithPath(i, Cache.brandingTool)) {
+			if(p.isSneaking()) {
+				station.cancel();
+				p.sendMessage("§cProject cancelled");
+				stations.remove(station.getLoc());
+				p.getWorld().playSound(station.getLoc(), Sound.BLOCK_ANVIL_PLACE, 1f, 1f);
+				return;
+			} else {
+				StationFeedback f = station.craft(p);
+				if(f.equals(StationFeedback.SUCCESS)) {
+					p.getWorld().playSound(station.getLoc(), Sound.BLOCK_ANVIL_PLACE, 1f, 1f);
+					stations.remove(b.getLocation());
+					if(currentStation.containsKey(p)) {
+						currentStation.remove(p, station);
+					}
+				}
+				return;
+			}
+		}
 		StationFeedback f = station.hit(p, i);
 		if(f.equals(StationFeedback.LACKING_ITEMS)) {
 			p.sendMessage("§cYou have to add all the items before smithing");
@@ -168,6 +187,16 @@ public class CraftingManager implements Listener{
 			NamespacedKey key = new NamespacedKey(AdvancedCrafting.plugin, "ac_recipe");
 			if(m.getPersistentDataContainer().get(key, PersistentDataType.STRING) == null) return;
 			CraftingRecipe recipe = RecipeLoader.getByString(m.getPersistentDataContainer().get(key, PersistentDataType.STRING));
+			if(recipe.hasPermissions()) {
+				boolean has = false;
+				for(String s : recipe.getPermissions()) {
+					if(p.hasPermission(s)) has = true;
+				}
+				if(!has) {
+					p.sendMessage("§cYou dont have permission to use this recipe");
+					return;
+				}
+			}
 			CraftingStation station = currentStation.get(p);
 			p.closeInventory();
 			if(station.hasRecipe()) {

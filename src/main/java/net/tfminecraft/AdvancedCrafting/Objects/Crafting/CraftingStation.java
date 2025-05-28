@@ -193,7 +193,7 @@ public class CraftingStation {
 		if(permissions.size() > 0) {
 			boolean has = false;
 			for(String s : permissions) {
-				if(p.hasPermission(s)) has = true;
+				if(p.hasPermission(s) && !recipe.getIgnorePermissions().contains(s)) has = true;
 			}
 			if(!has) return StationFeedback.NO_PERMS;
 		}
@@ -529,6 +529,12 @@ public class CraftingStation {
 		hitTypes.get(hit.getType()).increaseCurrent(1);
 		p.sendTitle("§a+1 "+hit.getName(), hit.getType().getName() + " hits: "+hitTypes.get(hit.getType()).getCurrent()+"/"+hitTypes.get(hit.getType()).getNeeded(), 5, 20, 5);
 	}
+
+	public void cancel() {
+		drop(1);
+		recipe = null;
+		currentMaterials.clear();
+	}
 	
 	public void drop() {
 		for(String s : currentMaterials.keySet()) {
@@ -544,6 +550,23 @@ public class CraftingStation {
 			}
 			i.setAmount(currentMaterials.get(s));
 			loc.getWorld().dropItem(loc, i);
+		}
+	}
+
+	public void drop(int offset) {
+		for(String s : currentMaterials.keySet()) {
+			ItemStack i = null;
+			String type = s.split("\\.")[0];
+			String mId = s.split("\\.")[1];
+			if(type.equalsIgnoreCase("ingredient")) {
+				Ingredient ing = IngredientLoader.getByString(mId);
+				i = ing.build();
+			} else if(type.equalsIgnoreCase("alloy")) {
+				Alloy a = AlloyManager.getAlloyById(mId);
+				i = a.build();
+			}
+			i.setAmount(currentMaterials.get(s));
+			loc.getWorld().dropItem(loc.clone().add(0, offset, 0), i);
 		}
 	}
 }

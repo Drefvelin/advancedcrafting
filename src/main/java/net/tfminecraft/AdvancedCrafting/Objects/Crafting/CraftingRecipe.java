@@ -1,5 +1,6 @@
 package net.tfminecraft.AdvancedCrafting.Objects.Crafting;
 
+import java.security.Permission;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -23,6 +24,9 @@ public class CraftingRecipe {
 
 	private List<StatModifier> modify = new ArrayList<>();
 	private List<StatModifier> base = new ArrayList<>();
+
+	private List<String> permissions = new ArrayList<>();
+	private List<String> ignorePermissions = new ArrayList<>();
 	
 	public CraftingRecipe(String key, ConfigurationSection config) {
 		this.id = key;
@@ -48,6 +52,25 @@ public class CraftingRecipe {
 				base.add(new StatModifier(s));
 			}
 		}
+
+		if(config.contains("permissions")) {
+			permissions = config.getStringList("permissions");
+		}
+		if(config.contains("ignore-permissions")) {
+			ignorePermissions = config.getStringList("ignore-permissions");
+		}
+	}
+
+	public boolean hasPermissions() {
+		return permissions.size() > 0;
+	}
+
+	public List<String> getPermissions() {
+		return permissions;
+	}
+
+	public List<String> getIgnorePermissions() {
+		return ignorePermissions;
 	}
 	
 	public boolean shouldIgnore(String s) {
