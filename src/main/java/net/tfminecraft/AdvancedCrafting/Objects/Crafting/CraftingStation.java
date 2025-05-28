@@ -3,10 +3,13 @@ package net.tfminecraft.AdvancedCrafting.Objects.Crafting;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang.WordUtils;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -172,17 +175,27 @@ public class CraftingStation {
 		String key = "";
 		IngredientType type = null;
 		String name = i.getItemMeta().getDisplayName();
+		List<String> permissions = new ArrayList<>();
 		if(c.isIngredient()) {
 			Ingredient ing = c.getIngredient();
 			key = "ingredient."+ing.getId();
 			type = ing.getIngredientData().getType();
 			mergeHits = ing.getIngredientData().getHits();
+			permissions = ing.getIngredientData().getPermissions();
 		}
 		if(c.isAlloy()) {
 			Alloy a = c.getAlloy();
 			key = "alloy."+a.getId();
 			type = a.getData().getType();
 			mergeHits = a.getData().getHits();
+			permissions = a.getData().getPermissions();
+		}
+		if(permissions.size() > 0) {
+			boolean has = false;
+			for(String s : permissions) {
+				if(p.hasPermission(s)) has = true;
+			}
+			if(!has) return StationFeedback.NO_PERMS;
 		}
 		if(!recipe.getRecipe().containsKey(type.getId())) {
 			return StationFeedback.WRONG_TYPE;
@@ -235,8 +248,55 @@ public class CraftingStation {
 		createStats();
 		applyRecipeStats();
 		cleanStats();
+		giveXP(p);
 		return createItem(p);
 	}
+
+	private void giveXP(Player p) {
+		// Map of skill name -> total XP to give
+		Map<String, Double> xpBySkill = new HashMap<>();
+
+		for (String s : currentMaterials.keySet()) {
+			String[] split = s.split("\\.");
+			String type = split[0];
+			String mId = split[1];
+			int amount = currentMaterials.get(s);
+
+			double xpPerUnit = 0.0;
+			String skill = null;
+
+			if (type.equalsIgnoreCase("ingredient")) {
+				Ingredient ingredient = IngredientLoader.getByString(mId); // Assuming you have a method like this
+				if (ingredient != null) {
+					String raw = ingredient.getIngredientData().getXP();
+					xpPerUnit = Double.parseDouble(raw.split("\\(")[1].replace(")", ""));
+					skill = raw.split("\\(")[0]; // Assuming you store "agriculturist" here
+				}
+			} else if (type.equalsIgnoreCase("alloy")) {
+				Alloy alloy = AlloyManager.getAlloyById(mId); // Likewise for alloy
+				if (alloy != null) {
+					String raw = alloy.getData().getXP();
+					xpPerUnit = Double.parseDouble(raw.split("\\(")[1].replace(")", ""));
+					skill = raw.split("\\(")[0]; // Assuming you store "agriculturist" here
+				}
+			}
+
+			if (skill != null && xpPerUnit > 0) {
+				double totalXP = xpPerUnit * amount;
+				xpBySkill.put(skill, xpBySkill.getOrDefault(skill, 0.0) + totalXP);
+			}
+		}
+
+		// Dispatch XP commands
+		ConsoleCommandSender console = Bukkit.getServer().getConsoleSender();
+		for (Map.Entry<String, Double> entry : xpBySkill.entrySet()) {
+			String skill = entry.getKey();
+			double xp = Math.round(entry.getValue() * 100) / 100.0; // round to 2 decimals
+			String command = "mmocore admin exp give " + p.getName() + " " + skill + " " + xp;
+			Bukkit.dispatchCommand(console, command);
+		}
+	}
+
 	
 	private void createStats() {
 		stats = new StatData();

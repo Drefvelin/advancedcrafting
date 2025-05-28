@@ -39,12 +39,12 @@ public class Alloy {
 	private String name;
 	private AlloyData data;
 	
-	public Alloy(String n, Ingredient base, StatData stats, HashMap<CraftingHit, Integer> hits) {
+	public Alloy(String n, Ingredient base, StatData stats, HashMap<CraftingHit, Integer> hits, String xp) {
 		name = n;
 		id = (new String(name)).replace(" ", "_").toLowerCase();
 		System.out.println(name);
 		name = StringFormatter.formatHex("#"+base.getIngredientData().getScheme().getColourScheme().randomColour()+name);
-		data = new AlloyData(base, stats, hits);
+		data = new AlloyData(base, stats, hits, xp);
 	}
 	
 	public Alloy(String id, String name, AlloyData data) {

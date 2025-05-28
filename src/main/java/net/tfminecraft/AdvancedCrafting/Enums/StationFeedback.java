@@ -11,4 +11,5 @@ public enum StationFeedback {
 	NONE,
 	LACKING_ITEMS,
 	INCOMPATIBLE_TYPE,
+	NO_PERMS,
 }

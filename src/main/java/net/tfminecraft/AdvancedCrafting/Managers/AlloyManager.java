@@ -107,6 +107,16 @@ public class AlloyManager implements Listener{
 			return;
 		}
 		Ingredient ing = cs.getIngredient();
+		if(ing.getIngredientData().hasPermissions()) {
+			boolean has = false;
+			for(String s : ing.getIngredientData().getPermissions()) {
+				if(p.hasPermission(s)) has = true;
+			}
+			if(!has) {
+				p.sendMessage("§cYou lack permission to use this in an alloy recipe!");
+				return;
+			}
+		}
 		AlloyStation station = null;
 		if(hasStation(b.getLocation())) {
 			station = get(b.getLocation());

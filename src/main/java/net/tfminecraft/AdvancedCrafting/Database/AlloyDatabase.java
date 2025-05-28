@@ -45,7 +45,8 @@ public class AlloyDatabase {
     				String id = (String) json.get("id");
     				String name = (String) json.get("name");
     				int model = (int) Math.round((Double) json.get("model"));
-					ColourScheme colourScheme = SchemeLoader.getColourSchemeByString((String) json.get("colour-scheme"));
+					String xp = json.containsKey("xp") ? (String) json.get("xp") : null;
+					ColourScheme colourScheme = SchemeLoader.getColourSchemeByString((String) json.get("colour scheme"));
     				IngredientType type = TypeLoader.getIngredientTypeByString((String) json.get("type"));
     				ModelScheme scheme = SchemeLoader.getModelSchemeByString((String) json.get("scheme"));
     				StatData stats = new StatData();
@@ -68,7 +69,18 @@ public class AlloyDatabase {
     					hits.put(HitLoader.getByString(hit), amount);
     					i++;
     				}
-    				AlloyManager.addAlloy(new Alloy(id, name, new AlloyData(colourScheme, model, type, scheme, stats, hits)));
+					List<String> permissions = new ArrayList<>();
+					if(json.containsKey("permissions")) {
+						i = 0;
+						JSONArray permArray = (JSONArray) json.get("permissions");
+						while(i < permArray.size()) {
+							String p = permArray.get(i).toString();
+							permissions.add(p);
+							i++;
+						}
+					}
+					
+    				AlloyManager.addAlloy(new Alloy(id, name, new AlloyData(colourScheme, model, type, scheme, stats, hits, permissions, xp)));
     			} catch (Exception ex) {
     				ex.printStackTrace();
     			}
@@ -162,6 +174,8 @@ public class AlloyDatabase {
         	defaults.put("model", a.getData().getModel());
         	defaults.put("type", a.getData().getType().getId());
         	defaults.put("scheme", a.getData().getModelScheme().getId());
+			defaults.put("colour scheme", a.getData().getColourScheme().getId());
+			if(a.getData().hasXP()) defaults.put("xp", a.getData().getXP());
         	int i = 0;
         	JSONArray statArray = new JSONArray();
         	while(i < a.getData().getStatData().getModifiers().size()) {
@@ -170,6 +184,12 @@ public class AlloyDatabase {
         		i++;
         	}
         	defaults.put("stats", statArray);
+        	JSONArray permissionArray = new JSONArray();
+        	for(String perm : a.getData().getPermissions()) {
+        		permissionArray.add(perm);
+        		i++;
+        	}
+        	if(permissionArray.size() > 0) defaults.put("permissions", permissionArray);
         	JSONArray hitArray = new JSONArray();
         	for(CraftingHit h : a.getData().getHits().keySet()) {
         		String hit = h.getId()+"."+a.getData().getHits().get(h);

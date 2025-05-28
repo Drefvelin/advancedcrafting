@@ -11,6 +11,8 @@ public class Cache {
 	public static String alloyStation;
 	public static String ingredientStation;
 
+	public static String brandingTool;
+
 	public static HashMap<IngredientType, List<IngredientType>> combinations = new HashMap<>();
 
 	public static boolean canCombine(IngredientType base, IngredientType type){

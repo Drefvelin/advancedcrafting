@@ -47,7 +47,7 @@ public class AlloyForger {
 				if(name.equalsIgnoreCase("full up")) {
 					scrap = true;
 				} else {
-					a = new Alloy(name, station.getBaseItem(), stats, hits);
+					a = new Alloy(name, station.getBaseItem(), stats, hits, getXP());
 					db.saveAlloy(a);
 					db.saveRecipe(station, a.getId());
 					AlloyManager.addAlloy(a);
@@ -82,6 +82,25 @@ public class AlloyForger {
 			}
 		}
 		
+	}
+
+	public String getXP() {
+		String raw = station.getBaseItem().getIngredientData().getXP();
+		String type = raw.split("\\(")[0];
+		double current = Double.parseDouble(raw.split("\\(")[1].replace(")", ""));
+		double min = current;
+		double max = current;
+		
+		for(Ingredient i : station.getCatalysts()) {
+			raw = i.getIngredientData().getXP();
+			if(!type.equalsIgnoreCase(raw.split("\\(")[0])) continue;
+			current = Double.parseDouble(raw.split("\\(")[1].replace(")", ""));
+			if(current < min) min = current;
+			if(current > max) max = current;
+		}
+		double randomValue = min + (Math.random() * (max - min));
+		randomValue = Math.round(randomValue*100)/100.0;
+		return type+"("+randomValue+")";
 	}
 
 	private boolean isScrap() {

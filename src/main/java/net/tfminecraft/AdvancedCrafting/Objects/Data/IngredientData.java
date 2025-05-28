@@ -27,6 +27,10 @@ public class IngredientData {
 	
 	private HashMap<CraftingHit, Integer> hits = new HashMap<>();
 	private List<String> protectedStats = new ArrayList<>();
+
+	private List<String> permissions = new ArrayList<>();
+	private String xp;
+
 	public IngredientData(ConfigurationSection config) {
 		if(config.contains("weight")) {
 			weight = config.getInt("weight");
@@ -47,6 +51,8 @@ public class IngredientData {
 		scheme = SchemeLoader.getNamingSchemeByString(config.getString("scheme", "default"));
 		modelScheme = SchemeLoader.getModelSchemeByString(config.getString("model-scheme", "default"));
 		statData = new StatData(config.getStringList("stats"));
+		if(config.contains("permissions")) permissions = config.getStringList("permissions");
+		xp = config.getString("xp", null);
 		for(String s : config.getStringList("hits")) {
 			String hit = s.split("\\.")[0];
 			int a = Integer.parseInt(s.split("\\.")[1]);
@@ -55,6 +61,22 @@ public class IngredientData {
 		if(config.contains("protected-stats")) {
 			protectedStats = config.getStringList("protected-stats");
 		}
+	}
+
+	public boolean hasXP() {
+		return xp != null;
+	}
+
+	public String getXP() {
+		return xp;
+	}
+
+	public boolean hasPermissions() {
+		return permissions.size() > 0;
+	}
+
+	public List<String> getPermissions() {
+		return permissions;
 	}
 
 	public boolean statIsProtected(StatModifier mod) {

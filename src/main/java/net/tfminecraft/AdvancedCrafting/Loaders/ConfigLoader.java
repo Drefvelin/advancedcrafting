@@ -34,6 +34,8 @@ public class ConfigLoader implements LoaderInterface{
 		Cache.alloyStation = config.getString("alloy-station", "v(BLAST_FURNACE)");
 		Cache.ingredientStation = config.getString("ingredient-station", "v(OBSERVER)");
 
+		Cache.brandingTool = config.getString("branding-tool", null);
+
 		if(config.contains("stat-aliases")) {
 			for(String s : config.getStringList("stat-aliases")) {
 				String type = s.split("\\->")[0];

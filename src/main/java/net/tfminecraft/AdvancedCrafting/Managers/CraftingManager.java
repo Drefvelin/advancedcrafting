@@ -21,7 +21,11 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 
+import me.Plugins.TLibs.TLibs;
+import me.Plugins.TLibs.Enums.APIType;
+import me.Plugins.TLibs.Objects.API.ItemAPI;
 import net.tfminecraft.AdvancedCrafting.AdvancedCrafting;
+import net.tfminecraft.AdvancedCrafting.Cache.Cache;
 import net.tfminecraft.AdvancedCrafting.Enums.StationFeedback;
 import net.tfminecraft.AdvancedCrafting.Loaders.CategoryLoader;
 import net.tfminecraft.AdvancedCrafting.Loaders.RecipeLoader;
@@ -32,6 +36,8 @@ import net.tfminecraft.AdvancedCrafting.Objects.Crafting.RecipeCategory;
 public class CraftingManager implements Listener{
 	private HashMap<Player, CraftingStation> currentStation = new HashMap<>();
 	private HashMap<Location, CraftingStation> stations = new HashMap<>();
+
+	private ItemAPI api = (ItemAPI) TLibs.getApiInstance(APIType.ITEM_API);
 	
 	public boolean hasStation(Location loc) {
 		if(stations.containsKey(loc)) return true;
@@ -59,6 +65,12 @@ public class CraftingManager implements Listener{
 		if(!b.getType().equals(Material.ANVIL)) return;
 		e.setCancelled(true);
 		Player p = e.getPlayer();
+		ItemStack i = p.getInventory().getItemInMainHand();
+		if(Cache.brandingTool != null) {
+			if(i == null) return;
+			if(i.getType().equals(Material.AIR)) return;
+			if(!api.getChecker().checkItemWithPath(i, Cache.brandingTool)) return;
+		}
 		if(hasStation(b.getLocation())) {
 			CraftingStation station = stations.get(b.getLocation());
 			if(!station.hasRecipe()) {
@@ -78,19 +90,20 @@ public class CraftingManager implements Listener{
 				}
 				return;
 			}
-			ItemStack i = p.getInventory().getItemInMainHand();
 			if(i == null) return;
+			if(i.getType().equals(Material.AIR)) return;
 			StationFeedback f = station.addMaterial(p, i);
 			if(f.equals(StationFeedback.NOT_INGREDIENT)) {
 				p.sendMessage("§cThis item cannot be used for crafting");
 				return;
-			}
-			if(f.equals(StationFeedback.WRONG_TYPE)) {
+			} else if(f.equals(StationFeedback.WRONG_TYPE)) {
 				p.sendMessage("§cThis item type is not needed for the recipe");
 				return;
-			}
-			if(f.equals(StationFeedback.CAPACITY)) {
+			} else if(f.equals(StationFeedback.CAPACITY)) {
 				p.sendMessage("§cYou already have the needed amount of this type");
+				return;
+			} else if(f.equals(StationFeedback.NO_PERMS)) {
+				p.sendMessage("§cYou lack permission to use this item in a recipe");
 				return;
 			}
 			return;
