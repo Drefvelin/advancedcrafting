@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
 
 import net.tfminecraft.AdvancedCrafting.Loaders.HitLoader;
@@ -50,6 +51,10 @@ public class IngredientData {
 		type = TypeLoader.getIngredientTypeByString(config.getString("type"));
 		scheme = SchemeLoader.getNamingSchemeByString(config.getString("scheme", "default"));
 		modelScheme = SchemeLoader.getModelSchemeByString(config.getString("model-scheme", "default"));
+		if(modelScheme == null) {
+			Bukkit.getLogger().warning("AC: Error the model scheme "+config.getString("model-scheme") + " does not exist");
+			modelScheme = SchemeLoader.getModelSchemeByString("default");
+		}
 		statData = new StatData(config.getStringList("stats"));
 		if(config.contains("permissions")) permissions = config.getStringList("permissions");
 		xp = config.getString("xp", null);

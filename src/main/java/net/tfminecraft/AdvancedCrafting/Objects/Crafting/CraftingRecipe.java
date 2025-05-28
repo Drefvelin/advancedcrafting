@@ -17,6 +17,7 @@ public class CraftingRecipe {
 	private String template;
 	
 	private String type;
+	private String mainType;
 	
 	private HashMap<String, Integer> recipe = new HashMap<>();
 	
@@ -33,6 +34,7 @@ public class CraftingRecipe {
 		this.template = config.getString("template");
 		this.name = StringFormatter.formatHex(config.getString("name"));
 		this.type = config.getString("type");
+		this.mainType = config.getString("main-type", "metal");
 		CategoryLoader.getByString(config.getString("category")).addRecipe(this);
 		for(String r : config.getStringList("recipe")) {
 			String id = r.split("\\.")[0];
@@ -59,6 +61,10 @@ public class CraftingRecipe {
 		if(config.contains("ignore-permissions")) {
 			ignorePermissions = config.getStringList("ignore-permissions");
 		}
+	}
+
+	public String getMainType() {
+		return mainType;
 	}
 
 	public boolean hasPermissions() {

@@ -141,6 +141,13 @@ public class CraftingManager implements Listener{
 					if(currentStation.containsKey(p)) {
 						currentStation.remove(p, station);
 					}
+					return;
+				} else if(f.equals(StationFeedback.LACKING_HITS)) {
+					p.sendMessage("§cYou need to complete all the hits before finishing");
+					return;
+				} else if(f.equals(StationFeedback.LACKING_ITEMS)) {
+					p.sendMessage("§cYou have to add all the items before smithing");
+					return;
 				}
 				return;
 			}

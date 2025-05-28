@@ -10,6 +10,7 @@ public enum StationFeedback {
 	WRONG_TYPE,
 	NONE,
 	LACKING_ITEMS,
+	LACKING_HITS,
 	INCOMPATIBLE_TYPE,
 	NO_PERMS,
 }

@@ -226,6 +226,7 @@ public class CraftingStation {
 			}
 		}
 		//This is debug
+		/*
 		p.sendMessage("§e==========================");
 		for(IngredientType t : types.keySet()) {
 			p.sendMessage(t.getName()+": "+types.get(t).getCurrent()+"/"+types.get(t).getNeeded());
@@ -239,6 +240,7 @@ public class CraftingStation {
 			p.sendMessage(h.getName()+" hits: "+hitTypes.get(h).getCurrent()+"/"+hitTypes.get(h).getNeeded());
 		}
 		p.sendMessage("§e==========================");
+		*/
 		p.sendTitle("§aAdded "+name, type.getName() + " §e"+types.get(type).getCurrent()+"/"+types.get(type).getNeeded(), 5, 20, 5);
 		p.getInventory().getItemInMainHand().setAmount(p.getInventory().getItemInMainHand().getAmount()-1);
 		return StationFeedback.SUCCESS;
@@ -267,14 +269,14 @@ public class CraftingStation {
 
 			if (type.equalsIgnoreCase("ingredient")) {
 				Ingredient ingredient = IngredientLoader.getByString(mId); // Assuming you have a method like this
-				if (ingredient != null) {
+				if (ingredient != null && ingredient.getIngredientData().hasXP()) {
 					String raw = ingredient.getIngredientData().getXP();
 					xpPerUnit = Double.parseDouble(raw.split("\\(")[1].replace(")", ""));
 					skill = raw.split("\\(")[0]; // Assuming you store "agriculturist" here
 				}
 			} else if (type.equalsIgnoreCase("alloy")) {
 				Alloy alloy = AlloyManager.getAlloyById(mId); // Likewise for alloy
-				if (alloy != null) {
+				if (alloy != null && alloy.getData().hasXP()) {
 					String raw = alloy.getData().getXP();
 					xpPerUnit = Double.parseDouble(raw.split("\\(")[1].replace(")", ""));
 					skill = raw.split("\\(")[0]; // Assuming you store "agriculturist" here
@@ -388,8 +390,8 @@ public class CraftingStation {
 		return Math.round((amount/counter));
 	}
 	private StationFeedback createItem(Player p) {
-		if(!checkItems(p)) return StationFeedback.FAILURE;
-		if(!checkHits(p)) return StationFeedback.FAILURE;
+		if(!checkItems(p)) return StationFeedback.LACKING_ITEMS;
+		if(!checkHits(p)) return StationFeedback.LACKING_HITS;
 		ItemAPI api = (ItemAPI) TLibs.getApiInstance(APIType.ITEM_API);
 		result = api.getCreator().getItemFromPath("m."+recipe.getTemplate());
 		MMOItem mmo = new LiveMMOItem(NBTItem.get(result));
@@ -407,9 +409,25 @@ public class CraftingStation {
 		String max = "";
 		int prev = 0;
 		for(String s : currentMaterials.keySet()) {
-			if(currentMaterials.get(s) > prev) {
+			String type = s.split("\\.")[0];
+			String mId = s.split("\\.")[1];
+			boolean rightType = false;
+			if(type.equalsIgnoreCase("ingredient")) {
+				Ingredient ing = IngredientLoader.getByString(mId);
+				if(ing.getIngredientData().getType().getId().equalsIgnoreCase(recipe.getMainType())) rightType = true;
+			} else if(type.equalsIgnoreCase("alloy")) {
+				Alloy a = AlloyManager.getAlloyById(mId);
+				if(a.getData().getType().getId().equalsIgnoreCase(recipe.getMainType())) rightType = true;
+			}
+			if(rightType && currentMaterials.get(s) > prev) {
 				prev = currentMaterials.get(s);
 				max = s;
+			}
+		}
+		if (max.equalsIgnoreCase("")) {
+			for (String key : currentMaterials.keySet()) {
+				max = key;
+				break; // just grab the first one
 			}
 		}
 		StringData itemName = (StringData) mmo.getData(ItemStats.NAME);
@@ -492,6 +510,10 @@ public class CraftingStation {
 	
 	private ItemStack applyModel(ItemStack i, ModelScheme scheme) {
 		String path = scheme.getModel(recipe.getType());
+		if(path == null) {
+			Bukkit.getLogger().warning("AC: No model in the scheme "+scheme.getId()+" for the recipe type "+recipe.getType());
+			return i;
+		}
 		String type = path.split("\\.")[0];
 		if(type.equalsIgnoreCase("v")) {
 			i.setType(Material.valueOf(path.split("\\.")[1].toUpperCase()));
