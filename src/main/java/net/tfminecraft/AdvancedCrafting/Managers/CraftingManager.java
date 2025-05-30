@@ -4,9 +4,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
+import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
@@ -22,7 +24,6 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 
 import me.Plugins.TLibs.TLibs;
-import me.Plugins.TLibs.Enums.APIType;
 import me.Plugins.TLibs.Objects.API.ItemAPI;
 import net.tfminecraft.AdvancedCrafting.AdvancedCrafting;
 import net.tfminecraft.AdvancedCrafting.Cache.Cache;
@@ -38,7 +39,7 @@ public class CraftingManager implements Listener{
 	private HashMap<Player, CraftingStation> currentStation = new HashMap<>();
 	private HashMap<Location, CraftingStation> stations = new HashMap<>();
 
-	private ItemAPI api = (ItemAPI) TLibs.getApiInstance(APIType.ITEM_API);
+	private ItemAPI api = TLibs.getItemAPI();
 	
 	public boolean hasStation(Location loc) {
 		if(stations.containsKey(loc)) return true;
@@ -75,6 +76,12 @@ public class CraftingManager implements Listener{
 		ItemStack i = p.getInventory().getItemInMainHand();
 		if(hasStation(b.getLocation())) {
 			CraftingStation station = stations.get(b.getLocation());
+			if(!station.hasRecipe()) {
+				currentStation.put(p, station);
+				InventoryManager inv = new InventoryManager();
+				inv.categoryView(p);
+				return;
+			}
 			if(Cache.brandingTool != null) {
 				if(i == null) return;
 				if(i.getType().equals(Material.AIR)) return;
@@ -84,27 +91,31 @@ public class CraftingManager implements Listener{
 					inv.categoryView(p);
 					return;
 				}
-			} else if(!station.hasRecipe()) {
-				currentStation.put(p, station);
-				InventoryManager inv = new InventoryManager();
-				inv.categoryView(p);
-				return;
 			}
 			if(i == null) return;
 			if(i.getType().equals(Material.AIR)) return;
 			StationFeedback f = station.addMaterial(p, i);
-			if(f.equals(StationFeedback.NOT_INGREDIENT)) {
-				p.sendMessage("§cThis item cannot be used for crafting");
-				return;
-			} else if(f.equals(StationFeedback.WRONG_TYPE)) {
-				p.sendMessage("§cThis item type is not needed for the recipe");
-				return;
-			} else if(f.equals(StationFeedback.CAPACITY)) {
-				p.sendMessage("§cYou already have the needed amount of this type");
-				return;
-			} else if(f.equals(StationFeedback.NO_PERMS)) {
-				p.sendMessage("§cYou lack permission to use this item in a recipe");
-				return;
+			switch (f) {
+				case NOT_INGREDIENT:
+					p.sendMessage("§cThis item cannot be used for crafting");
+					p.playSound(p.getLocation(), Sound.ENTITY_VILLAGER_NO, 1f, 1f);
+					break;
+				case WRONG_TYPE:
+					p.sendMessage("§cThis item type is not needed for the recipe");
+					p.playSound(p.getLocation(), Sound.ENTITY_VILLAGER_NO, 1f, 1f);
+					break;
+				case CAPACITY:
+					p.sendMessage("§cYou already have the needed amount of this type");
+					p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASS, 1f, 0.5f);
+					break;
+				case NO_PERMS:
+					p.sendMessage("§cYou lack permission to use this item in a recipe");
+					p.playSound(p.getLocation(), Sound.ENTITY_VILLAGER_NO, 1f, 1f);
+					break;
+				default:
+					p.playSound(p.getLocation(), Sound.BLOCK_GRINDSTONE_USE, 1f, 2f);
+					p.spawnParticle(org.bukkit.Particle.CRIT_MAGIC, station.getLoc().clone().add(0.5, 1, 0.5), 10, 0.01, 0.01, 0.01);
+					break;
 			}
 			return;
 		}
@@ -117,60 +128,79 @@ public class CraftingManager implements Listener{
 	
 	@EventHandler
 	public void applyHit(PlayerInteractEvent e) {
-		if(!e.getAction().equals(Action.LEFT_CLICK_BLOCK)) return;
+		if (!e.getAction().equals(Action.LEFT_CLICK_BLOCK)) return;
 		Block b = e.getClickedBlock();
-		if(!b.getType().equals(Material.ANVIL)) return;
+		if (!b.getType().equals(Material.ANVIL)) return;
 		Player p = e.getPlayer();
-		if(!hasStation(b.getLocation())) return;
+		if (!hasStation(b.getLocation())) return;
 		ItemStack i = p.getInventory().getItemInMainHand();
-		if(i == null) return;
-		if(i.getType().equals(Material.AIR)) return;
+		if (i == null || i.getType().equals(Material.AIR)) return;
+
 		CraftingStation station = get(b.getLocation());
-		if(api.getChecker().checkItemWithPath(i, Cache.brandingTool)) {
-			if(p.isSneaking()) {
+
+		if (api.getChecker().checkItemWithPath(i, Cache.brandingTool)) {
+			if (p.isSneaking()) {
 				station.cancel();
 				p.sendMessage("§cProject cancelled");
 				stations.remove(station.getLoc());
-				p.getWorld().playSound(station.getLoc(), Sound.BLOCK_ANVIL_PLACE, 1f, 1f);
+				p.getWorld().playSound(station.getLoc(), Sound.BLOCK_ANVIL_PLACE, 1f, 0.5f);
+				p.spawnParticle(
+					Particle.BLOCK_DUST,
+					station.getLoc().clone().add(0.5, 1, 0.5),
+					20,  // amount
+					0.1, 0.2, 0.1,  // spread X,Y,Z
+					Bukkit.createBlockData(Material.IRON_BLOCK)
+				);
 				return;
 			} else {
 				StationFeedback f = station.craft(p);
-				if(f.equals(StationFeedback.SUCCESS)) {
+				if (f.equals(StationFeedback.SUCCESS)) {
+					p.getWorld().playSound(station.getLoc(), Sound.ENTITY_PLAYER_LEVELUP, 1f, 1f);
 					p.getWorld().playSound(station.getLoc(), Sound.BLOCK_ANVIL_PLACE, 1f, 1f);
+					p.spawnParticle(org.bukkit.Particle.LAVA, station.getLoc().clone().add(0.5, 1, 0.5), 50, 0.1, 0.2, 0.1);
 					stations.remove(b.getLocation());
-					if(currentStation.containsKey(p)) {
-						currentStation.remove(p, station);
-					}
-					return;
-				} else if(f.equals(StationFeedback.LACKING_HITS)) {
-					p.sendMessage("§cYou need to complete all the hits before finishing");
-					return;
-				} else if(f.equals(StationFeedback.LACKING_ITEMS)) {
-					p.sendMessage("§cYou have to add all the items before smithing");
-					return;
+					currentStation.remove(p);
+				} else {
+					p.playSound(p.getLocation(), Sound.ENTITY_VILLAGER_NO, 1f, 1f);
+					p.sendMessage("§c" + (f.equals(StationFeedback.LACKING_HITS) ? "You need to complete all the hits before finishing" :
+							f.equals(StationFeedback.LACKING_ITEMS) ? "You have to add all the items before smithing" : ""));
 				}
 				return;
 			}
 		}
+
 		StationFeedback f = station.hit(p, i);
-		if(f.equals(StationFeedback.LACKING_ITEMS)) {
-			p.sendMessage("§cYou have to add all the items before smithing");
-			return;
+		switch (f) {
+			case LACKING_ITEMS:
+				p.sendMessage("§cYou have to add all the items before smithing");
+				p.playSound(p.getLocation(), Sound.ENTITY_VILLAGER_NO, 1f, 1f);
+				break;
+			case WRONG_TYPE:
+				p.sendMessage("§cThis item cannot be used for crafting hits");
+				p.playSound(p.getLocation(), Sound.ENTITY_VILLAGER_NO, 1f, 1f);
+				break;
+			case NONE:
+				p.sendMessage("§cThis tool is not needed for this craft");
+				p.playSound(p.getLocation(), Sound.ENTITY_VILLAGER_NO, 1f, 1f);
+				break;
+			case CAPACITY:
+				p.sendMessage("§cYou dont need more hits with this tool");
+				p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASS, 1f, 0.5f);
+				break;
+			default:
+				// Successful hit
+				p.getWorld().playSound(station.getLoc(), Sound.BLOCK_ANVIL_USE, 1f, 1f);
+				p.spawnParticle(
+					Particle.BLOCK_DUST,
+					station.getLoc().clone().add(0.5, 1, 0.5),
+					20,  // amount
+					0.1, 0.2, 0.1,  // spread X,Y,Z
+					Bukkit.createBlockData(Material.IRON_BLOCK)
+				);
+				break;
 		}
-		if(f.equals(StationFeedback.WRONG_TYPE)) {
-			p.sendMessage("§cThis item cannot be used for crafting hits");
-			return;
-		}
-		if(f.equals(StationFeedback.NONE)) {
-			p.sendMessage("§cThis tool is not needed for this craft");
-			return;
-		}
-		if(f.equals(StationFeedback.CAPACITY)) {
-			p.sendMessage("§cYou dont need more hits with this tool");
-			return;
-		}
-		p.getWorld().playSound(station.getLoc(), Sound.BLOCK_ANVIL_USE, 1f, 1f);
 	}
+
 	
 	@EventHandler
 	public void invenClick(InventoryClickEvent e) {
@@ -212,6 +242,7 @@ public class CraftingManager implements Listener{
 			}
 			station.setRecipe(recipe);
 			p.sendMessage("§aRecipe "+recipe.getCleanedName()+ " §aselected!");
+			p.getWorld().playSound(station.getLoc(), Sound.ENTITY_PLAYER_LEVELUP, 1f, 1f);
 			return;
 		}
 		
@@ -221,6 +252,11 @@ public class CraftingManager implements Listener{
 	public void breakStation(BlockBreakEvent e) {
 		Block b = e.getBlock();
 		if(!hasStation(b.getLocation())) return;
+		Player p = e.getPlayer();
+		if(p != null) {
+			p.getWorld().playSound(b.getLocation(), Sound.ENTITY_ARMOR_STAND_BREAK, 1f, 1f);
+			p.getWorld().spawnParticle(Particle.SMOKE_LARGE, b.getLocation().add(0.5, 1, 0.5), 30, 0.3, 0.3, 0.3);
+		}
 		CraftingStation station = get(b.getLocation());
 		station.drop();
 		stations.remove(b.getLocation());

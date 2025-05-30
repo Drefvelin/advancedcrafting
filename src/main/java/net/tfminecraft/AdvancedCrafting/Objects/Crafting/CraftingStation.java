@@ -1,5 +1,7 @@
 package net.tfminecraft.AdvancedCrafting.Objects.Crafting;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -342,13 +344,40 @@ public class CraftingStation {
 	}
 
 	private void cleanStats() {
-		for(StatModifier mod : stats.getModifiers()) {
-			if(StatFactors.has(mod.getType())) {
-				double amount = Math.round((mod.getAmount() / (double) StatFactors.get(mod.getType())) * 100.0) / 100.0;
-				mod.setAmount(amount);
+		for (StatModifier mod : stats.getModifiers()) {
+			System.out.println("DEBUG: Processing StatModifier: " + mod.getType());
+			if (StatFactors.has(mod.getType())) {
+				System.out.println("DEBUG: StatFactors has type: " + mod.getType());
+
+				double originalAmount = mod.getAmount();
+				System.out.println("DEBUG: Original amount: " + originalAmount);
+
+				double factor = StatFactors.get(mod.getType());
+				System.out.println("DEBUG: Factor from StatFactors: " + factor);
+
+				double divided = originalAmount / factor;
+				System.out.println("DEBUG: Result after division: " + divided);
+
+				BigDecimal bd = new BigDecimal(divided);
+				
+				if (divided >= 0.01) {
+					bd = bd.setScale(2, RoundingMode.HALF_UP);
+					System.out.println("DEBUG: Rounded to 2 decimals");
+				} else {
+					bd = bd.setScale(3, RoundingMode.HALF_UP);
+					System.out.println("DEBUG: Rounded to 3 decimals");
+				}
+
+				double finalAmount = bd.doubleValue();
+				System.out.println("DEBUG: Final rounded amount: " + finalAmount);
+
+				mod.setAmount(finalAmount);
+			} else {
+				System.out.println("DEBUG: StatFactors does NOT have type: " + mod.getType());
 			}
 		}
 	}
+
 	
 	private boolean checkItems(Player p) {
 		boolean complete = true;
