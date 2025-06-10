@@ -2,9 +2,12 @@ package net.tfminecraft.AdvancedCrafting.Database;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileReader;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -14,6 +17,7 @@ import org.bukkit.ChatColor;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -43,6 +47,7 @@ public class AlloyDatabase {
     			try {
     				json = (JSONObject) parser.parse(new InputStreamReader(new FileInputStream(file), "UTF-8"));
     				String id = (String) json.get("id");
+					id = id.toLowerCase();
     				String name = (String) json.get("name");
     				int model = (int) Math.round((Double) json.get("model"));
 					String xp = json.containsKey("xp") ? (String) json.get("xp") : null;
@@ -139,6 +144,47 @@ public class AlloyDatabase {
 		}
 		return path;
 	}
+	@SuppressWarnings("unchecked")
+	public void updateRecipeResults(String oldId, String newId) {
+		File folder = new File("plugins/AdvancedCrafting/data/alloy-recipes");
+
+		File[] files = folder.listFiles((dir, name) -> name.endsWith(".json"));
+		if (files == null) return;
+
+		JSONParser parser = new JSONParser();
+
+		for (File file : files) {
+			try (FileReader reader = new FileReader(file)) {
+				Object obj = parser.parse(reader);
+				JSONObject jsonObject = (JSONObject) obj;
+
+				Object resultValue = jsonObject.get("result");
+
+				if (resultValue != null && resultValue.equals(oldId)) {
+					jsonObject.put("result", newId);
+
+					// Save updated JSON
+					try (FileWriter writer = new FileWriter(file)) {
+						writer.write(jsonObject.toJSONString());
+						writer.flush();
+					}
+
+					System.out.println("Updated: " + file.getName());
+				}
+
+			} catch (IOException | ParseException e) {
+				System.err.println("Error processing file: " + file.getName());
+				e.printStackTrace();
+			}
+		}
+	}
+	public void deleteRecipe(AlloyStation s) {
+		File file = new File(getPath(s), "recipe.json");
+
+		if(file.exists()) {
+			file.delete();
+		}
+	}
 	public void editAlloy(Alloy newAlloy, String oldId) {
 		try {
 			// Delete old file
@@ -146,7 +192,7 @@ public class AlloyDatabase {
 			if (oldFile.exists()) {
 				oldFile.delete();
 			}
-
+			updateRecipeResults(oldId, newAlloy.getId());
 			// Save new alloy with new ID
 			saveAlloy(newAlloy);
 			

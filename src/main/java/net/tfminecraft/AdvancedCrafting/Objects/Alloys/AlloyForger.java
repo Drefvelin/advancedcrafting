@@ -3,8 +3,10 @@ package net.tfminecraft.AdvancedCrafting.Objects.Alloys;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.jar.Attributes.Name;
 
 import org.bukkit.Location;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import net.Indyuce.mmoitems.MMOItems;
@@ -28,9 +30,14 @@ public class AlloyForger {
 		this.station = station;
 		this.value = station.getTotalValue();
 	}
+
+	public NamableAlloy forge(Player p) {
+		return forge(p, 0);
+	}
 	
 	@SuppressWarnings("deprecation")
-	public NamableAlloy forge() {
+	public NamableAlloy forge(Player p, int i) {
+		if(i > 100) return null;
 		AlloyDatabase db = new AlloyDatabase();
 		String result = db.getResult(station);
 		Alloy a = null;
@@ -45,6 +52,7 @@ public class AlloyForger {
 				generateHits();
 				String name = getName();
 				if(name.equalsIgnoreCase("full up")) {
+					p.sendMessage("§4There were no free alloy names! Contact the admins so they can add more!");
 					scrap = true;
 				} else {
 					a = new Alloy(name, station.getBaseItem(), stats, hits, getXP());
@@ -58,6 +66,10 @@ public class AlloyForger {
 			scrap = true;
 		} else {
 			a = AlloyManager.getAlloyById(result);
+			if(a == null) {
+				db.deleteRecipe(station);
+				return forge(p, i);
+			}
 		}
 		Location loc = station.getLocation().clone().add(0, 2, 0);
 		if(scrap) {
@@ -168,6 +180,15 @@ public class AlloyForger {
 			StatModifier mod = base.get(s);
 			mod.setAmount(Math.round(mod.getAmount()*100.0)/100.0);
 			stats.addModifier(mod);
+		}
+		for(StatModifier o : baseItem.getIngredientData().getStatData().getModifiers()) {
+			for(StatModifier m : stats.getModifiers()) {
+				if(!o.getType().equalsIgnoreCase(m.getType())) continue;
+				if(o.getAmount() == m.getAmount()) {
+					double percent = 0.9 + (Math.random() * 0.2); // Between 0.9 and 1.1
+					m.setAmount(Math.round(m.getAmount() * percent * 100.0) / 100.0);
+				}
+			}
 		}
 	}
 	

@@ -19,7 +19,7 @@ public class NamableAlloy {
 
     public boolean tick() {
         time++;
-        if(time >= 30) return true;
+        if(time >= 60) return true;
         return false;
     }
 

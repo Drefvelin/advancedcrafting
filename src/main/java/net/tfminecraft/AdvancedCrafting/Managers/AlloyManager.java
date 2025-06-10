@@ -42,8 +42,8 @@ public class AlloyManager implements Listener{
 	private HashMap<Player, NamableAlloy> naming = new HashMap<>();
 	
 	public static Alloy getAlloyById(String s) {
-		if(alloys.containsKey(s)) return alloys.get(s);
-		return null;
+		if (s == null) return null;
+		return alloys.get(s.toLowerCase());
 	}
 	public static void addAlloy(Alloy a) {
 		alloys.put(a.getId(), a);
@@ -153,13 +153,13 @@ public class AlloyManager implements Listener{
 			return;
 		}
 		AlloyForger forger = new AlloyForger(station);
-		NamableAlloy alloy = forger.forge();
+		NamableAlloy alloy = forger.forge(p);
 		p.getWorld().playSound(station.getLocation(), Sound.BLOCK_ANVIL_USE, 1f, 1f);
 		p.getInventory().getItemInMainHand().setType(Material.BUCKET);
 		removeStation(station);
 		if(alloy != null) {
 			p.sendTitle(StringFormatter.formatHex("#d1743fNew Alloy"), StringFormatter.formatHex("#b0a996Use #36e3a4/alloy name #b0a996to name it!"), 10, 80, 10);
-			p.sendMessage("§cThe naming prompt times out in 30 seconds.");
+			p.sendMessage("§cThe naming prompt times out in 60 seconds.");
 			naming.put(p, alloy);
 		}
 	}
@@ -167,6 +167,10 @@ public class AlloyManager implements Listener{
 	public void nameAlloy(Player p, String s) {
 		if(!naming.containsKey(p)) {
 			p.sendMessage("§cYou have no alloy to name");
+			return;
+		}
+		if (!s.matches("[a-zA-Z_]+")) {
+			p.sendMessage("§cName can only contain letters (A–Z) and underscores (_).");
 			return;
 		}
 		String name = StringFormatter.formatHex(new String(s).replace("_", " "));
