@@ -45,6 +45,9 @@ public class AlloyManager implements Listener{
 		if (s == null) return null;
 		return alloys.get(s.toLowerCase());
 	}
+	public static void removeAlloy(String id) {
+		if(alloys.containsKey(id)) alloys.remove(id);
+	}
 	public static void addAlloy(Alloy a) {
 		alloys.put(a.getId(), a);
 	}
@@ -176,6 +179,7 @@ public class AlloyManager implements Listener{
 		String name = StringFormatter.formatHex(new String(s).replace("_", " "));
 		NamableAlloy alloy = naming.get(p);
 		String oldId = alloy.getAlloy().getId();
+		removeAlloy(oldId);
 		String id = StringFormatter.clean(s);
 		alloy.getAlloy().setId(id);
 		alloy.getAlloy().setName(name);
@@ -191,9 +195,11 @@ public class AlloyManager implements Listener{
 		i.setType(newItem.getType());
 		i.setItemMeta(newItem.getItemMeta());
 		AlloyDatabase db = new AlloyDatabase();
+		p.sendMessage(alloy.getAlloy().getId());
 		db.editAlloy(alloy.getAlloy(), oldId);
 		p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_CHIME, 1f, 1f);
 		p.sendMessage("§aNamed the new alloy "+name);
+		addAlloy(alloy.getAlloy());
 		naming.remove(p);
 	}
 	

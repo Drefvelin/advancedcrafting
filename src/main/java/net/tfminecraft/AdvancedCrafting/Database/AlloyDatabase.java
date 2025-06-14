@@ -144,37 +144,42 @@ public class AlloyDatabase {
 		}
 		return path;
 	}
-	@SuppressWarnings("unchecked")
 	public void updateRecipeResults(String oldId, String newId) {
-		File folder = new File("plugins/AdvancedCrafting/data/alloy-recipes");
-
-		File[] files = folder.listFiles((dir, name) -> name.endsWith(".json"));
-		if (files == null) return;
-
+		File baseFolder = new File("plugins/AdvancedCrafting/data/alloy-recipes");
 		JSONParser parser = new JSONParser();
 
+		processFolderRecursively(baseFolder, oldId, newId, parser);
+	}
+
+	@SuppressWarnings("unchecked")
+	private void processFolderRecursively(File folder, String oldId, String newId, JSONParser parser) {
+		File[] files = folder.listFiles();
+		if (files == null) return;
+
 		for (File file : files) {
-			try (FileReader reader = new FileReader(file)) {
-				Object obj = parser.parse(reader);
-				JSONObject jsonObject = (JSONObject) obj;
+			if (file.isDirectory()) {
+				// Recurse into subdirectory
+				processFolderRecursively(file, oldId, newId, parser);
+			} else if (file.isFile() && file.getName().endsWith(".json")) {
+				try (FileReader reader = new FileReader(file)) {
+					JSONObject jsonObject = (JSONObject) parser.parse(reader);
+					Object resultValue = jsonObject.get("result");
 
-				Object resultValue = jsonObject.get("result");
+					if (resultValue != null && resultValue.equals(oldId)) {
+						jsonObject.put("result", newId);
 
-				if (resultValue != null && resultValue.equals(oldId)) {
-					jsonObject.put("result", newId);
+						try (FileWriter writer = new FileWriter(file)) {
+							writer.write(jsonObject.toJSONString());
+							writer.flush();
+						}
 
-					// Save updated JSON
-					try (FileWriter writer = new FileWriter(file)) {
-						writer.write(jsonObject.toJSONString());
-						writer.flush();
+						System.out.println("Updated: " + file.getPath());
 					}
 
-					System.out.println("Updated: " + file.getName());
+				} catch (IOException | ParseException e) {
+					System.err.println("Error processing file: " + file.getPath());
+					e.printStackTrace();
 				}
-
-			} catch (IOException | ParseException e) {
-				System.err.println("Error processing file: " + file.getName());
-				e.printStackTrace();
 			}
 		}
 	}
@@ -204,7 +209,11 @@ public class AlloyDatabase {
 	public void saveAlloy(Alloy a) {
 		try {
 			File file = new File("plugins/AdvancedCrafting/data/alloys",a.getId()+".json");
-			if(file.exists() == true) {
+			File parentDir = file.getParentFile();
+			if (!parentDir.exists()) {
+				parentDir.mkdirs();
+			}
+			if(file.exists()) {
 				file.delete();
 			}
 			file.createNewFile();
