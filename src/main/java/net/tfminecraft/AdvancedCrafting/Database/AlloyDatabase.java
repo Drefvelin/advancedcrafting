@@ -40,6 +40,55 @@ import net.tfminecraft.AdvancedCrafting.Objects.Stats.StatModifier;
 public class AlloyDatabase {
 	private JSONObject json; // org.json.simple
     JSONParser parser = new JSONParser();
+	public Alloy loadAlloy(String result) {
+    	File file = new File("plugins/AdvancedCrafting/data/alloys", result+".json");
+    	if(!file.exists()) return null;
+		try {
+    		json = (JSONObject) parser.parse(new InputStreamReader(new FileInputStream(file), "UTF-8"));
+    		String id = (String) json.get("id");
+			id = id.toLowerCase();
+    		String name = (String) json.get("name");
+    		int model = (int) Math.round((Double) json.get("model"));
+			String xp = json.containsKey("xp") ? (String) json.get("xp") : null;
+			ColourScheme colourScheme = SchemeLoader.getColourSchemeByString((String) json.get("colour scheme"));
+    		IngredientType type = TypeLoader.getIngredientTypeByString((String) json.get("type"));
+    		ModelScheme scheme = SchemeLoader.getModelSchemeByString((String) json.get("scheme"));
+    		StatData stats = new StatData();
+    		int i = 0;
+    		JSONArray statArray = (JSONArray) json.get("stats");
+    		while(i < statArray.size()) {
+    			String s = statArray.get(i).toString();
+    			String st = s.split("\\(")[0];
+    			double amount = Double.parseDouble(s.split("\\(")[1].replace(")", ""));
+    			stats.addModifier(new StatModifier(st, amount));
+    			i++;
+    		}
+    		HashMap<CraftingHit, Integer> hits = new HashMap<>();
+    		i = 0;
+    		JSONArray hitArray = (JSONArray) json.get("hits");
+    		while(i < hitArray.size()) {
+    			String s = hitArray.get(i).toString();
+    			String hit = s.split("\\.")[0];
+    			int amount = Integer.parseInt(s.split("\\.")[1]);
+    			hits.put(HitLoader.getByString(hit), amount);
+    			i++;
+    		}
+			List<String> permissions = new ArrayList<>();
+			if(json.containsKey("permissions")) {
+				i = 0;
+				JSONArray permArray = (JSONArray) json.get("permissions");
+				while(i < permArray.size()) {
+					String p = permArray.get(i).toString();
+					permissions.add(p);
+					i++;
+				}
+			}
+    		return new Alloy(id, name, new AlloyData(colourScheme, model, type, scheme, stats, hits, permissions, xp));
+    	} catch (Exception ex) {
+    		ex.printStackTrace();
+    	}
+		return null;
+	}
     public void loadAlloys() {
     	File folder = new File("plugins/AdvancedCrafting/data/alloys");
     	for(final File file : folder.listFiles()) {
@@ -123,7 +172,7 @@ public class AlloyDatabase {
         	pw.close();
             HashMap<String, Object> defaults = new HashMap<String, Object>();
         	json = (JSONObject) parser.parse(new InputStreamReader(new FileInputStream(file), "UTF-8"));
-        	defaults.put("result", result);
+        	defaults.put("result", result.toLowerCase());
         	save(file, defaults);
         } catch (Throwable ex) {
 			ex.printStackTrace();
@@ -197,7 +246,7 @@ public class AlloyDatabase {
 			if (oldFile.exists()) {
 				oldFile.delete();
 			}
-			updateRecipeResults(oldId, newAlloy.getId());
+			updateRecipeResults(oldId, newAlloy.getId().toLowerCase());
 			// Save new alloy with new ID
 			saveAlloy(newAlloy);
 			
@@ -208,7 +257,7 @@ public class AlloyDatabase {
 	@SuppressWarnings("unchecked")
 	public void saveAlloy(Alloy a) {
 		try {
-			File file = new File("plugins/AdvancedCrafting/data/alloys",a.getId()+".json");
+			File file = new File("plugins/AdvancedCrafting/data/alloys",a.getId().toLowerCase()+".json");
 			File parentDir = file.getParentFile();
 			if (!parentDir.exists()) {
 				parentDir.mkdirs();
@@ -224,7 +273,7 @@ public class AlloyDatabase {
         	pw.close();
             HashMap<String, Object> defaults = new HashMap<String, Object>();
         	json = (JSONObject) parser.parse(new InputStreamReader(new FileInputStream(file), "UTF-8"));
-        	defaults.put("id", a.getId());
+        	defaults.put("id", a.getId().toLowerCase());
         	defaults.put("name", a.getName());
         	defaults.put("model", a.getData().getModel());
         	defaults.put("type", a.getData().getType().getId());

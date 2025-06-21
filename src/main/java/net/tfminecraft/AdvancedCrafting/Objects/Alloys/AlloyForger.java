@@ -67,8 +67,14 @@ public class AlloyForger {
 		} else {
 			a = AlloyManager.getAlloyById(result);
 			if(a == null) {
-				db.deleteRecipe(station);
-				return forge(p, i);
+				a = db.loadAlloy(result);
+				if(a == null) {
+					db.deleteRecipe(station);
+					return forge(p, i);
+				} else {
+					AlloyManager.addAlloy(a);
+				}
+				
 			}
 		}
 		Location loc = station.getLocation().clone().add(0, 2, 0);
