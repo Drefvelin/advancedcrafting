@@ -176,7 +176,12 @@ public class AlloyForger {
 					StatModifier n = new StatModifier(m.getType(), m.getAmount()-base.get(m.getType()).getAmount());
 					merge.add(n);
 				} else {
-					if(Math.random()*100 < (20+i.getIngredientData().getValue()*3)) merge.add(m.copy());
+					if(Math.random()*100 < (20+i.getIngredientData().getValue()*3)) {
+						merge.add(m.copy());
+						StatModifier copy = m.copy();
+						copy.setAmount(copy.getAmount()*1.5);
+						max.put(m.getType(), copy);
+					}
 				}
 			}
 		}
