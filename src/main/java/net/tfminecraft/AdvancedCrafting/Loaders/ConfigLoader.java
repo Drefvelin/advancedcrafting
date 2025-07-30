@@ -36,6 +36,8 @@ public class ConfigLoader implements LoaderInterface{
 
 		Cache.brandingTool = config.getString("branding-tool", null);
 
+		Cache.maxFactor = config.getDouble("max-factor", 1.5);
+
 		if(config.contains("stat-aliases")) {
 			for(String s : config.getStringList("stat-aliases")) {
 				String type = s.split("\\->")[0];

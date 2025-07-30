@@ -165,7 +165,7 @@ public class AlloyForger {
 		for(StatModifier m : baseItem.getIngredientData().getStatData().getModifiers()) {
 			base.put(m.getType(), m.copy());
 			StatModifier copy = m.copy();
-			copy.setAmount(copy.getAmount()*1.5);
+			copy.setAmount(copy.getAmount()*Cache.maxFactor);
 			max.put(m.getType(), copy);
 		}
 		List<StatModifier> merge = new ArrayList<>();
@@ -179,7 +179,7 @@ public class AlloyForger {
 					if(Math.random()*100 < (20+i.getIngredientData().getValue()*3)) {
 						merge.add(m.copy());
 						StatModifier copy = m.copy();
-						copy.setAmount(copy.getAmount()*1.5);
+						copy.setAmount(copy.getAmount()*Cache.maxFactor);
 						max.put(m.getType(), copy);
 					}
 				}

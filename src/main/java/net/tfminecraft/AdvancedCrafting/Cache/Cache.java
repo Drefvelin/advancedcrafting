@@ -15,6 +15,8 @@ public class Cache {
 
 	public static HashMap<IngredientType, List<IngredientType>> combinations = new HashMap<>();
 
+	public static double maxFactor;
+
 	public static boolean canCombine(IngredientType base, IngredientType type){
 		if(base.getId().equalsIgnoreCase(type.getId())) return true;
 		if(!combinations.containsKey(base)) return true;
