@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.apache.commons.lang.WordUtils;
 import org.bukkit.Bukkit;
@@ -530,6 +531,19 @@ public class CraftingStation {
 		mmo.setData(ItemStats.LORE, lore);
 		ItemStack finalItem = mmo.newBuilder().build();
 		if(scheme != null) {
+			if(!recipe.getModelType().equalsIgnoreCase("none")) {
+				for(String s : currentMaterials.keySet()) {
+					String modeltype = s.split("\\.")[0];
+					String modelId = s.split("\\.")[1];
+					if(modeltype.equalsIgnoreCase("ingredient")) {
+						Ingredient ing = IngredientLoader.getByString(modelId);
+						if(ing.getIngredientData().getType().getId().equalsIgnoreCase(recipe.getModelType())) scheme = ing.getIngredientData().getModelScheme();
+					} else if(modeltype.equalsIgnoreCase("alloy")) {
+						Alloy a = AlloyManager.getAlloyById(modelId);
+						if(a.getData().getType().getId().equalsIgnoreCase(recipe.getModelType())) scheme = a.getData().getModelScheme();
+					}
+				}
+			}
 			finalItem = applyModel(finalItem, scheme);
 		}
 		Location dropLoc = loc.clone().add(0, 1, 0);
@@ -551,7 +565,7 @@ public class CraftingStation {
 			i.setItemMeta(m);
 		} else if(type.equalsIgnoreCase("ia")) {
 			ItemAPI api = (ItemAPI) TLibs.getApiInstance(APIType.ITEM_API);
-			i = api.getArmorMerger().merge(i, path);
+			i = api.getArmorMerger().merge(i, Optional.empty(), path);
 		}
 		return i;
 	}
