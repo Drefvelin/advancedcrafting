@@ -1,0 +1,108 @@
+sword:
+    name: "%material% Sword"
+    template: sword.custom_sword
+    category: weapons
+    type: sword
+    main-type: metal
+    stat-template: sword
+    permission-namespace: weaponsmith
+    recipe:
+        - metal.6
+        - leather.3
+        - wool.3
+battleaxe:
+    name: "%material% Battleaxe"
+    template: battleaxes.custom_battleaxe
+    category: weapons
+    type: battleaxe
+    main-type: metal
+    stat-template: standard
+    permission-namespace: weaponsmith
+    recipe:
+        - metal.6
+        - leather.3
+        - wool.3
+dagger:
+    name: "%material% Dagger"
+    template: daggers.custom_dagger
+    category: weapons
+    type: dagger
+    main-type: metal
+    stat-template: standard
+    permission-namespace: weaponsmith
+    recipe:
+        - metal.6
+        - leather.3
+        - wool.3
+warhammer:
+    name: "%material% Warhammer"
+    template: warhammers.custom_warhammer
+    category: weapons
+    type: warhammer
+    main-type: metal
+    stat-template: warhammer
+    permission-namespace: weaponsmith
+    recipe:
+        - metal.6
+        - leather.3
+        - wool.3
+spear:
+    name: "%material% Spear"
+    template: spears.custom_spear
+    category: weapons
+    type: spear
+    main-type: metal
+    stat-template: standard
+    permission-namespace: weaponsmith
+    recipe:
+        - metal.6
+        - leather.3
+        - wool.3
+polearm:
+    name: "%material% Polearm"
+    template: polearms.custom_polearm
+    category: weapons
+    type: polearm
+    main-type: metal
+    stat-template: polearm
+    permission-namespace: weaponsmith
+    recipe:
+        - metal.6
+        - leather.3
+        - wool.3
+greathammer:
+    name: "%material% Greathammer"
+    template: greathammers.custom_greathammer
+    category: weapons
+    type: greathammer
+    main-type: metal
+    stat-template: greathammer
+    permission-namespace: weaponsmith
+    recipe:
+        - metal.6
+        - leather.3
+        - wool.3
+longsword:
+    name: "%material% Longsword"
+    template: longswords.custom_longsword
+    category: weapons
+    type: longsword
+    main-type: metal
+    stat-template: longsword
+    permission-namespace: weaponsmith
+    recipe:
+        - metal.6
+        - leather.3
+        - wool.3
+greataxe:
+    name: "%material% Greataxe"
+    template: greataxes.custom_greataxe
+    category: weapons
+    type: greataxe
+    main-type: metal
+    stat-template: greataxe
+    permission-namespace: weaponsmith
+    recipe:
+        - metal.6
+        - leather.3
+        - wool.3

@@ -11,7 +11,9 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 import me.Plugins.TLibs.Interface.LoaderInterface;
+import net.tfminecraft.AdvancedCrafting.AdvancedCrafting;
 import net.tfminecraft.AdvancedCrafting.Objects.Ingredients.Ingredient;
+import net.tfminecraft.AdvancedCrafting.Utils.RevisionTracker;
 
 public class IngredientLoader implements LoaderInterface{
 	public static List<Ingredient> oList = new ArrayList<>();
@@ -22,6 +24,7 @@ public class IngredientLoader implements LoaderInterface{
 	
 	@Override
 	public void load(File configFile) {
+		oList.clear();
 		
 		FileConfiguration config = new YamlConfiguration();
         try {
@@ -35,6 +38,9 @@ public class IngredientLoader implements LoaderInterface{
 		
 		for(String key : list) {
 			Ingredient o = new Ingredient(key, config.getConfigurationSection(key));
+			String hash = RevisionTracker.sha256(o.getIngredientData().buildRevisionContent());
+			int revision = AdvancedCrafting.getRevisionTracker().resolveIngredient(key, hash);
+			o.setRevision(revision);
 			oList.add(o);
 		}
 	}

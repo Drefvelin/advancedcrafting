@@ -1,8 +1,10 @@
 package net.tfminecraft.AdvancedCrafting.Objects.Data;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import net.tfminecraft.AdvancedCrafting.Objects.Crafting.Hits.CraftingHit;
 import net.tfminecraft.AdvancedCrafting.Objects.Ingredients.Ingredient;
@@ -20,8 +22,9 @@ public class AlloyData {
 	
 	private HashMap<CraftingHit, Integer> hits = new HashMap<>();
 
-	private List<String> permissions = new ArrayList<>();
 	private String xp;
+	private AlloyRecipe recipe;
+	private int tier;
 	
 	public AlloyData(Ingredient base, StatData stats, HashMap<CraftingHit, Integer> hits, String xp) {
 		colourScheme = base.getIngredientData().getScheme().getColourScheme();
@@ -30,19 +33,22 @@ public class AlloyData {
 		this.type = base.getIngredientData().getType();
 		this.modelScheme = base.getIngredientData().getModelScheme();
 		this.hits = hits;
-		permissions = base.getIngredientData().getPermissions();
 		this.xp = xp;
+		this.tier = base.getIngredientData().hasTier() ? base.getIngredientData().getTier() : 1;
 	}
 	
-	public AlloyData(ColourScheme colourScheme, int model, IngredientType type, ModelScheme scheme, StatData stats, HashMap<CraftingHit, Integer> hits, List<String> permissions, String xp) {
+	public AlloyData(ColourScheme colourScheme, int model, IngredientType type, ModelScheme scheme,
+			StatData stats, HashMap<CraftingHit, Integer> hits, String xp,
+			AlloyRecipe recipe, int tier) {
 		this.colourScheme = colourScheme;
 		this.model = model;
 		this.type = type;
 		this.stats = stats;
 		this.modelScheme = scheme;
 		this.hits = hits;
-		this.permissions = permissions;
 		this.xp = xp;
+		this.recipe = recipe;
+		this.tier = tier;
 	}
 
 	public boolean hasXP() {
@@ -51,14 +57,6 @@ public class AlloyData {
 
 	public String getXP() {
 		return xp;
-	}
-
-	public boolean hasPermissions() {
-		return permissions.size() > 0;
-	}
-
-	public List<String> getPermissions() {
-		return permissions;
 	}
 
 	public ColourScheme getColourScheme() {
@@ -83,5 +81,34 @@ public class AlloyData {
 
 	public HashMap<CraftingHit, Integer> getHits() {
 		return hits;
+	}
+
+	public AlloyRecipe getRecipe() {
+		return recipe;
+	}
+
+	public void setRecipe(AlloyRecipe recipe) {
+		this.recipe = recipe;
+	}
+
+	public int getTier() {
+		return tier;
+	}
+
+	public String buildRevisionContent() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("xp=").append(xp != null ? xp : "").append(';');
+		List<String> statParts = this.stats.getModifiers().stream()
+				.map(m -> m.getType() + "(" + m.getAmount() + ")")
+				.sorted(String.CASE_INSENSITIVE_ORDER)
+				.collect(Collectors.toList());
+		sb.append("stats=").append(String.join(",", statParts)).append(';');
+		List<String> hitParts = hits.entrySet().stream()
+				.map(e -> e.getKey().getId() + "." + e.getValue())
+				.sorted(String.CASE_INSENSITIVE_ORDER)
+				.collect(Collectors.toList());
+		sb.append("hits=").append(String.join(",", hitParts)).append(';');
+		sb.append("tier=").append(tier);
+		return sb.toString();
 	}
 }

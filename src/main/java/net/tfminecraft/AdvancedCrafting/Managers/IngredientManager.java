@@ -2,7 +2,6 @@ package net.tfminecraft.AdvancedCrafting.Managers;
 
 import java.util.HashMap;
 
-import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -17,7 +16,9 @@ import me.Plugins.TLibs.TLibs;
 import me.Plugins.TLibs.Enums.APIType;
 import me.Plugins.TLibs.Objects.API.BlockAPI;
 import net.tfminecraft.AdvancedCrafting.Cache.Cache;
+import net.tfminecraft.AdvancedCrafting.Objects.Alloys.Alloy;
 import net.tfminecraft.AdvancedCrafting.Objects.CraftStack;
+import net.tfminecraft.AdvancedCrafting.Objects.Data.StatData;
 import net.tfminecraft.AdvancedCrafting.Objects.Ingredients.Ingredient;
 
 public class IngredientManager implements Listener{
@@ -45,11 +46,42 @@ public class IngredientManager implements Listener{
 		if(!isIngredientStation(b)) return;
 		Player p = e.getPlayer();
 		ItemStack i = p.getInventory().getItemInMainHand();
+		if(i == null || i.getType().isAir()) return;
+
 		CraftStack cs = new CraftStack(i);
-		if(cs.isIngredient()) return;
-		Ingredient ing = getFromItem(i);
-		if(ing == null) return;
-		ing.buildTo(i);
+		StatData source = resolveStatData(cs, i);
+		if(source == null) return;
+
+		e.setCancelled(true);
+
+		if(!cs.isIngredient() && !cs.isAlloy()) {
+			Ingredient ing = getFromItem(i);
+			if(ing == null) return;
+			ing.buildTo(i);
+		}
+
+		InventoryManager inv = new InventoryManager();
+		inv.templatePreviewView(p, source);
+	}
+
+	private StatData resolveStatData(CraftStack cs, ItemStack item) {
+		if(cs.isIngredient()) {
+			Ingredient ing = cs.getIngredient();
+			if(ing != null) {
+				return ing.getIngredientData().getStatData();
+			}
+		}
+		if(cs.isAlloy()) {
+			Alloy alloy = cs.getAlloy();
+			if(alloy != null) {
+				return alloy.getData().getStatData();
+			}
+		}
+		Ingredient ing = getFromItem(item);
+		if(ing != null) {
+			return ing.getIngredientData().getStatData();
+		}
+		return null;
 	}
 	
 	public Ingredient getFromItem(ItemStack i) {

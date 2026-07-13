@@ -2,13 +2,8 @@ package net.tfminecraft.AdvancedCrafting.Objects.Ingredients;
 
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
-import org.apache.commons.lang.WordUtils;
-import org.bukkit.Material;
-import org.bukkit.NamespacedKey;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -18,10 +13,10 @@ import me.Plugins.TLibs.TLibs;
 import me.Plugins.TLibs.Enums.APIType;
 import me.Plugins.TLibs.Objects.API.ItemAPI;
 import me.Plugins.TLibs.Objects.API.SubAPI.StringFormatter;
-import net.tfminecraft.AdvancedCrafting.AdvancedCrafting;
 import net.tfminecraft.AdvancedCrafting.Objects.Data.IngredientData;
-import net.tfminecraft.AdvancedCrafting.Objects.Stats.StatModifier;
-import net.tfminecraft.AdvancedCrafting.Utils.StatToString;
+import net.tfminecraft.AdvancedCrafting.Utils.AcItemTags;
+import net.tfminecraft.AdvancedCrafting.Utils.IngredientLore;
+import net.tfminecraft.AdvancedCrafting.Utils.PDCKeys;
 
 public class Ingredient {
 	private String id;
@@ -29,12 +24,21 @@ public class Ingredient {
 	private String hex;
 	
 	private IngredientData data;
+	private int revision;
 	
 	public Ingredient(String key, ConfigurationSection config) {
 		id = key;
 		path = config.getString("path");
 		hex = config.getString("hex", "#FFFFFF");
 		data = new IngredientData(config);
+	}
+
+	public int getRevision() {
+		return revision;
+	}
+
+	public void setRevision(int revision) {
+		this.revision = revision;
 	}
 
 	public boolean hasHex() {
@@ -49,6 +53,10 @@ public class Ingredient {
 		return id;
 	}
 
+	public String getPath() {
+		return path;
+	}
+
 	public IngredientData getIngredientData() {
 		return data;
 	}
@@ -56,27 +64,21 @@ public class Ingredient {
 	
 	public void buildTo(ItemStack i) {
 		ItemMeta m = i.getItemMeta();
-		NamespacedKey key = new NamespacedKey(AdvancedCrafting.plugin, "ac_ingredient_id");
-		m.getPersistentDataContainer().set(key, PersistentDataType.STRING, id);
+		m.getPersistentDataContainer().set(PDCKeys.ingredientId(), PersistentDataType.STRING, id);
 		if (!m.hasDisplayName()) {
 			String defaultName = StringFormatter.getVanillaName(i.getType()); // e.g. "Iron Ingot"
 			m.setDisplayName(StringFormatter.formatHex(hex + defaultName));
 		}
 		List<String> lore = m.getLore();
-		if(lore == null) {
-			lore = new ArrayList<String>();
+		if (lore == null) {
+			lore = new ArrayList<>();
 		}
-		lore.add(" ");
-		lore.add(StringFormatter.formatHex("#cf7c72Type: #d9bb93"+data.getType().getName()));
-		lore.add(" ");
-		lore.add(StringFormatter.formatHex("#c4b9a1Properties:"));
-		for(StatModifier sm : data.getStatData().getModifiers()) {
-			lore.add(StatToString.getFullString(sm));
-		}
+		int loreStart = IngredientLore.applyTypeAndRole(lore, data);
+		AcItemTags.write(m, revision, loreStart);
 		m.setLore(lore);
 		i.setItemMeta(m);
 	}
-	
+
 	public ItemStack build() {
 		ItemAPI api = (ItemAPI) TLibs.getApiInstance(APIType.ITEM_API);
 		ItemStack i = api.getCreator().getItemFromPath(path);

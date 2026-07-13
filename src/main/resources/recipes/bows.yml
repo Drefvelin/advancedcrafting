@@ -1,0 +1,35 @@
+shortbow:
+    name: "%material% Shortbow"
+    template: shortbows.custom_shortbow
+    category: bows
+    type: shortbow
+    main-type: wood
+    stat-template: shortbow
+    permission-namespace: shortbow_maker
+    recipe:
+        - wood.6
+        - feather.6
+
+crossbow:
+    name: "%material% Crossbow"
+    template: crossbows.custom_crossbow
+    category: bows
+    type: crossbow
+    main-type: wood
+    stat-template: crossbow
+    permission-namespace: crossbow_maker
+    recipe:
+        - wood.6
+        - feather.6
+        
+longbow:
+    name: "%material% Longbow"
+    template: longbows.custom_longbow
+    category: bows
+    type: longbow
+    main-type: wood
+    stat-template: longbow
+    permission-namespace: longbow_maker
+    recipe:
+        - wood.12
+        - feather.6

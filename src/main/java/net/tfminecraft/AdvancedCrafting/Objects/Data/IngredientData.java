@@ -1,8 +1,10 @@
 package net.tfminecraft.AdvancedCrafting.Objects.Data;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
@@ -20,6 +22,7 @@ public class IngredientData {
 	private int weight;
 	private int value;
 	private boolean base;
+	private int tier;
 	
 	private IngredientType type;
 	private NamingScheme scheme;
@@ -29,7 +32,6 @@ public class IngredientData {
 	private HashMap<CraftingHit, Integer> hits = new HashMap<>();
 	private List<String> protectedStats = new ArrayList<>();
 
-	private List<String> permissions = new ArrayList<>();
 	private String xp;
 
 	public IngredientData(ConfigurationSection config) {
@@ -48,6 +50,11 @@ public class IngredientData {
 		} else {
 			base = false;
 		}
+		if (config.contains("tier")) {
+			tier = config.getInt("tier");
+		} else {
+			tier = 0;
+		}
 		type = TypeLoader.getIngredientTypeByString(config.getString("type"));
 		scheme = SchemeLoader.getNamingSchemeByString(config.getString("scheme", "default"));
 		modelScheme = SchemeLoader.getModelSchemeByString(config.getString("model-scheme", "default"));
@@ -56,7 +63,6 @@ public class IngredientData {
 			modelScheme = SchemeLoader.getModelSchemeByString("default");
 		}
 		statData = new StatData(config.getStringList("stats"));
-		if(config.contains("permissions")) permissions = config.getStringList("permissions");
 		xp = config.getString("xp", null);
 		for(String s : config.getStringList("hits")) {
 			String hit = s.split("\\.")[0];
@@ -76,14 +82,6 @@ public class IngredientData {
 		return xp;
 	}
 
-	public boolean hasPermissions() {
-		return permissions.size() > 0;
-	}
-
-	public List<String> getPermissions() {
-		return permissions;
-	}
-
 	public boolean statIsProtected(StatModifier mod) {
 		return protectedStats.contains(mod.getType());
 	}
@@ -91,6 +89,15 @@ public class IngredientData {
 	public boolean canBeBase() {
 		return base;
 	}
+
+	public int getTier() {
+		return tier;
+	}
+
+	public boolean hasTier() {
+		return tier > 0;
+	}
+
 	public IngredientType getType() {
 		return type;
 	}
@@ -114,6 +121,28 @@ public class IngredientData {
 
 	public HashMap<CraftingHit, Integer> getHits() {
 		return hits;
+	}
+
+	public String buildRevisionContent() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("weight=").append(weight).append(';');
+		sb.append("value=").append(value).append(';');
+		sb.append("tier=").append(tier).append(';');
+		sb.append("xp=").append(xp != null ? xp : "").append(';');
+		List<String> stats = statData.getModifiers().stream()
+				.map(m -> m.getType() + "(" + m.getAmount() + ")")
+				.sorted(String.CASE_INSENSITIVE_ORDER)
+				.collect(Collectors.toList());
+		sb.append("stats=").append(String.join(",", stats)).append(';');
+		List<String> hitParts = hits.entrySet().stream()
+				.map(e -> e.getKey().getId() + "." + e.getValue())
+				.sorted(String.CASE_INSENSITIVE_ORDER)
+				.collect(Collectors.toList());
+		sb.append("hits=").append(String.join(",", hitParts)).append(';');
+		List<String> protectedCopy = new ArrayList<>(protectedStats);
+		Collections.sort(protectedCopy, String.CASE_INSENSITIVE_ORDER);
+		sb.append("protected=").append(String.join(",", protectedCopy));
+		return sb.toString();
 	}
 	
 	

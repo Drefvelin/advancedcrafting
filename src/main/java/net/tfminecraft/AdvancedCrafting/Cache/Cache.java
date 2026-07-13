@@ -2,7 +2,9 @@ package net.tfminecraft.AdvancedCrafting.Cache;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import net.tfminecraft.AdvancedCrafting.Objects.Data.PermissionNamespace;
 import net.tfminecraft.AdvancedCrafting.Objects.Ingredients.IngredientType;
 
 public class Cache {
@@ -16,6 +18,15 @@ public class Cache {
 	public static HashMap<IngredientType, List<IngredientType>> combinations = new HashMap<>();
 
 	public static double maxFactor;
+
+	public static boolean debugStatRefresh;
+
+	/** Divisors applied to bucket-averaged stats before template factors (e.g. movement_speed: 100). */
+	public static Map<String, Double> globalStatOffsets = new HashMap<>();
+
+	public static String permissionPrefix = "professions.";
+	public static String alloyPermissionNamespace = "alloy";
+	public static Map<String, PermissionNamespace> permissionNamespaces = new HashMap<>();
 
 	public static boolean canCombine(IngredientType base, IngredientType type){
 		if(base.getId().equalsIgnoreCase(type.getId())) return true;

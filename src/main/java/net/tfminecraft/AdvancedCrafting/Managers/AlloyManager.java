@@ -7,6 +7,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -32,6 +33,7 @@ import net.tfminecraft.AdvancedCrafting.Objects.Alloys.AlloyForger;
 import net.tfminecraft.AdvancedCrafting.Objects.Alloys.AlloyStation;
 import net.tfminecraft.AdvancedCrafting.Objects.Alloys.NamableAlloy;
 import net.tfminecraft.AdvancedCrafting.Objects.Ingredients.Ingredient;
+import net.tfminecraft.AdvancedCrafting.Utils.ProfessionPermissions;
 
 public class AlloyManager implements Listener{
 	
@@ -44,6 +46,10 @@ public class AlloyManager implements Listener{
 	public static Alloy getAlloyById(String s) {
 		if (s == null) return null;
 		return alloys.get(s.toLowerCase());
+	}
+
+	public static java.util.Set<String> getAlloyIds() {
+		return java.util.Collections.unmodifiableSet(alloys.keySet());
 	}
 	public static void removeAlloy(String id) {
 		if(alloys.containsKey(id)) alloys.remove(id);
@@ -66,6 +72,13 @@ public class AlloyManager implements Listener{
 		String path = Cache.alloyStation;
 		BlockAPI api = (BlockAPI) TLibs.getApiInstance(APIType.BLOCK_API);
 		return api.getChecker().checkBlock(b, path);
+	}
+
+	public boolean isValidAlloyStation(Block b) {
+		if (!isAlloyStation(b)) {
+			return false;
+		}
+		return !isAlloyStation(b.getRelative(BlockFace.DOWN));
 	}
 
 	public void start() {
@@ -91,8 +104,13 @@ public class AlloyManager implements Listener{
 	public void addIngredient(PlayerInteractEvent e) {
 		if(!e.getAction().equals(Action.RIGHT_CLICK_BLOCK)) return;
 		Block b = e.getClickedBlock();
-		if(!isAlloyStation(b)) return;
+		if (!isAlloyStation(b)) {
+			return;
+		}
 		Player p = e.getPlayer();
+		if (!isValidAlloyStation(b)) {
+			return;
+		}
 		if(cooldown.containsKey(p)) {
 			if(cooldown.get(p) > System.currentTimeMillis()) {
 				return;
@@ -110,15 +128,10 @@ public class AlloyManager implements Listener{
 			return;
 		}
 		Ingredient ing = cs.getIngredient();
-		if(ing.getIngredientData().hasPermissions()) {
-			boolean has = false;
-			for(String s : ing.getIngredientData().getPermissions()) {
-				if(p.hasPermission(s)) has = true;
-			}
-			if(!has) {
-				p.sendMessage("§cYou lack permission to use this in an alloy recipe!");
-				return;
-			}
+		int tier = ProfessionPermissions.resolveTier(ing);
+		if (tier > 0 && !ProfessionPermissions.hasExactTierPerm(p, ProfessionPermissions.alloyNamespace(), tier)) {
+			p.sendMessage(ProfessionPermissions.missingAlloyTierMessage(tier));
+			return;
 		}
 		AlloyStation station = null;
 		if(hasStation(b.getLocation())) {
@@ -154,6 +167,13 @@ public class AlloyManager implements Listener{
 		if(station.getIngredients().size() < 2) {
 			p.sendMessage("§cYou need at least 2 ingredients to make an alloy");
 			return;
+		}
+		for (Ingredient ingredient : station.getIngredients()) {
+			int tier = ProfessionPermissions.resolveTier(ingredient);
+			if (tier > 0 && !ProfessionPermissions.hasExactTierPerm(p, ProfessionPermissions.alloyNamespace(), tier)) {
+				p.sendMessage(ProfessionPermissions.missingAlloyTierMessage(tier));
+				return;
+			}
 		}
 		AlloyForger forger = new AlloyForger(station);
 		NamableAlloy alloy = forger.forge(p);
@@ -206,7 +226,9 @@ public class AlloyManager implements Listener{
 	@EventHandler
 	public void breakStation(BlockBreakEvent e) {
 		Block b = e.getBlock();
-		if(!isAlloyStation(b)) return;
+		if (!isValidAlloyStation(b)) {
+			return;
+		}
 		if(!hasStation(b.getLocation())) return;
 		AlloyStation station = get(b.getLocation());
 		station.drop();

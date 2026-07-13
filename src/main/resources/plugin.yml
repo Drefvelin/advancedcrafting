@@ -13,3 +13,8 @@ commands:
   alloy:
     useage: /<command>
     description: Alloy Command
+
+permissions:
+  advancedcrafting.admin:
+    description: AdvancedCrafting admin commands
+    default: op

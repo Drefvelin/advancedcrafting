@@ -1,1 +1,585 @@
-effect: blue
+#Base
+iron_ingot:
+    path: v.iron_ingot
+    hex: "#d8d8d8"
+    weight: 2
+    value: 2
+    type: metal
+    scheme: metal
+    model-scheme: iron
+    base: true
+    tier: 1
+    xp: smith(2.0)
+    stats:
+        - attack_damage(0.5)
+        - blunt_rating(8.33)
+        - max_item_damage(80.0)
+    hits:
+        - hit.4
+        - small_hit.1
+steel_ingot:
+    path: m.materials.steel_ingot
+    weight: 2
+    value: 4
+    type: metal
+    scheme: metal
+    model-scheme: steel
+    base: true
+    tier: 2
+    xp: smith(4.0)
+    stats:
+        - armor(0.166)
+        - attack_damage(0.533)
+        - blunt_rating(10)
+        - max_item_damage(160.0)
+    hits:
+        - hit.5
+        - small_hit.2
+bronze_ingot: #No equivalent, middle of steel and abyssalite
+    path: m.materials.bronze_ingot
+    weight: 2
+    value: 6
+    type: metal
+    scheme: metal
+    model-scheme: bronze
+    base: true
+    tier: 2
+    xp: smith(5.0)
+    stats:
+        - armor(0.2)
+        - attack_damage(0.55)
+        - blunt_rating(10.833)
+        - max_item_damage(240.0)
+    hits:
+        - hit.1
+        - small_hit.5
+abyssalite_ingot:
+    path: m.materials.abyssalite_ingot
+    weight: 2
+    value: 8
+    type: metal
+    scheme: metal
+    model-scheme: abyssalite
+    base: true
+    tier: 3
+    xp: smith(6.0)
+    stats:
+        - armor(0.333)
+        - attack_damage(0.583)
+        - blunt_rating(16.667)
+        - max_item_damage(320.0)
+    hits:
+        - hit.6
+        - small_hit.2
+mythril_ingot:
+    path: m.materials.mythril_ingot
+    weight: 2
+    value: 16
+    type: metal
+    scheme: metal
+    model-scheme: mythril
+    base: true
+    tier: 4
+    xp: smith(8.0)
+      - professions.mythril_weaponsmith
+      - professions.mythril_tailor
+    stats:
+        - armor(0.5)
+        - attack_damage(0.66)
+        - blunt_rating(13.33)
+        - max_item_damage(640.0)
+    hits:
+        - hit.3
+        - small_hit.5
+refined_barkwood:
+    path: m.materials.refined_barkwood
+    weight: 2
+    value: 2
+    type: wood
+    scheme: wood
+    model-scheme: barkwood
+    base: true
+    tier: 1
+    xp: forester(2.0)
+    stats:
+        - attack_damage(0.5)
+        - max_item_damage(160.0)
+    hits:
+        - etch.2
+        - whittle.1
+        - engrave.1
+refined_maplewood:
+    path: m.materials.refined_maplewood
+    weight: 2
+    value: 4
+    type: wood
+    scheme: wood
+    model-scheme: maplewood
+    base: true
+    tier: 2
+    xp: forester(4.0)
+    stats:
+        - attack_damage(0.533)
+        - max_item_damage(320.0)
+    hits:
+        - etch.1
+        - whittle.2
+        - engrave.1
+refined_elderwood:
+    path: m.materials.refined_elderwood
+    weight: 2
+    value: 8
+    type: wood
+    scheme: wood
+    model-scheme: elderwood
+    base: true
+    tier: 3
+    xp: forester(6.0)
+    stats:
+        - attack_damage(0.583)
+        - max_item_damage(480.0)
+    hits:
+        - etch.1
+        - whittle.1
+        - engrave.2
+refined_demonwood:
+    path: m.materials.refined_demonwood
+    weight: 2
+    value: 16
+    type: wood
+    scheme: wood
+    model-scheme: demonwood
+    base: true
+    tier: 4
+    xp: forester(8.0)
+    stats:
+        - attack_damage(0.66)
+        - max_item_damage(640.0)
+    hits:
+        - etch.2
+        - whittle.1
+        - engrave.3
+#Catalysts
+copper_ingot:
+    path: v.copper_ingot
+    weight: 1
+    value: 2
+    tier: 1
+    type: metal
+    scheme: metal
+    model-scheme: default
+    stats:
+        - max_item_damage(5.0)
+        - fire_damage_reduction(0.5)
+        - cooldown_reduction(0.5)
+    hits:
+        - hit.1
+        - small_hit.2
+gold_ingot:
+    path: v.gold_ingot
+    weight: 2
+    value: 4
+    tier: 2
+    type: metal
+    scheme: metal
+    model-scheme: default
+    stats:
+        - max_item_damage(10.0)
+        - lifesteal(0.5)
+        - skill_damage(0.5)
+        - dodge_rating(0.5)
+        - health_regeneration(0.01)
+    hits:
+        - hit.2
+        - small_hit.4
+flint:
+    path: v.flint
+    weight: 2
+    value: 2
+    tier: 1
+    type: crystal
+    scheme: crystal
+    model-scheme: default
+    stats:
+        - physical_damage_reduction(0.25)
+        - parry_rating(0.5)
+    hits:
+        - small_hit.2
+        - etch.2
+        - whittle.3
+        - engrave.1
+quartz:
+    path: v.quartz
+    weight: 2
+    value: 2
+    tier: 1
+    type: crystal
+    scheme: crystal
+    model-scheme: default
+    stats:
+        - max_mana(0.25)
+        - spell_vampirism(0.5)
+    hits:
+        - etch.1
+        - whittle.1
+        - engrave.4
+amethyst_shard:
+    path: v.amethyst_shard
+    weight: 2
+    value: 2
+    tier: 1
+    type: crystal
+    scheme: crystal
+    model-scheme: default
+    stats:
+        - magic_damage_reduction(0.2)
+        - fire_damage_reduction(0.5)
+    hits:
+        - engrave.3
+        - sew.1
+lapis_lazuli:
+    path: v.lapis_lazuli
+    weight: 2
+    value: 2
+    tier: 1
+    type: crystal
+    scheme: crystal
+    model-scheme: default
+    stats:
+        - pvp_damage(0.5)
+        - projectile_damage_reduction(0.25)
+    hits:
+        - whittle.3
+        - engrave.2
+diamond:
+    path: v.diamond
+    weight: 2
+    value: 2
+    tier: 2
+    type: crystal
+    scheme: crystal
+    model-scheme: default
+    stats:
+        - max_item_damage(20.0)
+        - pvp_damage_reduction(0.25)
+        - physical_damage(0.5)
+    hits:
+        - hit.2
+        - small_hit.3
+        - engrave.5
+emerald:
+    path: v.emerald
+    weight: 2
+    value: 2
+    tier: 2
+    type: crystal
+    scheme: crystal
+    model-scheme: default
+    stats:
+        - max_item_damage(20.0)
+        - projectile_damage(0.2)
+        - health_regeneration(0.01)
+    hits:
+        - hit.2
+        - small_hit.3
+        - whittle.3
+        - engrave.2
+ignitium:
+    path: m.materials.ignitium
+    weight: 2
+    value: 4
+    tier: 3
+    type: crystal
+    scheme: crystal
+    model-scheme: default
+    stats:
+        - max_item_damage(20.0)
+        - dodge_rating(0.5)
+        - max_health(0.088)
+        - fall_damage_reduction(0.5)
+        - fire_damage_reduction(0.5)
+    hits:
+        - small_hit.2
+        - engrave.3
+        - sew.2
+raw_tin:
+    path: m.materials.raw_tin
+    weight: 2
+    value: 8
+    tier: 4
+    type: crystal
+    scheme: crystal
+    model-scheme: default
+    stats:
+        - max_item_damage(30.0)
+        - projectile_damage(0.5)
+        - physical_damage(0.5)
+        - projectile_damage_reduction(0.25)
+        - physical_damage_reduction(0.25)
+    hits:
+        - hit.6
+        - engrave.4
+abyssalite_fragment:
+    path: m.materials.abyssalite_fragment
+    weight: 2
+    value: 12
+    tier: 4
+    type: crystal
+    scheme: crystal
+    model-scheme: default
+    stats:
+        - max_item_damage(40.0)
+        - pvp_damage(0.5)
+        - pvp_damage_reduction(0.25)
+        - spell_vampirism(0.5)
+        - magic_damage_reduction(0.2)
+    hits:
+        - hit.4
+        - small_hit.3
+        - etch.1
+        - whittle.3
+        - engrave.2
+        - sew.2
+mythril_fragment:
+    path: m.materials.mythril_fragment
+    weight: 2
+    value: 12
+    tier: 4
+    type: crystal
+    scheme: crystal
+    model-scheme: default
+    stats:
+        - max_item_damage(60.0)
+        - max_health(0.088)
+        - max_mana(0.5)
+        - cooldown_reduction(0.5)
+        - skill_damage(0.5)
+    hits:
+        - hit.2
+        - small_hit.4
+        - etch.2
+        - whittle.2
+        - engrave.3
+        - sew.3
+#BB Compliments the stats of base items
+leather:
+    path: m.materials.leather
+    weight: 2
+    value: 1
+    tier: 1
+    type: leather
+    scheme: leather
+    model-scheme: default
+    stats:
+        - critical_strike_chance(0.833)
+        - damage_reduction(0.333)
+        - movement_speed(0.025)
+    hits:
+        - etch.1
+        - whittle.2
+        - sew.2
+rare_leather:
+    path: m.materials.rare_leather
+    weight: 2
+    value: 1
+    tier: 2
+    type: leather
+    scheme: leather
+    model-scheme: default
+    stats:
+        - armor_toughness(0.083)
+        - critical_strike_chance(1.667)
+        - damage_reduction(0.667)
+        - movement_speed(0.05)
+    hits:
+        - etch.3
+        - whittle.2
+        - sew.1
+epic_leather:
+    path: m.materials.epic_leather
+    weight: 2
+    value: 1
+    tier: 3
+    type: leather
+    scheme: leather
+    model-scheme: default
+    stats:
+        - armor_toughness(0.166)
+        - critical_strike_chance(2.5)
+        - damage_reduction(1.333)
+        - movement_speed(0.075)
+    hits:
+        - etch.2
+        - whittle.1
+        - sew.3
+legendary_leather:
+    path: m.materials.legendary_leather
+    weight: 2
+    value: 1
+    tier: 4
+    type: leather
+    scheme: leather
+    model-scheme: default
+    stats:
+        - armor_toughness(0.25)
+        - critical_strike_chance(3.33)
+        - damage_reduction(2.667)
+        - movement_speed(0.1)
+    hits:
+        - etch.2
+        - whittle.2
+        - sew.3
+feather:
+    path: v.feather
+    weight: 2
+    value: 1
+    tier: 1
+    type: feather
+    scheme: feather
+    model-scheme: default
+    stats:
+        - critical_strike_chance(0.833)
+        - arrow_velocity(0.0166)
+        - damage_reduction(0.333)
+        - movement_speed(0.025)
+    hits:
+        - etch.2
+        - whittle.1
+        - sew.1
+rare_feather:
+    path: m.materials.rare_feather
+    weight: 2
+    value: 1
+    tier: 2
+    type: feather
+    scheme: feather
+    model-scheme: default
+    stats:
+        - armor_toughness(0.083)
+        - arrow_velocity(0.0333)
+        - critical_strike_chance(1.667)
+        - damage_reduction(0.667)
+        - movement_speed(0.05)
+    hits:
+        - etch.2
+        - whittle.1
+        - sew.1
+epic_feather:
+    path: m.materials.epic_feather
+    weight: 2
+    value: 1
+    tier: 3
+    type: feather
+    scheme: feather
+    model-scheme: default
+    stats:
+        - armor_toughness(0.166)
+        - arrow_velocity(0.05)
+        - critical_strike_chance(2.5)
+        - damage_reduction(1.333)
+        - movement_speed(0.075)
+    hits:
+        - etch.1
+        - whittle.3
+        - sew.2
+legendary_feather:
+    path: m.materials.legendary_feather
+    weight: 2
+    value: 1
+    tier: 4
+    type: feather
+    scheme: feather
+    model-scheme: default
+    stats:
+        - armor_toughness(0.25)
+        - arrow_velocity(0.0667)
+        - critical_strike_chance(3.33)
+        - damage_reduction(2.667)
+        - movement_speed(0.1)
+    hits:
+        - etch.2
+        - whittle.3
+        - sew.1
+wool:
+    path: v.white_wool
+    weight: 2
+    value: 1
+    tier: 1
+    type: wool
+    scheme: wool
+    model-scheme: default
+    stats:
+        - critical_strike_chance(0.833)
+        - damage_reduction(0.333)
+        - movement_speed(0.025)
+    hits:
+        - etch.1
+        - whittle.2
+        - sew.3
+rare_wool:
+    path: m.materials.rare_wool
+    weight: 2
+    value: 1
+    tier: 2
+    type: wool
+    scheme: wool
+    model-scheme: default
+    stats:
+        - armor_toughness(0.083)
+        - critical_strike_chance(1.667)
+        - damage_reduction(0.667)
+        - movement_speed(0.05)
+    hits:
+        - etch.2
+        - whittle.2
+        - sew.2
+epic_wool:
+    path: m.materials.epic_wool
+    weight: 2
+    value: 1
+    tier: 3
+    type: wool
+    scheme: wool
+    model-scheme: default
+    stats:
+        - armor_toughness(0.166)
+        - critical_strike_chance(2.5)
+        - damage_reduction(1.333)
+        - movement_speed(0.075)
+    hits:
+        - etch.1
+        - whittle.1
+        - sew.3
+legendary_wool:
+    path: m.materials.legendary_wool
+    weight: 2
+    value: 1
+    tier: 4
+    type: wool
+    scheme: wool
+    model-scheme: default
+    stats:
+        - armor_toughness(0.25)
+        - critical_strike_chance(3.33)
+        - damage_reduction(2.667)
+        - movement_speed(0.1)
+    hits:
+        - etch.2
+        - whittle.1
+        - sew.4
+
+#Model scheme placeholders
+#Infantry
+paper:
+    path: v.paper
+    hex: "#d8d8d8"
+    weight: 50
+    value: 2
+    type: paper
+    scheme: metal
+    xp: alchemist(1.0)
+    model-scheme: infantry
+    stats:
+        - max_item_damage(5.0)
+    hits:
+        - sew.1

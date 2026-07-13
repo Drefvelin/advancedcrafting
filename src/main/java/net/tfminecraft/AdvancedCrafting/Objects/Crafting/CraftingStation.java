@@ -1,7 +1,5 @@
 package net.tfminecraft.AdvancedCrafting.Objects.Crafting;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -23,10 +21,8 @@ import me.Plugins.TLibs.Enums.APIType;
 import me.Plugins.TLibs.Objects.API.ItemAPI;
 import me.Plugins.TLibs.Objects.Utils.IntCounter;
 import net.Indyuce.mmoitems.ItemStats;
-import net.Indyuce.mmoitems.MMOItems;
 import net.Indyuce.mmoitems.api.item.mmoitem.LiveMMOItem;
 import net.Indyuce.mmoitems.api.item.mmoitem.MMOItem;
-import net.Indyuce.mmoitems.stat.data.DoubleData;
 import net.Indyuce.mmoitems.stat.data.GemSocketsData;
 import net.Indyuce.mmoitems.stat.data.StringData;
 import net.Indyuce.mmoitems.stat.data.StringListData;
@@ -42,12 +38,17 @@ import net.tfminecraft.AdvancedCrafting.Objects.CraftStack;
 import net.tfminecraft.AdvancedCrafting.Objects.Alloys.Alloy;
 import net.tfminecraft.AdvancedCrafting.Objects.Crafting.Hits.CraftingHit;
 import net.tfminecraft.AdvancedCrafting.Objects.Crafting.Hits.HitType;
+import net.tfminecraft.AdvancedCrafting.Objects.Data.CraftProvenance;
 import net.tfminecraft.AdvancedCrafting.Objects.Data.StatData;
 import net.tfminecraft.AdvancedCrafting.Objects.Ingredients.Ingredient;
 import net.tfminecraft.AdvancedCrafting.Objects.Ingredients.IngredientType;
 import net.tfminecraft.AdvancedCrafting.Objects.Schemes.ModelScheme;
 import net.tfminecraft.AdvancedCrafting.Objects.Stats.StatModifier;
-import net.tfminecraft.AdvancedCrafting.Utils.StatFactors;
+import net.tfminecraft.AdvancedCrafting.Utils.CraftStatCalculator;
+import net.tfminecraft.AdvancedCrafting.Utils.CraftTierLore;
+import net.tfminecraft.AdvancedCrafting.Utils.MMOStatApplicator;
+import net.tfminecraft.AdvancedCrafting.Utils.MajorityTierResolver;
+import net.tfminecraft.AdvancedCrafting.Utils.ProfessionPermissions;
 
 public class CraftingStation {
 	private Location loc;
@@ -178,27 +179,25 @@ public class CraftingStation {
 		String key = "";
 		IngredientType type = null;
 		String name = i.getItemMeta().getDisplayName();
-		List<String> permissions = new ArrayList<>();
+		int materialTier = 0;
 		if(c.isIngredient()) {
 			Ingredient ing = c.getIngredient();
 			key = "ingredient."+ing.getId();
 			type = ing.getIngredientData().getType();
 			mergeHits = ing.getIngredientData().getHits();
-			permissions = ing.getIngredientData().getPermissions();
+			materialTier = ProfessionPermissions.resolveTier(ing);
 		}
 		if(c.isAlloy()) {
 			Alloy a = c.getAlloy();
 			key = "alloy."+a.getId();
 			type = a.getData().getType();
 			mergeHits = a.getData().getHits();
-			permissions = a.getData().getPermissions();
+			materialTier = ProfessionPermissions.resolveTier(a);
 		}
-		if(permissions.size() > 0) {
-			boolean has = false;
-			for(String s : permissions) {
-				if(p.hasPermission(s) && !recipe.getIgnorePermissions().contains(s)) has = true;
-			}
-			if(!has) return StationFeedback.NO_PERMS;
+		if (materialTier > 0 && recipe.hasPermissionNamespace()
+				&& !ProfessionPermissions.hasExactTierPerm(p, recipe.getPermissionNamespace(), materialTier)) {
+			p.sendMessage(ProfessionPermissions.missingExactTierMessage(recipe.getPermissionNamespace(), materialTier));
+			return StationFeedback.NO_PERMS;
 		}
 		if(!recipe.getRecipe().containsKey(type.getId())) {
 			return StationFeedback.WRONG_TYPE;
@@ -249,12 +248,18 @@ public class CraftingStation {
 		return StationFeedback.SUCCESS;
 	}
 	
-	public StationFeedback craft(Player p){
-		createStats();
-		applyRecipeStats();
-		cleanStats();
+	public boolean hasAllMaterials(Player p) {
+		return checkItems(p);
+	}
+
+	public StationFeedback craft(Player p) {
+		return craft(p, null);
+	}
+
+	public StationFeedback craft(Player p, Double forcedQualityPercent) {
+		stats = CraftStatCalculator.compute(recipe, currentMaterials);
 		giveXP(p);
-		return createItem(p);
+		return createItem(p, forcedQualityPercent);
 	}
 
 	private void giveXP(Player p) {
@@ -303,83 +308,6 @@ public class CraftingStation {
 	}
 
 	
-	private void createStats() {
-		stats = new StatData();
-		
-		for(String s : currentMaterials.keySet()) {
-			String type = s.split("\\.")[0];
-			String mId = s.split("\\.")[1];
-			if(type.equalsIgnoreCase("ingredient")) {
-				for(int i = 0; i<currentMaterials.get(s); i++) {
-					stats.mergeFrom(IngredientLoader.getByString(mId).getIngredientData().getStatData());
-				}
-			} else if(type.equalsIgnoreCase("alloy")) {
-				for(int i = 0; i<currentMaterials.get(s); i++) {
-					stats.mergeFrom(AlloyManager.getAlloyById(mId).getData().getStatData());
-				}
-			}
-		}
-	}
-
-	private void applyRecipeStats() {
-		for(StatModifier modify : recipe.getModifyStats()) {
-			boolean found = false;
-			for(StatModifier mod : stats.getModifiers()) {
-				if(mod.getType().equalsIgnoreCase(modify.getType())){
-					mod.setAmount(mod.getAmount()+modify.getAmount());
-					found = true;
-				}
-			}
-			if(!found) stats.addModifier(new StatModifier(modify.getType(), modify.getAmount()));
-		}
-		for(StatModifier base : recipe.getBaseStats()) {
-			boolean found = false;
-			for(StatModifier mod : stats.getModifiers()) {
-				if(mod.getType().equalsIgnoreCase(base.getType())){
-					mod.setAmount(base.getAmount());
-					found = true;
-				}
-			}
-			if(!found) stats.addModifier(new StatModifier(base.getType(), base.getAmount()));
-		}
-	}
-
-	private void cleanStats() {
-		for (StatModifier mod : stats.getModifiers()) {
-			System.out.println("DEBUG: Processing StatModifier: " + mod.getType());
-			if (StatFactors.has(mod.getType())) {
-				System.out.println("DEBUG: StatFactors has type: " + mod.getType());
-
-				double originalAmount = mod.getAmount();
-				System.out.println("DEBUG: Original amount: " + originalAmount);
-
-				double factor = StatFactors.get(mod.getType());
-				System.out.println("DEBUG: Factor from StatFactors: " + factor);
-
-				double divided = originalAmount / factor;
-				System.out.println("DEBUG: Result after division: " + divided);
-
-				BigDecimal bd = new BigDecimal(divided);
-				
-				if (divided >= 0.01) {
-					bd = bd.setScale(2, RoundingMode.HALF_UP);
-					System.out.println("DEBUG: Rounded to 2 decimals");
-				} else {
-					bd = bd.setScale(3, RoundingMode.HALF_UP);
-					System.out.println("DEBUG: Rounded to 3 decimals");
-				}
-
-				double finalAmount = bd.doubleValue();
-				System.out.println("DEBUG: Final rounded amount: " + finalAmount);
-
-				mod.setAmount(finalAmount);
-			} else {
-				System.out.println("DEBUG: StatFactors does NOT have type: " + mod.getType());
-			}
-		}
-	}
-
-	
 	private boolean checkItems(Player p) {
 		boolean complete = true;
 		for(IngredientType t : types.keySet()) {
@@ -419,47 +347,18 @@ public class CraftingStation {
 		}
 		return Math.round((amount/counter));
 	}
-	private StationFeedback createItem(Player p) {
-		if(!checkItems(p)) return StationFeedback.LACKING_ITEMS;
-		if(!checkHits(p)) return StationFeedback.LACKING_HITS;
+	private StationFeedback createItem(Player p, Double forcedQualityPercent) {
+		if (!checkItems(p)) {
+			return StationFeedback.LACKING_ITEMS;
+		}
+		if (forcedQualityPercent == null && !checkHits(p)) {
+			return StationFeedback.LACKING_HITS;
+		}
 		ItemAPI api = (ItemAPI) TLibs.getApiInstance(APIType.ITEM_API);
 		result = api.getCreator().getItemFromPath("m."+recipe.getTemplate());
 		MMOItem mmo = new LiveMMOItem(NBTItem.get(result));
-		for(StatModifier m : stats.getModifiers()) {
-			if(recipe.shouldIgnore(m.getType())) continue;
-			DoubleData stat = new DoubleData(m.getAmount());
-			if(m.getType().equalsIgnoreCase("durability")) {
-				mmo.setData(ItemStats.MAX_DURABILITY, stat);
-				mmo.setData(ItemStats.CUSTOM_DURABILITY, stat);
-			} else {
-				mmo.setData(MMOItems.plugin.getStats().get(m.getType().toUpperCase()), stat);
-			}
-			
-		}
-		String max = "";
-		int prev = 0;
-		for(String s : currentMaterials.keySet()) {
-			String type = s.split("\\.")[0];
-			String mId = s.split("\\.")[1];
-			boolean rightType = false;
-			if(type.equalsIgnoreCase("ingredient")) {
-				Ingredient ing = IngredientLoader.getByString(mId);
-				if(ing.getIngredientData().getType().getId().equalsIgnoreCase(recipe.getMainType())) rightType = true;
-			} else if(type.equalsIgnoreCase("alloy")) {
-				Alloy a = AlloyManager.getAlloyById(mId);
-				if(a.getData().getType().getId().equalsIgnoreCase(recipe.getMainType())) rightType = true;
-			}
-			if(rightType && currentMaterials.get(s) > prev) {
-				prev = currentMaterials.get(s);
-				max = s;
-			}
-		}
-		if (max.equalsIgnoreCase("")) {
-			for (String key : currentMaterials.keySet()) {
-				max = key;
-				break; // just grab the first one
-			}
-		}
+		MMOStatApplicator.applyExternalLayer(mmo, stats, CraftStatCalculator.collectManagedStatIds(recipe), true);
+		String max = MajorityTierResolver.resolveMajorityKey(recipe, currentMaterials);
 		StringData itemName = (StringData) mmo.getData(ItemStats.NAME);
 		ModelScheme scheme = null;
 		String type = max.split("\\.")[0];
@@ -514,7 +413,7 @@ public class CraftingStation {
             og.setString(result);
             mmo.setStatHistory(ItemStats.NAME, hist);
         }
-		double percentage = calculatePercentage();
+		double percentage = forcedQualityPercent != null ? forcedQualityPercent : calculatePercentage();
 		Quality q = getQuality(percentage);
 		p.sendMessage("Quality: "+q.getName());
 		p.sendMessage("Hit Percenage: §e"+percentage+"%");
@@ -545,6 +444,12 @@ public class CraftingStation {
 				}
 			}
 			finalItem = applyModel(finalItem, scheme);
+		}
+		CraftProvenance provenance = CraftProvenance.from(recipe, currentMaterials, q);
+		provenance.applyTo(finalItem);
+		int majorityTier = MajorityTierResolver.resolveTier(recipe, currentMaterials);
+		if (majorityTier > 0) {
+			CraftTierLore.applyTierLine(finalItem, majorityTier);
 		}
 		Location dropLoc = loc.clone().add(0, 1, 0);
 		dropLoc.getWorld().dropItem(dropLoc, finalItem);

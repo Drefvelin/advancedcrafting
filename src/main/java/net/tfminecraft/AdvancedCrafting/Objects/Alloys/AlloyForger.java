@@ -15,6 +15,7 @@ import net.tfminecraft.AdvancedCrafting.Cache.Cache;
 import net.tfminecraft.AdvancedCrafting.Database.AlloyDatabase;
 import net.tfminecraft.AdvancedCrafting.Managers.AlloyManager;
 import net.tfminecraft.AdvancedCrafting.Objects.Crafting.Hits.CraftingHit;
+import net.tfminecraft.AdvancedCrafting.Objects.Data.AlloyRecipe;
 import net.tfminecraft.AdvancedCrafting.Objects.Data.StatData;
 import net.tfminecraft.AdvancedCrafting.Objects.Ingredients.Ingredient;
 import net.tfminecraft.AdvancedCrafting.Objects.Stats.StatModifier;
@@ -55,9 +56,9 @@ public class AlloyForger {
 					p.sendMessage("§4There were no free alloy names! Contact the admins so they can add more!");
 					scrap = true;
 				} else {
-					a = new Alloy(name, station.getBaseItem(), stats, hits, getXP());
+					AlloyRecipe recipe = AlloyRecipe.fromStation(station);
+					a = new Alloy(name, station.getBaseItem(), stats, hits, getXP(), recipe);
 					db.saveAlloy(a);
-					db.saveRecipe(station, a.getId());
 					AlloyManager.addAlloy(a);
 					isNew = true;
 				}

@@ -1,0 +1,184 @@
+light_helmet:
+    name: "Light %material% Helmet"
+    template: helmets.light_custom_helmet
+    category: armor
+    type: helmet
+    main-type: metal
+    stat-template: light_armor
+    permission-namespace: armoursmith
+    recipe:
+        - metal.6
+        - feather.6
+light_chestplate:
+    name: "Light %material% Chestplate"
+    template: armors.light_custom_chestplate
+    category: armor
+    type: chestplate
+    main-type: metal
+    stat-template: light_armor
+    permission-namespace: armoursmith
+    recipe:
+        - metal.6
+        - feather.6
+light_leggings:
+    name: "Light %material% Leggings"
+    template: armors.light_custom_leggings
+    category: armor
+    type: leggings
+    main-type: metal
+    stat-template: light_armor
+    permission-namespace: armoursmith
+    recipe:
+        - metal.6
+        - feather.6
+light_boots:
+    name: "Light %material% Boots"
+    template: armors.light_custom_boots
+    category: armor
+    type: boots
+    main-type: metal
+    stat-template: light_armor
+    permission-namespace: armoursmith
+    recipe:
+        - metal.6
+        - feather.6
+medium_helmet:
+    name: "Medium %material% Helmet"
+    template: helmets.medium_custom_helmet
+    category: armor
+    type: helmet
+    main-type: metal
+    stat-template: medium_armor
+    permission-namespace: armoursmith
+    recipe:
+        - metal.6
+        - leather.6
+medium_chestplate:
+    name: "Medium %material% Chestplate"
+    template: armors.medium_custom_chestplate
+    category: armor
+    type: chestplate
+    main-type: metal
+    stat-template: medium_armor
+    permission-namespace: armoursmith
+    recipe:
+        - metal.6
+        - leather.6
+medium_leggings:
+    name: "Medium %material% Leggings"
+    template: armors.medium_custom_leggings
+    category: armor
+    type: leggings
+    main-type: metal
+    stat-template: medium_armor
+    permission-namespace: armoursmith
+    recipe:
+        - metal.6
+        - leather.6
+medium_boots:
+    name: "Medium %material% Boots"
+    template: armors.medium_custom_boots
+    category: armor
+    type: boots
+    main-type: metal
+    stat-template: medium_armor
+    permission-namespace: armoursmith
+    recipe:
+        - metal.6
+        - leather.6
+heavy_helmet:
+    name: "Heavy %material% Helmet"
+    template: helmets.heavy_custom_helmet
+    category: armor
+    type: helmet
+    main-type: metal
+    stat-template: heavy_armor
+    permission-namespace: armoursmith
+    recipe:
+        - metal.6
+        - wool.6
+heavy_chestplate:
+    name: "Heavy %material% Chestplate"
+    template: armors.heavy_custom_chestplate
+    category: armor
+    type: chestplate
+    main-type: metal
+    stat-template: heavy_armor
+    permission-namespace: armoursmith
+    recipe:
+        - metal.6
+        - wool.6
+heavy_leggings:
+    name: "Heavy %material% Leggings"
+    template: armors.heavy_custom_leggings
+    category: armor
+    type: leggings
+    main-type: metal
+    stat-template: heavy_armor
+    permission-namespace: armoursmith
+    recipe:
+        - metal.6
+        - wool.6
+heavy_boots:
+    name: "Heavy %material% Boots"
+    template: armors.heavy_custom_boots
+    category: armor
+    type: boots
+    main-type: metal
+    stat-template: heavy_armor
+    permission-namespace: armoursmith
+    recipe:
+        - metal.6
+        - wool.6
+infantry_helmet:
+    name: "Infantry %material% Cap"
+    template: helmets.infantry_custom_helmet
+    category: armor
+    type: helmet
+    main-type: metal
+    stat-template: infantry_armor
+    permission-namespace: armoursmith
+    model-type: paper
+    recipe:
+        - paper.8
+        - metal.6
+        - feather.6
+infantry_chestplate:
+    name: "Infantry %material% Jacket"
+    template: armors.infantry_custom_chestplate
+    category: armor
+    type: chestplate
+    main-type: metal
+    stat-template: infantry_armor
+    permission-namespace: armoursmith
+    model-type: paper
+    recipe:
+        - paper.8
+        - metal.6
+        - feather.6
+infantry_leggings:
+    name: "Infantry %material% Leggings"
+    template: armors.infantry_custom_leggings
+    category: armor
+    type: leggings
+    main-type: metal
+    stat-template: infantry_armor
+    permission-namespace: armoursmith
+    model-type: paper
+    recipe:
+        - paper.8
+        - metal.6
+        - feather.6
+infantry_boots:
+    name: "Infantry %material% Boots"
+    template: armors.infantry_custom_boots
+    category: armor
+    type: boots
+    main-type: metal
+    model-type: paper
+    stat-template: infantry_armor
+    permission-namespace: armoursmith
+    recipe:
+        - paper.8
+        - metal.6
+        - feather.6

@@ -17,13 +17,19 @@ import me.Plugins.TLibs.Objects.API.ItemAPI;
 import me.Plugins.TLibs.Objects.API.SubAPI.StringFormatter;
 import net.tfminecraft.AdvancedCrafting.AdvancedCrafting;
 import net.tfminecraft.AdvancedCrafting.Loaders.CategoryLoader;
+import net.tfminecraft.AdvancedCrafting.Loaders.StatTemplateLoader;
 import net.tfminecraft.AdvancedCrafting.Loaders.TypeLoader;
 import net.tfminecraft.AdvancedCrafting.Objects.Crafting.CraftingRecipe;
 import net.tfminecraft.AdvancedCrafting.Objects.Crafting.RecipeCategory;
+import net.tfminecraft.AdvancedCrafting.Objects.Data.StatData;
 import net.tfminecraft.AdvancedCrafting.Objects.Ingredients.IngredientType;
+import net.tfminecraft.AdvancedCrafting.Objects.Stats.StatTemplate;
+import net.tfminecraft.AdvancedCrafting.Utils.StatTemplateMath;
 
 
 public class InventoryManager {
+	public static final String STAT_PREVIEW_TITLE = "§7Stat Preview";
+
 	public void categoryView(Player p) {
 		Inventory i = AdvancedCrafting.plugin.getServer().createInventory(null, 27, "§7Select Category");
 		int x = 0;
@@ -63,6 +69,52 @@ public class InventoryManager {
 			slotn++;
 		}
 		p.openInventory(i);
+	}
+
+	public void templatePreviewView(Player p, StatData source) {
+		int count = 0;
+		for (StatTemplate template : StatTemplateLoader.getAll()) {
+			if (StatTemplateMath.hasOverlap(source, template)) {
+				count++;
+			}
+		}
+		if (count == 0) {
+			p.sendMessage("§cThis item has no stats matching any template.");
+			return;
+		}
+		int size = Math.min(54, Math.max(9, ((count + 8) / 9) * 9));
+		Inventory i = AdvancedCrafting.plugin.getServer().createInventory(null, size, STAT_PREVIEW_TITLE);
+		int slot = 0;
+		for (StatTemplate template : StatTemplateLoader.getAll()) {
+			if (!StatTemplateMath.hasOverlap(source, template)) {
+				continue;
+			}
+			i.setItem(slot, getTemplatePreviewItem(source, template));
+			slot++;
+		}
+		int slotn = 0;
+		while (slotn < i.getSize()) {
+			if (i.getItem(slotn) == null) {
+				ItemStack fill = new ItemStack(Material.GRAY_STAINED_GLASS_PANE);
+				ItemMeta fm = fill.getItemMeta();
+				fm.setDisplayName("§8 ");
+				fill.setItemMeta(fm);
+				i.setItem(slotn, fill);
+			}
+			slotn++;
+		}
+		p.openInventory(i);
+	}
+
+	private ItemStack getTemplatePreviewItem(StatData source, StatTemplate template) {
+		ItemStack item = new ItemStack(template.getIcon(), 1);
+		ItemMeta meta = item.getItemMeta();
+		meta.setDisplayName(template.getName());
+		List<String> lore = new ArrayList<>();
+		lore.addAll(StatTemplateMath.getPreviewLines(source, template));
+		meta.setLore(lore);
+		item.setItemMeta(meta);
+		return item;
 	}
 	
 	private ItemStack getCategoryItem(RecipeCategory c) {

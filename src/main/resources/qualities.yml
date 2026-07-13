@@ -1,1 +1,28 @@
-effect: blue
+crude:
+    amount: 0.0
+    value: 1
+    name: "§fRusted"
+common:
+    amount: 50.0
+    value: 2
+    name: "§aTempered"
+    gem-slots:
+        - "Basic Gemstone"
+rare:
+    amount: 75.0
+    value: 3
+    name: "§9Polished"
+    gem-slots:
+        - "Polished Gemstone"
+epic:
+    amount: 90.0
+    value: 4
+    name: "§5Gleaming"
+    gem-slots:
+        - "Radiant Gemstone"
+legendary:
+    amount: 100.0
+    value: 5
+    name: "§6Masterwork"
+    gem-slots:
+        - "Mythical Gemstone"

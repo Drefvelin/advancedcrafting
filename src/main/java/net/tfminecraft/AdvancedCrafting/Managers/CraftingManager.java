@@ -3,6 +3,8 @@ package net.tfminecraft.AdvancedCrafting.Managers;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -22,6 +24,7 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import me.Plugins.TLibs.TLibs;
 import me.Plugins.TLibs.Objects.API.ItemAPI;
@@ -33,11 +36,23 @@ import net.tfminecraft.AdvancedCrafting.Loaders.RecipeLoader;
 import net.tfminecraft.AdvancedCrafting.Objects.Crafting.CraftingRecipe;
 import net.tfminecraft.AdvancedCrafting.Objects.Crafting.CraftingStation;
 import net.tfminecraft.AdvancedCrafting.Objects.Crafting.RecipeCategory;
+import net.tfminecraft.AdvancedCrafting.Utils.ProfessionPermissions;
 
 public class CraftingManager implements Listener{
+	private static class AdminCraftPending {
+		private final double qualityPercent;
+		private final long expiresAtMs;
+
+		private AdminCraftPending(double qualityPercent, long expiresAtMs) {
+			this.qualityPercent = qualityPercent;
+			this.expiresAtMs = expiresAtMs;
+		}
+	}
+
 	private HashMap<Player, Long> cooldown = new HashMap<>();
 	private HashMap<Player, CraftingStation> currentStation = new HashMap<>();
 	private HashMap<Location, CraftingStation> stations = new HashMap<>();
+	private final Map<UUID, AdminCraftPending> adminCraftPending = new HashMap<>();
 
 	private ItemAPI api = TLibs.getItemAPI();
 	
@@ -60,6 +75,67 @@ public class CraftingManager implements Listener{
 		}
 		return list;
 	}
+
+	public void setAdminCraftPending(Player player, double qualityPercent) {
+		long expiresAt = System.currentTimeMillis() + 30_000L;
+		adminCraftPending.put(player.getUniqueId(), new AdminCraftPending(qualityPercent, expiresAt));
+		new BukkitRunnable() {
+			@Override
+			public void run() {
+				AdminCraftPending pending = adminCraftPending.remove(player.getUniqueId());
+				if (pending != null && player.isOnline()) {
+					player.sendMessage("§cAdmin craft timed out. Run §f/ac craft <percent>§c again.");
+				}
+			}
+		}.runTaskLater(AdvancedCrafting.plugin, 600L);
+	}
+
+	private AdminCraftPending getValidAdminCraftPending(Player player) {
+		AdminCraftPending pending = adminCraftPending.get(player.getUniqueId());
+		if (pending == null) {
+			return null;
+		}
+		if (System.currentTimeMillis() > pending.expiresAtMs) {
+			adminCraftPending.remove(player.getUniqueId());
+			return null;
+		}
+		return pending;
+	}
+
+	private boolean tryCompleteAdminCraft(Player p, Block b) {
+		AdminCraftPending pending = getValidAdminCraftPending(p);
+		if (pending == null) {
+			return false;
+		}
+		if (!hasStation(b.getLocation())) {
+			p.sendMessage("§cNo recipe on this anvil. Set up a craft first.");
+			return true;
+		}
+		CraftingStation station = get(b.getLocation());
+		if (!station.hasRecipe()) {
+			p.sendMessage("§cNo recipe on this anvil. Select a recipe first.");
+			return true;
+		}
+		if (!station.hasAllMaterials(p)) {
+			return true;
+		}
+		StationFeedback f = station.craft(p, pending.qualityPercent);
+		adminCraftPending.remove(p.getUniqueId());
+		if (f.equals(StationFeedback.SUCCESS)) {
+			p.getWorld().playSound(station.getLoc(), Sound.ENTITY_PLAYER_LEVELUP, 1f, 1f);
+			p.getWorld().playSound(station.getLoc(), Sound.BLOCK_ANVIL_PLACE, 1f, 1f);
+			p.spawnParticle(Particle.LAVA, station.getLoc().clone().add(0.5, 1, 0.5), 50, 0.1, 0.2, 0.1);
+			stations.remove(b.getLocation());
+			currentStation.remove(p);
+		} else {
+			p.playSound(p.getLocation(), Sound.ENTITY_VILLAGER_NO, 1f, 1f);
+			if (f.equals(StationFeedback.LACKING_ITEMS)) {
+				p.sendMessage("§cYou have to add all the items before smithing");
+			}
+		}
+		return true;
+	}
+
 	@EventHandler
 	public void openStation(PlayerInteractEvent e) {
 		if(!e.getAction().equals(Action.RIGHT_CLICK_BLOCK)) return;
@@ -73,6 +149,9 @@ public class CraftingManager implements Listener{
 			}
 		}
 		cooldown.put(p, System.currentTimeMillis() + (100));
+		if (tryCompleteAdminCraft(p, b)) {
+			return;
+		}
 		ItemStack i = p.getInventory().getItemInMainHand();
 		if(hasStation(b.getLocation())) {
 			CraftingStation station = stations.get(b.getLocation());
@@ -109,7 +188,6 @@ public class CraftingManager implements Listener{
 					p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASS, 1f, 0.5f);
 					break;
 				case NO_PERMS:
-					p.sendMessage("§cYou lack permission to use this item in a recipe");
 					p.playSound(p.getLocation(), Sound.ENTITY_VILLAGER_NO, 1f, 1f);
 					break;
 				default:
@@ -205,6 +283,10 @@ public class CraftingManager implements Listener{
 	@EventHandler
 	public void invenClick(InventoryClickEvent e) {
 		Player p = (Player) e.getWhoClicked();
+		if(e.getView().getTitle().equalsIgnoreCase(InventoryManager.STAT_PREVIEW_TITLE)) {
+			e.setCancelled(true);
+			return;
+		}
 		if(e.getView().getTitle().equalsIgnoreCase("§7Select Category")) {
 			e.setCancelled(true);
 			ItemStack i = e.getCurrentItem();
@@ -224,15 +306,10 @@ public class CraftingManager implements Listener{
 			NamespacedKey key = new NamespacedKey(AdvancedCrafting.plugin, "ac_recipe");
 			if(m.getPersistentDataContainer().get(key, PersistentDataType.STRING) == null) return;
 			CraftingRecipe recipe = RecipeLoader.getByString(m.getPersistentDataContainer().get(key, PersistentDataType.STRING));
-			if(recipe.hasPermissions()) {
-				boolean has = false;
-				for(String s : recipe.getPermissions()) {
-					if(p.hasPermission(s)) has = true;
-				}
-				if(!has) {
-					p.sendMessage("§cYou dont have permission to use this recipe");
-					return;
-				}
+			if (recipe.hasPermissionNamespace()
+					&& !ProfessionPermissions.hasAnyNamespacePerm(p, recipe.getPermissionNamespace())) {
+				p.sendMessage(ProfessionPermissions.missingNamespaceMessage(recipe.getPermissionNamespace()));
+				return;
 			}
 			CraftingStation station = currentStation.get(p);
 			p.closeInventory();

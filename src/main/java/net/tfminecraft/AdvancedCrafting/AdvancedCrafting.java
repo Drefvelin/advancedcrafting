@@ -7,6 +7,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import net.tfminecraft.AdvancedCrafting.Database.AlloyDatabase;
+import net.tfminecraft.AdvancedCrafting.Database.AlloyRecipeStore;
 import net.tfminecraft.AdvancedCrafting.Database.Database;
 import net.tfminecraft.AdvancedCrafting.Loaders.CategoryLoader;
 import net.tfminecraft.AdvancedCrafting.Loaders.ConfigLoader;
@@ -16,17 +17,22 @@ import net.tfminecraft.AdvancedCrafting.Loaders.ConversionLoader;
 import net.tfminecraft.AdvancedCrafting.Loaders.HitLoader;
 import net.tfminecraft.AdvancedCrafting.Loaders.RecipeLoader;
 import net.tfminecraft.AdvancedCrafting.Loaders.SchemeLoader;
+import net.tfminecraft.AdvancedCrafting.Loaders.StatTemplateLoader;
 import net.tfminecraft.AdvancedCrafting.Loaders.StationLoader;
 import net.tfminecraft.AdvancedCrafting.Loaders.TypeLoader;
 import net.tfminecraft.AdvancedCrafting.Managers.AlloyManager;
 import net.tfminecraft.AdvancedCrafting.Managers.CommandManager;
+import net.tfminecraft.AdvancedCrafting.Managers.CraftRefreshListener;
 import net.tfminecraft.AdvancedCrafting.Managers.CraftingManager;
 import net.tfminecraft.AdvancedCrafting.Managers.IngredientManager;
+import net.tfminecraft.AdvancedCrafting.Managers.MMOItemRebuildListener;
 import net.tfminecraft.AdvancedCrafting.Objects.Crafting.CraftingStation;
+import net.tfminecraft.AdvancedCrafting.Utils.RevisionTracker;
 
 public class AdvancedCrafting extends JavaPlugin{
 	
 	public static AdvancedCrafting plugin;
+	private static final RevisionTracker revisionTracker = new RevisionTracker();
 	private final CategoryLoader categoryLoader = new CategoryLoader();
 	private final RecipeLoader recipeLoader = new RecipeLoader();
 	private final StationLoader stationLoader = new StationLoader();
@@ -37,13 +43,17 @@ public class AdvancedCrafting extends JavaPlugin{
 	private final SchemeLoader schemeLoader = new SchemeLoader();
 	private final HitLoader hitLoader = new HitLoader();
 	private final QualityLoader qualityLoader = new QualityLoader();
+	private final StatTemplateLoader statTemplateLoader = new StatTemplateLoader();
 	
 	private final CommandManager commandManager = new CommandManager();
 	private final CraftingManager craftingManager = new CraftingManager();
 	private static final AlloyManager alloyManager = new AlloyManager();
 	private final IngredientManager ingredientManager = new IngredientManager();
+	private final CraftRefreshListener craftRefreshListener = new CraftRefreshListener();
+	private final MMOItemRebuildListener mmoItemRebuildListener = new MMOItemRebuildListener();
 	
 	private final AlloyDatabase alloyDatabase = new AlloyDatabase();
+	private AlloyRecipeStore alloyRecipeStore;
 	private final Database db = new Database();
 	
 	
@@ -51,17 +61,24 @@ public class AdvancedCrafting extends JavaPlugin{
 	public void onEnable() {
 		plugin = this;
 		createFolders();
+		alloyRecipeStore = new AlloyRecipeStore(new File(getDataFolder(), "data/alloy-recipes"));
 		createConfigs();
+		revisionTracker.load(getDataFolder());
 		loadConfigs();
 		registerListeners();
+		craftRefreshListener.start(this);
 		getCommand(commandManager.cmd1).setExecutor(commandManager);
+		getCommand(commandManager.cmd1).setTabCompleter(commandManager);
 		getCommand(commandManager.cmd2).setExecutor(commandManager);
 		alloyDatabase.loadAlloys();
+		revisionTracker.flush();
 		startManagers();
 	}
 	
 	@Override
 	public void onDisable() {
+		craftRefreshListener.stop();
+		revisionTracker.flush();
 		db.clear();
 		for(CraftingStation s : craftingManager.getStations()) {
 			db.saveStation(s);
@@ -73,6 +90,8 @@ public class AdvancedCrafting extends JavaPlugin{
 		getServer().getPluginManager().registerEvents(craftingManager, this);
 		getServer().getPluginManager().registerEvents(alloyManager, this);
 		getServer().getPluginManager().registerEvents(ingredientManager, this);
+		getServer().getPluginManager().registerEvents(craftRefreshListener, this);
+		getServer().getPluginManager().registerEvents(mmoItemRebuildListener, this);
 	}
 	public void loadConfigs() {
 		/*
@@ -97,6 +116,7 @@ public class AdvancedCrafting extends JavaPlugin{
     		}
     	}
     	categoryLoader.load(new File(getDataFolder(), "recipe-categories.yml"));
+    	statTemplateLoader.load(new File(getDataFolder(), "stats.yml"));
     	folder = new File(getDataFolder(), "recipes");
     	for (final File file : folder.listFiles()) {
     		if(!file.isDirectory()) {
@@ -147,6 +167,7 @@ public class AdvancedCrafting extends JavaPlugin{
 				"crafting-hits.yml",
 				"conversions.yml",
 				"qualities.yml",
+				"stats.yml",
 				};
 		for(String s : files) {
 			File newConfigFile = new File(getDataFolder(), s);
@@ -159,6 +180,7 @@ public class AdvancedCrafting extends JavaPlugin{
 	
 	public void reload() {
 		loadConfigs();
+		revisionTracker.flush();
 	}
 	public void reloadMessage(Player p) {
 		p.sendMessage(ChatColor.GREEN + "[AdvancedCrafting]" + ChatColor.YELLOW + " Reloading plugin...");
@@ -168,5 +190,21 @@ public class AdvancedCrafting extends JavaPlugin{
 
 	public static AlloyManager getAlloyManager() {
 		return alloyManager;
+	}
+
+	public static RevisionTracker getRevisionTracker() {
+		return revisionTracker;
+	}
+
+	public static AlloyRecipeStore getAlloyRecipeStore() {
+		return plugin.alloyRecipeStore;
+	}
+
+	public static CraftingManager getCraftingManager() {
+		return plugin.craftingManager;
+	}
+
+	public IngredientManager getIngredientManager() {
+		return ingredientManager;
 	}
 }

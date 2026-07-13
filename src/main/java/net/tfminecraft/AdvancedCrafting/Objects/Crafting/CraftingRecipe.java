@@ -1,15 +1,14 @@
 package net.tfminecraft.AdvancedCrafting.Objects.Crafting;
 
-import java.security.Permission;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
+import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
 
 import me.Plugins.TLibs.Objects.API.SubAPI.StringFormatter;
 import net.tfminecraft.AdvancedCrafting.Loaders.CategoryLoader;
-import net.tfminecraft.AdvancedCrafting.Objects.Stats.StatModifier;
+import net.tfminecraft.AdvancedCrafting.Loaders.StatTemplateLoader;
+import net.tfminecraft.AdvancedCrafting.Objects.Stats.StatTemplate;
 
 public class CraftingRecipe {
 	private String id;
@@ -19,17 +18,13 @@ public class CraftingRecipe {
 	private String type;
 	private String mainType;
 	private String modelType;
+	private String statTemplateId;
 	
 	private HashMap<String, Integer> recipe = new HashMap<>();
-	
-	private List<String> ignore = new ArrayList<>();
 
-	private List<StatModifier> modify = new ArrayList<>();
-	private List<StatModifier> base = new ArrayList<>();
+	private String permissionNamespace;
+	private String categoryId;
 
-	private List<String> permissions = new ArrayList<>();
-	private List<String> ignorePermissions = new ArrayList<>();
-	
 	public CraftingRecipe(String key, ConfigurationSection config) {
 		this.id = key;
 		this.template = config.getString("template");
@@ -37,31 +32,23 @@ public class CraftingRecipe {
 		this.type = config.getString("type");
 		this.mainType = config.getString("main-type", "metal");
 		this.modelType = config.getString("model-type", "none");
-		CategoryLoader.getByString(config.getString("category")).addRecipe(this);
+		statTemplateId = config.getString("stat-template");
+		if (statTemplateId == null) {
+			Bukkit.getLogger().warning("AC: Recipe " + key + " is missing stat-template");
+		} else if (StatTemplateLoader.getByString(statTemplateId) == null) {
+			Bukkit.getLogger().warning("AC: Recipe " + key + " references unknown stat-template: " + statTemplateId);
+		}
+		categoryId = config.getString("category");
+		CategoryLoader.getByString(categoryId).addRecipe(this);
 		for(String r : config.getStringList("recipe")) {
-			String id = r.split("\\.")[0];
+			String recipeId = r.split("\\.")[0];
 			int amount = Integer.parseInt(r.split("\\.")[1]);
-			recipe.put(id, amount);
-		}
-		if(config.contains("ignore-stats")) {
-			ignore = config.getStringList("ignore-stats");
-		}
-		if(config.contains("modify-stats")) {
-			for(String s : config.getStringList("modify-stats")) {
-				modify.add(new StatModifier(s));
-			}
-		}
-		if(config.contains("base-stats")) {
-			for(String s : config.getStringList("base-stats")) {
-				base.add(new StatModifier(s));
-			}
+			recipe.put(recipeId, amount);
 		}
 
-		if(config.contains("permissions")) {
-			permissions = config.getStringList("permissions");
-		}
-		if(config.contains("ignore-permissions")) {
-			ignorePermissions = config.getStringList("ignore-permissions");
+		permissionNamespace = config.getString("permission-namespace");
+		if (permissionNamespace != null) {
+			permissionNamespace = permissionNamespace.toLowerCase();
 		}
 	}
 
@@ -73,21 +60,20 @@ public class CraftingRecipe {
 		return mainType;
 	}
 
-	public boolean hasPermissions() {
-		return permissions.size() > 0;
+	public String getPermissionNamespace() {
+		return permissionNamespace;
 	}
 
-	public List<String> getPermissions() {
-		return permissions;
+	public boolean hasPermissionNamespace() {
+		return permissionNamespace != null && !permissionNamespace.isBlank();
 	}
 
-	public List<String> getIgnorePermissions() {
-		return ignorePermissions;
+	public String getStatTemplateId() {
+		return statTemplateId;
 	}
-	
-	public boolean shouldIgnore(String s) {
-		if(ignore.contains(s)) return true;
-		return false;
+
+	public StatTemplate getStatTemplate() {
+		return StatTemplateLoader.getByString(statTemplateId);
 	}
 	
 	public String getId() {
@@ -114,11 +100,7 @@ public class CraftingRecipe {
 		return recipe;
 	}
 
-	public List<StatModifier> getModifyStats() {
-		return modify;
-	}
-
-	public List<StatModifier> getBaseStats() {
-		return base;
+	public String getCategoryId() {
+		return categoryId;
 	}
 }

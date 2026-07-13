@@ -21,12 +21,10 @@ public class StatToString {
     }
 
     public static String getFullString(StatModifier m) {
-        String result = "§f- #acdb86"+StatToString.get(m.getType());
-        if(m.getAmount() >= 0) {
-            result+=" #e0e677+"+m.getAmount();
-        } else {
-            result+=" #cc6050-"+m.getAmount();
-        }
+        String valuePart = m.getAmount() >= 0
+                ? "#45c46f+" + m.getAmount()
+                : "#d13530" + m.getAmount();
+        String result = "§f- #b8ae61" + StatToString.get(m.getType()) + " " + valuePart;
         return StringFormatter.formatHex(result);
     }
 }

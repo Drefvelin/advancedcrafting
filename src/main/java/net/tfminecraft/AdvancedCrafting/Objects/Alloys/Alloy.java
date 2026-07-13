@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.apache.commons.lang.WordUtils;
-import org.bukkit.NamespacedKey;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
@@ -29,22 +28,26 @@ import net.Indyuce.mmoitems.stat.type.StatHistory;
 import net.tfminecraft.AdvancedCrafting.AdvancedCrafting;
 import net.tfminecraft.AdvancedCrafting.Objects.Crafting.Hits.CraftingHit;
 import net.tfminecraft.AdvancedCrafting.Objects.Data.AlloyData;
+import net.tfminecraft.AdvancedCrafting.Objects.Data.AlloyRecipe;
 import net.tfminecraft.AdvancedCrafting.Objects.Data.StatData;
+import net.tfminecraft.AdvancedCrafting.Utils.AcItemTags;
+import net.tfminecraft.AdvancedCrafting.Utils.IngredientLore;
+import net.tfminecraft.AdvancedCrafting.Utils.PDCKeys;
 import net.tfminecraft.AdvancedCrafting.Objects.Ingredients.Ingredient;
-import net.tfminecraft.AdvancedCrafting.Objects.Stats.StatModifier;
-import net.tfminecraft.AdvancedCrafting.Utils.StatToString;
 
 public class Alloy {
 	private String id;
 	private String name;
 	private AlloyData data;
+	private int revision;
 	
-	public Alloy(String n, Ingredient base, StatData stats, HashMap<CraftingHit, Integer> hits, String xp) {
+	public Alloy(String n, Ingredient base, StatData stats, HashMap<CraftingHit, Integer> hits, String xp, AlloyRecipe recipe) {
 		name = n;
 		id = (new String(name)).replace(" ", "_").toLowerCase();
 		System.out.println(name);
 		name = StringFormatter.formatHex("#"+base.getIngredientData().getScheme().getColourScheme().randomColour()+name);
 		data = new AlloyData(base, stats, hits, xp);
+		data.setRecipe(recipe);
 	}
 	
 	public Alloy(String id, String name, AlloyData data) {
@@ -68,12 +71,7 @@ public class Alloy {
             mmo.setStatHistory(ItemStats.NAME, hist);
         }
 		List<String> loreList = new ArrayList<>();
-		loreList.add(StringFormatter.formatHex("#cf7c72Type: #d9bb93"+data.getType().getName()));
-		loreList.add(" ");
-		loreList.add(StringFormatter.formatHex("#c4b9a1Properties:"));
-		for(StatModifier sm : data.getStatData().getModifiers()) {
-			loreList.add(StringFormatter.formatHex("§f- #acdb86"+StatToString.get(sm.getType())+" #e0e677+"+sm.getAmount()));
-		}
+		int loreStart = IngredientLore.applyAlloyLore(loreList, data.getType(), data.getTier());
 		StringListData lore = new StringListData(loreList);
 		mmo.setData(ItemStats.LORE, lore);
 		ItemStack i = mmo.newBuilder().build();
@@ -81,8 +79,8 @@ public class Alloy {
 		m.addEnchant(Enchantment.DURABILITY, 1, true);
 		m.addItemFlags(ItemFlag.HIDE_ENCHANTS);
 		m.setCustomModelData(data.getModel());
-		NamespacedKey key = new NamespacedKey(AdvancedCrafting.plugin, "ac_alloy_id");
-		m.getPersistentDataContainer().set(key, PersistentDataType.STRING, id);
+		m.getPersistentDataContainer().set(PDCKeys.alloyId(), PersistentDataType.STRING, id);
+		AcItemTags.write(m, revision, loreStart);
 		i.setItemMeta(m);
 		return i;
 	}
@@ -105,6 +103,14 @@ public class Alloy {
 
 	public AlloyData getData() {
 		return data;
+	}
+
+	public int getRevision() {
+		return revision;
+	}
+
+	public void setRevision(int revision) {
+		this.revision = revision;
 	}
 	
 	
