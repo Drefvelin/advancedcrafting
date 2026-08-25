@@ -49,6 +49,7 @@ import net.tfminecraft.AdvancedCrafting.Utils.CraftTierLore;
 import net.tfminecraft.AdvancedCrafting.Utils.MMOStatApplicator;
 import net.tfminecraft.AdvancedCrafting.Utils.MajorityTierResolver;
 import net.tfminecraft.AdvancedCrafting.Utils.ProfessionPermissions;
+import net.tfminecraft.AdvancedCrafting.lifecycle.CraftLifecycle;
 
 public class CraftingStation {
 	private Location loc;
@@ -182,6 +183,12 @@ public class CraftingStation {
 		int materialTier = 0;
 		if(c.isIngredient()) {
 			Ingredient ing = c.getIngredient();
+			if (!ProfessionPermissions.canUseIngredient(p, ing)) {
+				int ingredientTier = ProfessionPermissions.resolveIngredientTier(ing);
+				p.sendMessage(ProfessionPermissions.missingExactTierMessage(
+						ing.getIngredientData().getPermissionNamespace(), ingredientTier));
+				return StationFeedback.NO_PERMS;
+			}
 			key = "ingredient."+ing.getId();
 			type = ing.getIngredientData().getType();
 			mergeHits = ing.getIngredientData().getHits();
@@ -453,6 +460,9 @@ public class CraftingStation {
 		}
 		Location dropLoc = loc.clone().add(0, 1, 0);
 		dropLoc.getWorld().dropItem(dropLoc, finalItem);
+		if (forcedQualityPercent == null) {
+			CraftLifecycle.fireItemCrafted(p, recipe.getId(), recipe.getCategoryId());
+		}
 		return StationFeedback.SUCCESS;
 	}
 	
@@ -498,6 +508,7 @@ public class CraftingStation {
 		}
 		hitTypes.get(hit.getType()).increaseCurrent(1);
 		p.sendTitle("§a+1 "+hit.getName(), hit.getType().getName() + " hits: "+hitTypes.get(hit.getType()).getCurrent()+"/"+hitTypes.get(hit.getType()).getNeeded(), 5, 20, 5);
+		CraftLifecycle.fireSmithingHit(p, hit.getId());
 	}
 
 	public void cancel() {

@@ -1,5 +1,7 @@
+# permission-namespace defaults to ingredient when omitted
 #Base
 iron_ingot:
+    permission-namespace: ingredient
     path: v.iron_ingot
     hex: "#d8d8d8"
     weight: 2
@@ -18,6 +20,7 @@ iron_ingot:
         - hit.4
         - small_hit.1
 steel_ingot:
+    permission-namespace: ingredient
     path: m.materials.steel_ingot
     weight: 2
     value: 4
@@ -36,6 +39,7 @@ steel_ingot:
         - hit.5
         - small_hit.2
 bronze_ingot: #No equivalent, middle of steel and abyssalite
+    permission-namespace: ingredient
     path: m.materials.bronze_ingot
     weight: 2
     value: 6
@@ -54,6 +58,7 @@ bronze_ingot: #No equivalent, middle of steel and abyssalite
         - hit.1
         - small_hit.5
 abyssalite_ingot:
+    permission-namespace: ingredient
     path: m.materials.abyssalite_ingot
     weight: 2
     value: 8
@@ -72,6 +77,7 @@ abyssalite_ingot:
         - hit.6
         - small_hit.2
 mythril_ingot:
+    permission-namespace: ingredient
     path: m.materials.mythril_ingot
     weight: 2
     value: 16
@@ -81,8 +87,6 @@ mythril_ingot:
     base: true
     tier: 4
     xp: smith(8.0)
-      - professions.mythril_weaponsmith
-      - professions.mythril_tailor
     stats:
         - armor(0.5)
         - attack_damage(0.66)
@@ -92,6 +96,7 @@ mythril_ingot:
         - hit.3
         - small_hit.5
 refined_barkwood:
+    permission-namespace: ingredient
     path: m.materials.refined_barkwood
     weight: 2
     value: 2
@@ -109,6 +114,7 @@ refined_barkwood:
         - whittle.1
         - engrave.1
 refined_maplewood:
+    permission-namespace: ingredient
     path: m.materials.refined_maplewood
     weight: 2
     value: 4
@@ -126,6 +132,7 @@ refined_maplewood:
         - whittle.2
         - engrave.1
 refined_elderwood:
+    permission-namespace: ingredient
     path: m.materials.refined_elderwood
     weight: 2
     value: 8
@@ -143,6 +150,7 @@ refined_elderwood:
         - whittle.1
         - engrave.2
 refined_demonwood:
+    permission-namespace: ingredient
     path: m.materials.refined_demonwood
     weight: 2
     value: 16
@@ -161,6 +169,7 @@ refined_demonwood:
         - engrave.3
 #Catalysts
 copper_ingot:
+    permission-namespace: ingredient
     path: v.copper_ingot
     weight: 1
     value: 2
@@ -176,6 +185,7 @@ copper_ingot:
         - hit.1
         - small_hit.2
 gold_ingot:
+    permission-namespace: ingredient
     path: v.gold_ingot
     weight: 2
     value: 4
@@ -193,6 +203,7 @@ gold_ingot:
         - hit.2
         - small_hit.4
 flint:
+    permission-namespace: ingredient
     path: v.flint
     weight: 2
     value: 2
@@ -209,6 +220,7 @@ flint:
         - whittle.3
         - engrave.1
 quartz:
+    permission-namespace: ingredient
     path: v.quartz
     weight: 2
     value: 2
@@ -224,6 +236,7 @@ quartz:
         - whittle.1
         - engrave.4
 amethyst_shard:
+    permission-namespace: ingredient
     path: v.amethyst_shard
     weight: 2
     value: 2
@@ -238,6 +251,7 @@ amethyst_shard:
         - engrave.3
         - sew.1
 lapis_lazuli:
+    permission-namespace: ingredient
     path: v.lapis_lazuli
     weight: 2
     value: 2
@@ -252,6 +266,7 @@ lapis_lazuli:
         - whittle.3
         - engrave.2
 diamond:
+    permission-namespace: ingredient
     path: v.diamond
     weight: 2
     value: 2
@@ -268,6 +283,7 @@ diamond:
         - small_hit.3
         - engrave.5
 emerald:
+    permission-namespace: ingredient
     path: v.emerald
     weight: 2
     value: 2
@@ -285,6 +301,7 @@ emerald:
         - whittle.3
         - engrave.2
 ignitium:
+    permission-namespace: ingredient
     path: m.materials.ignitium
     weight: 2
     value: 4
@@ -303,6 +320,7 @@ ignitium:
         - engrave.3
         - sew.2
 raw_tin:
+    permission-namespace: ingredient
     path: m.materials.raw_tin
     weight: 2
     value: 8
@@ -320,6 +338,7 @@ raw_tin:
         - hit.6
         - engrave.4
 abyssalite_fragment:
+    permission-namespace: ingredient
     path: m.materials.abyssalite_fragment
     weight: 2
     value: 12
@@ -341,6 +360,7 @@ abyssalite_fragment:
         - engrave.2
         - sew.2
 mythril_fragment:
+    permission-namespace: ingredient
     path: m.materials.mythril_fragment
     weight: 2
     value: 12
@@ -363,6 +383,7 @@ mythril_fragment:
         - sew.3
 #BB Compliments the stats of base items
 leather:
+    permission-namespace: ingredient
     path: m.materials.leather
     weight: 2
     value: 1
@@ -379,6 +400,7 @@ leather:
         - whittle.2
         - sew.2
 rare_leather:
+    permission-namespace: ingredient
     path: m.materials.rare_leather
     weight: 2
     value: 1
@@ -396,6 +418,7 @@ rare_leather:
         - whittle.2
         - sew.1
 epic_leather:
+    permission-namespace: ingredient
     path: m.materials.epic_leather
     weight: 2
     value: 1
@@ -413,6 +436,7 @@ epic_leather:
         - whittle.1
         - sew.3
 legendary_leather:
+    permission-namespace: ingredient
     path: m.materials.legendary_leather
     weight: 2
     value: 1
@@ -430,6 +454,7 @@ legendary_leather:
         - whittle.2
         - sew.3
 feather:
+    permission-namespace: ingredient
     path: v.feather
     weight: 2
     value: 1
@@ -447,6 +472,7 @@ feather:
         - whittle.1
         - sew.1
 rare_feather:
+    permission-namespace: ingredient
     path: m.materials.rare_feather
     weight: 2
     value: 1
@@ -465,6 +491,7 @@ rare_feather:
         - whittle.1
         - sew.1
 epic_feather:
+    permission-namespace: ingredient
     path: m.materials.epic_feather
     weight: 2
     value: 1
@@ -483,6 +510,7 @@ epic_feather:
         - whittle.3
         - sew.2
 legendary_feather:
+    permission-namespace: ingredient
     path: m.materials.legendary_feather
     weight: 2
     value: 1
@@ -501,6 +529,7 @@ legendary_feather:
         - whittle.3
         - sew.1
 wool:
+    permission-namespace: ingredient
     path: v.white_wool
     weight: 2
     value: 1
@@ -517,6 +546,7 @@ wool:
         - whittle.2
         - sew.3
 rare_wool:
+    permission-namespace: ingredient
     path: m.materials.rare_wool
     weight: 2
     value: 1
@@ -534,6 +564,7 @@ rare_wool:
         - whittle.2
         - sew.2
 epic_wool:
+    permission-namespace: ingredient
     path: m.materials.epic_wool
     weight: 2
     value: 1
@@ -551,6 +582,7 @@ epic_wool:
         - whittle.1
         - sew.3
 legendary_wool:
+    permission-namespace: ingredient
     path: m.materials.legendary_wool
     weight: 2
     value: 1
@@ -571,6 +603,7 @@ legendary_wool:
 #Model scheme placeholders
 #Infantry
 paper:
+    permission-namespace: ingredient
     path: v.paper
     hex: "#d8d8d8"
     weight: 50

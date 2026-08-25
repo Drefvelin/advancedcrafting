@@ -23,7 +23,8 @@ public class IngredientData {
 	private int value;
 	private boolean base;
 	private int tier;
-	
+	private String permissionNamespace;
+
 	private IngredientType type;
 	private NamingScheme scheme;
 	private ModelScheme modelScheme;
@@ -54,6 +55,10 @@ public class IngredientData {
 			tier = config.getInt("tier");
 		} else {
 			tier = 0;
+		}
+		permissionNamespace = config.getString("permission-namespace", config.getString("namespace", "ingredient"));
+		if (permissionNamespace != null) {
+			permissionNamespace = permissionNamespace.toLowerCase();
 		}
 		type = TypeLoader.getIngredientTypeByString(config.getString("type"));
 		scheme = SchemeLoader.getNamingSchemeByString(config.getString("scheme", "default"));
@@ -96,6 +101,14 @@ public class IngredientData {
 
 	public boolean hasTier() {
 		return tier > 0;
+	}
+
+	public String getPermissionNamespace() {
+		return permissionNamespace;
+	}
+
+	public boolean hasPermissionNamespace() {
+		return permissionNamespace != null && !permissionNamespace.isBlank();
 	}
 
 	public IngredientType getType() {

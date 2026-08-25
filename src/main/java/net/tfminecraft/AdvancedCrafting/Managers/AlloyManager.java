@@ -34,6 +34,7 @@ import net.tfminecraft.AdvancedCrafting.Objects.Alloys.AlloyStation;
 import net.tfminecraft.AdvancedCrafting.Objects.Alloys.NamableAlloy;
 import net.tfminecraft.AdvancedCrafting.Objects.Ingredients.Ingredient;
 import net.tfminecraft.AdvancedCrafting.Utils.ProfessionPermissions;
+import net.tfminecraft.AdvancedCrafting.lifecycle.CraftLifecycle;
 
 public class AlloyManager implements Listener{
 	
@@ -128,6 +129,12 @@ public class AlloyManager implements Listener{
 			return;
 		}
 		Ingredient ing = cs.getIngredient();
+		if (!ProfessionPermissions.canUseIngredient(p, ing)) {
+			int ingredientTier = ProfessionPermissions.resolveIngredientTier(ing);
+			p.sendMessage(ProfessionPermissions.missingExactTierMessage(
+					ing.getIngredientData().getPermissionNamespace(), ingredientTier));
+			return;
+		}
 		int tier = ProfessionPermissions.resolveTier(ing);
 		if (tier > 0 && !ProfessionPermissions.hasExactTierPerm(p, ProfessionPermissions.alloyNamespace(), tier)) {
 			p.sendMessage(ProfessionPermissions.missingAlloyTierMessage(tier));
@@ -169,6 +176,12 @@ public class AlloyManager implements Listener{
 			return;
 		}
 		for (Ingredient ingredient : station.getIngredients()) {
+			if (!ProfessionPermissions.canUseIngredient(p, ingredient)) {
+				int ingredientTier = ProfessionPermissions.resolveIngredientTier(ingredient);
+				p.sendMessage(ProfessionPermissions.missingExactTierMessage(
+						ingredient.getIngredientData().getPermissionNamespace(), ingredientTier));
+				return;
+			}
 			int tier = ProfessionPermissions.resolveTier(ingredient);
 			if (tier > 0 && !ProfessionPermissions.hasExactTierPerm(p, ProfessionPermissions.alloyNamespace(), tier)) {
 				p.sendMessage(ProfessionPermissions.missingAlloyTierMessage(tier));
@@ -220,6 +233,7 @@ public class AlloyManager implements Listener{
 		p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_CHIME, 1f, 1f);
 		p.sendMessage("§aNamed the new alloy "+name);
 		addAlloy(alloy.getAlloy());
+		CraftLifecycle.fireAlloyOutcome(p, alloy.getAlloy().getId());
 		naming.remove(p);
 	}
 	

@@ -51,6 +51,8 @@ permission-prefix: professions.
 alloy-permission-namespace: alloy
 
 permission-namespaces:
+  ingredient:
+    display: "#e6a817Ingredient"
   shortbow_maker:
     display: "#e6a817Shortbow Maker"
   longbow_maker:

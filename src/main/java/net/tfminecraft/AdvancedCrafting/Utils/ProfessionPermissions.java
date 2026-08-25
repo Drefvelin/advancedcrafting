@@ -6,6 +6,7 @@ import net.tfminecraft.AdvancedCrafting.Cache.Cache;
 import net.tfminecraft.AdvancedCrafting.Loaders.IngredientLoader;
 import net.tfminecraft.AdvancedCrafting.Managers.AlloyManager;
 import net.tfminecraft.AdvancedCrafting.Objects.Alloys.Alloy;
+import net.tfminecraft.AdvancedCrafting.Objects.Data.IngredientData;
 import net.tfminecraft.AdvancedCrafting.Objects.Data.PermissionNamespace;
 import net.tfminecraft.AdvancedCrafting.Objects.Ingredients.Ingredient;
 
@@ -62,7 +63,36 @@ public final class ProfessionPermissions {
 		return resolveTier(ingredient.getIngredientData());
 	}
 
-	public static int resolveTier(net.tfminecraft.AdvancedCrafting.Objects.Data.IngredientData data) {
+	public static int resolveIngredientTier(Ingredient ingredient) {
+		if (ingredient == null) {
+			return 0;
+		}
+		return resolveIngredientTier(ingredient.getIngredientData());
+	}
+
+	public static int resolveIngredientTier(IngredientData data) {
+		if (data == null || !data.hasTier()) {
+			return 0;
+		}
+		return data.getTier();
+	}
+
+	public static boolean canUseIngredient(Player player, Ingredient ingredient) {
+		if (player == null || ingredient == null) {
+			return false;
+		}
+		IngredientData data = ingredient.getIngredientData();
+		if (data == null) {
+			return false;
+		}
+		int tier = resolveIngredientTier(data);
+		if (tier <= 0 || !data.hasPermissionNamespace()) {
+			return true;
+		}
+		return hasExactTierPerm(player, data.getPermissionNamespace(), tier);
+	}
+
+	public static int resolveTier(IngredientData data) {
 		if (data == null || !data.canBeBase() || !data.hasTier()) {
 			return 0;
 		}

@@ -28,6 +28,8 @@ import net.tfminecraft.AdvancedCrafting.Managers.IngredientManager;
 import net.tfminecraft.AdvancedCrafting.Managers.MMOItemRebuildListener;
 import net.tfminecraft.AdvancedCrafting.Objects.Crafting.CraftingStation;
 import net.tfminecraft.AdvancedCrafting.Utils.RevisionTracker;
+import net.tfminecraft.AdvancedCrafting.lifecycle.CraftLifecycle;
+import net.tfminecraft.AdvancedCrafting.lifecycle.PlayerAlloyForgeTracker;
 
 public class AdvancedCrafting extends JavaPlugin{
 	
@@ -65,6 +67,7 @@ public class AdvancedCrafting extends JavaPlugin{
 		createConfigs();
 		revisionTracker.load(getDataFolder());
 		loadConfigs();
+		CraftLifecycle.init(new PlayerAlloyForgeTracker(new File(getDataFolder(), "data")));
 		registerListeners();
 		craftRefreshListener.start(this);
 		getCommand(commandManager.cmd1).setExecutor(commandManager);

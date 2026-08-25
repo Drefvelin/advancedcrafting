@@ -19,6 +19,7 @@ import net.tfminecraft.AdvancedCrafting.Objects.Data.AlloyRecipe;
 import net.tfminecraft.AdvancedCrafting.Objects.Data.StatData;
 import net.tfminecraft.AdvancedCrafting.Objects.Ingredients.Ingredient;
 import net.tfminecraft.AdvancedCrafting.Objects.Stats.StatModifier;
+import net.tfminecraft.AdvancedCrafting.lifecycle.CraftLifecycle;
 
 public class AlloyForger {
 	private int value;
@@ -88,7 +89,10 @@ public class AlloyForger {
 			return null;
 		}
 		ItemStack item = loc.getWorld().dropItem(loc, a.build()).getItemStack();
-		if(isNew) return new NamableAlloy(a, item);
+		if (isNew) {
+			return new NamableAlloy(a, item);
+		}
+		CraftLifecycle.fireAlloyOutcome(p, a.getId());
 		return null;
 	}
 	private void generateHits() {
