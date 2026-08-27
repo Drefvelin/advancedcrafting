@@ -73,6 +73,7 @@ public class AdvancedCrafting extends JavaPlugin{
 		getCommand(commandManager.cmd1).setExecutor(commandManager);
 		getCommand(commandManager.cmd1).setTabCompleter(commandManager);
 		getCommand(commandManager.cmd2).setExecutor(commandManager);
+		getCommand(commandManager.cmd2).setTabCompleter(commandManager);
 		alloyDatabase.loadAlloys();
 		revisionTracker.flush();
 		startManagers();

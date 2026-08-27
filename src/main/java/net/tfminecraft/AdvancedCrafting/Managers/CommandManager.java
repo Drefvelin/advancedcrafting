@@ -153,11 +153,21 @@ public class CommandManager implements Listener, CommandExecutor, TabCompleter {
 
 	@Override
 	public List<String> onTabComplete(CommandSender sender, Command cmd, String label, String[] args) {
-		if (!cmd.getName().equalsIgnoreCase(cmd1)) {
-			return List.of();
+		if (cmd.getName().equalsIgnoreCase(cmd1)) {
+			return onAcTabComplete(sender, args);
 		}
+		if (cmd.getName().equalsIgnoreCase(cmd2)) {
+			return onAlloyTabComplete(args);
+		}
+		return List.of();
+	}
+
+	private List<String> onAcTabComplete(CommandSender sender, String[] args) {
 		if (!sender.hasPermission(AdminPermissions.PERMISSION)) {
 			return List.of();
+		}
+		if (args.length == 0) {
+			return filterPrefix("", "reload", "sync", "refresh", "inspect", "give", "alloy", "craft");
 		}
 		if (args.length == 1) {
 			return filterPrefix(args[0], "reload", "sync", "refresh", "inspect", "give", "alloy", "craft");
@@ -172,6 +182,9 @@ public class CommandManager implements Listener, CommandExecutor, TabCompleter {
 			}
 			if (sub.equals("alloy")) {
 				return filterPrefix(args[1], "info");
+			}
+			if (sub.equals("craft")) {
+				return filterPrefix(args[1], "25", "50", "75", "90", "100");
 			}
 			return List.of();
 		}
@@ -195,6 +208,16 @@ public class CommandManager implements Listener, CommandExecutor, TabCompleter {
 						.map(Player::getName)
 						.collect(Collectors.toList()));
 			}
+		}
+		return List.of();
+	}
+
+	private List<String> onAlloyTabComplete(String[] args) {
+		if (args.length == 0) {
+			return filterPrefix("", "name");
+		}
+		if (args.length == 1) {
+			return filterPrefix(args[0], "name");
 		}
 		return List.of();
 	}
