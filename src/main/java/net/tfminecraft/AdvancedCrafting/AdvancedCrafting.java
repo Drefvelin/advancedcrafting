@@ -17,6 +17,7 @@ import net.tfminecraft.AdvancedCrafting.Loaders.ConversionLoader;
 import net.tfminecraft.AdvancedCrafting.Loaders.HitLoader;
 import net.tfminecraft.AdvancedCrafting.Loaders.RecipeLoader;
 import net.tfminecraft.AdvancedCrafting.Loaders.SchemeLoader;
+import net.tfminecraft.AdvancedCrafting.Loaders.SocketGroupLoader;
 import net.tfminecraft.AdvancedCrafting.Loaders.StatTemplateLoader;
 import net.tfminecraft.AdvancedCrafting.Loaders.StationLoader;
 import net.tfminecraft.AdvancedCrafting.Loaders.TypeLoader;
@@ -45,6 +46,7 @@ public class AdvancedCrafting extends JavaPlugin{
 	private final SchemeLoader schemeLoader = new SchemeLoader();
 	private final HitLoader hitLoader = new HitLoader();
 	private final QualityLoader qualityLoader = new QualityLoader();
+	private final SocketGroupLoader socketGroupLoader = new SocketGroupLoader();
 	private final StatTemplateLoader statTemplateLoader = new StatTemplateLoader();
 	
 	private final CommandManager commandManager = new CommandManager();
@@ -121,6 +123,8 @@ public class AdvancedCrafting extends JavaPlugin{
     	}
     	categoryLoader.load(new File(getDataFolder(), "recipe-categories.yml"));
     	statTemplateLoader.load(new File(getDataFolder(), "stats.yml"));
+    	// Must load before the recipes, which validate their socket-group on construction
+    	socketGroupLoader.load(new File(getDataFolder(), "socket-groups.yml"));
     	folder = new File(getDataFolder(), "recipes");
     	for (final File file : folder.listFiles()) {
     		if(!file.isDirectory()) {
@@ -171,6 +175,7 @@ public class AdvancedCrafting extends JavaPlugin{
 				"crafting-hits.yml",
 				"conversions.yml",
 				"qualities.yml",
+				"socket-groups.yml",
 				"stats.yml",
 				};
 		for(String s : files) {

@@ -7,6 +7,7 @@ import org.bukkit.configuration.ConfigurationSection;
 
 import me.Plugins.TLibs.Objects.API.SubAPI.StringFormatter;
 import net.tfminecraft.AdvancedCrafting.Loaders.CategoryLoader;
+import net.tfminecraft.AdvancedCrafting.Loaders.SocketGroupLoader;
 import net.tfminecraft.AdvancedCrafting.Loaders.StatTemplateLoader;
 import net.tfminecraft.AdvancedCrafting.Objects.Stats.StatTemplate;
 
@@ -18,6 +19,7 @@ public class CraftingRecipe {
 	private String type;
 	private String mainType;
 	private String modelType;
+	private String socketGroupId;
 	private String statTemplateId;
 	
 	private HashMap<String, Integer> recipe = new HashMap<>();
@@ -32,6 +34,10 @@ public class CraftingRecipe {
 		this.type = config.getString("type");
 		this.mainType = config.getString("main-type", "metal");
 		this.modelType = config.getString("model-type", "none");
+		this.socketGroupId = config.getString("socket-group", SocketGroupLoader.DEFAULT_GROUP);
+		if (SocketGroupLoader.getByString(socketGroupId) == null) {
+			Bukkit.getLogger().warning("AC: Recipe " + key + " references unknown socket-group: " + socketGroupId);
+		}
 		statTemplateId = config.getString("stat-template");
 		if (statTemplateId == null) {
 			Bukkit.getLogger().warning("AC: Recipe " + key + " is missing stat-template");
@@ -54,6 +60,10 @@ public class CraftingRecipe {
 
 	public String getModelType() {
 		return modelType;
+	}
+
+	public String getSocketGroupId() {
+		return socketGroupId;
 	}
 
 	public String getMainType() {

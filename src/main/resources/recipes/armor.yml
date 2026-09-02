@@ -5,6 +5,7 @@ light_helmet:
     type: helmet
     main-type: metal
     stat-template: light_armor
+    socket-group: gemstones
     permission-namespace: armoursmith
     recipe:
         - metal.6
@@ -16,6 +17,7 @@ light_chestplate:
     type: chestplate
     main-type: metal
     stat-template: light_armor
+    socket-group: gemstones
     permission-namespace: armoursmith
     recipe:
         - metal.6
@@ -27,6 +29,7 @@ light_leggings:
     type: leggings
     main-type: metal
     stat-template: light_armor
+    socket-group: gemstones
     permission-namespace: armoursmith
     recipe:
         - metal.6
@@ -38,6 +41,7 @@ light_boots:
     type: boots
     main-type: metal
     stat-template: light_armor
+    socket-group: gemstones
     permission-namespace: armoursmith
     recipe:
         - metal.6
@@ -49,6 +53,7 @@ medium_helmet:
     type: helmet
     main-type: metal
     stat-template: medium_armor
+    socket-group: gemstones
     permission-namespace: armoursmith
     recipe:
         - metal.6
@@ -60,6 +65,7 @@ medium_chestplate:
     type: chestplate
     main-type: metal
     stat-template: medium_armor
+    socket-group: gemstones
     permission-namespace: armoursmith
     recipe:
         - metal.6
@@ -71,6 +77,7 @@ medium_leggings:
     type: leggings
     main-type: metal
     stat-template: medium_armor
+    socket-group: gemstones
     permission-namespace: armoursmith
     recipe:
         - metal.6
@@ -82,6 +89,7 @@ medium_boots:
     type: boots
     main-type: metal
     stat-template: medium_armor
+    socket-group: gemstones
     permission-namespace: armoursmith
     recipe:
         - metal.6
@@ -93,6 +101,7 @@ heavy_helmet:
     type: helmet
     main-type: metal
     stat-template: heavy_armor
+    socket-group: gemstones
     permission-namespace: armoursmith
     recipe:
         - metal.6
@@ -104,6 +113,7 @@ heavy_chestplate:
     type: chestplate
     main-type: metal
     stat-template: heavy_armor
+    socket-group: gemstones
     permission-namespace: armoursmith
     recipe:
         - metal.6
@@ -115,6 +125,7 @@ heavy_leggings:
     type: leggings
     main-type: metal
     stat-template: heavy_armor
+    socket-group: gemstones
     permission-namespace: armoursmith
     recipe:
         - metal.6
@@ -126,6 +137,7 @@ heavy_boots:
     type: boots
     main-type: metal
     stat-template: heavy_armor
+    socket-group: gemstones
     permission-namespace: armoursmith
     recipe:
         - metal.6
@@ -137,6 +149,7 @@ infantry_helmet:
     type: helmet
     main-type: metal
     stat-template: infantry_armor
+    socket-group: gemstones
     permission-namespace: armoursmith
     model-type: paper
     recipe:
@@ -150,6 +163,7 @@ infantry_chestplate:
     type: chestplate
     main-type: metal
     stat-template: infantry_armor
+    socket-group: gemstones
     permission-namespace: armoursmith
     model-type: paper
     recipe:
@@ -163,6 +177,7 @@ infantry_leggings:
     type: leggings
     main-type: metal
     stat-template: infantry_armor
+    socket-group: gemstones
     permission-namespace: armoursmith
     model-type: paper
     recipe:
@@ -177,6 +192,7 @@ infantry_boots:
     main-type: metal
     model-type: paper
     stat-template: infantry_armor
+    socket-group: gemstones
     permission-namespace: armoursmith
     recipe:
         - paper.8

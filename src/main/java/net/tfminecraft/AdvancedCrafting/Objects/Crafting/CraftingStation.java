@@ -32,6 +32,7 @@ import net.tfminecraft.AdvancedCrafting.Enums.StationFeedback;
 import net.tfminecraft.AdvancedCrafting.Loaders.HitLoader;
 import net.tfminecraft.AdvancedCrafting.Loaders.IngredientLoader;
 import net.tfminecraft.AdvancedCrafting.Loaders.QualityLoader;
+import net.tfminecraft.AdvancedCrafting.Loaders.SocketGroupLoader;
 import net.tfminecraft.AdvancedCrafting.Loaders.TypeLoader;
 import net.tfminecraft.AdvancedCrafting.Managers.AlloyManager;
 import net.tfminecraft.AdvancedCrafting.Objects.CraftStack;
@@ -425,8 +426,11 @@ public class CraftingStation {
 		p.sendMessage("Quality: "+q.getName());
 		p.sendMessage("Hit Percenage: §e"+percentage+"%");
 		List<String> sockets = new ArrayList<String>();
-		for(String s : q.getSlots()) {
-			sockets.add(s);
+		SocketGroup socketGroup = SocketGroupLoader.getByString(recipe.getSocketGroupId());
+		if(socketGroup == null) {
+			Bukkit.getLogger().warning("AC: Recipe " + recipe.getId() + " has unknown socket-group: " + recipe.getSocketGroupId());
+		} else {
+			sockets.addAll(socketGroup.getSlots(q.getId()));
 		}
 		GemSocketsData gemData = new GemSocketsData(sockets);
 		net.Indyuce.mmoitems.stat.data.type.StatData finalStat = gemData;
