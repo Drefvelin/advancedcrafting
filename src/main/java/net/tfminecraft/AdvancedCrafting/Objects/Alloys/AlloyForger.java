@@ -3,6 +3,7 @@ package net.tfminecraft.AdvancedCrafting.Objects.Alloys;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.jar.Attributes.Name;
 
 import org.bukkit.Location;
@@ -129,8 +130,10 @@ public class AlloyForger {
 	}
 
 	private boolean isScrap() {
-		if(Math.floor(Math.random()*100)+value > 80) return false;
-		return true;
+		double chance = Math.min(
+				Cache.alloyForgeMaxSuccess,
+				Cache.alloyForgeBaseSuccess + Cache.alloyForgeBonusPerSqrtValue * Math.sqrt(value));
+		return ThreadLocalRandom.current().nextDouble(100.0) >= chance;
 	}
 	
 	private String getName() {

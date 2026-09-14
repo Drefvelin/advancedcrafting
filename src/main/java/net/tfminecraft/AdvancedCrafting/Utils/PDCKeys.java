@@ -40,6 +40,14 @@ public final class PDCKeys {
 		return new NamespacedKey(AdvancedCrafting.plugin, "ac_lore_start");
 	}
 
+	public static NamespacedKey loreLen() {
+		return new NamespacedKey(AdvancedCrafting.plugin, "ac_lore_len");
+	}
+
+	public static NamespacedKey statsLore() {
+		return new NamespacedKey(AdvancedCrafting.plugin, "ac_stats_lore");
+	}
+
 	public static NamespacedKey craftTierLoreStart() {
 		return new NamespacedKey(AdvancedCrafting.plugin, "ac_craft_tier_lore_start");
 	}

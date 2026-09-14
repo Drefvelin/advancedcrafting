@@ -6,6 +6,7 @@ import java.util.List;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
+import net.tfminecraft.AdvancedCrafting.Cache.Cache;
 import net.tfminecraft.AdvancedCrafting.Database.AlloyDatabase;
 import net.tfminecraft.AdvancedCrafting.Loaders.IngredientLoader;
 import net.tfminecraft.AdvancedCrafting.Managers.AlloyManager;
@@ -34,6 +35,10 @@ public final class AcItemLoreRefresher {
 		if (AcItemTags.getLoreStart(item) < 0) {
 			return true;
 		}
+		if (!AcItemTags.hasStatsLoreFlag(item)
+				|| AcItemTags.getStatsLore(item) != Cache.showIngredientStats) {
+			return true;
+		}
 		return getLiveRevision(item) > AcItemTags.getStoredRevision(item);
 	}
 
@@ -51,7 +56,12 @@ public final class AcItemLoreRefresher {
 		ItemMeta meta = copy.getItemMeta();
 		List<String> lore = new ArrayList<>(meta.getLore() != null ? meta.getLore() : List.of());
 		int loreStart = AcItemTags.getLoreStart(copy);
+		int oldLen = AcItemTags.getLoreLen(copy);
+		if (oldLen < 0) {
+			oldLen = 2;
+		}
 		int liveRevision;
+		IngredientLore.Block loreBlock;
 
 		if (kind == Kind.INGREDIENT) {
 			Ingredient ingredient = IngredientLoader.getByString(id);
@@ -60,9 +70,9 @@ public final class AcItemLoreRefresher {
 			}
 			liveRevision = ingredient.getRevision();
 			if (loreStart < 0) {
-				loreStart = IngredientLore.applyTypeAndRole(lore, ingredient.getIngredientData());
+				loreBlock = IngredientLore.applyTypeAndRole(lore, ingredient.getIngredientData());
 			} else {
-				IngredientLore.updateTypeAndRole(lore, loreStart, ingredient.getIngredientData());
+				loreBlock = IngredientLore.spliceTypeAndRole(lore, loreStart, oldLen, ingredient.getIngredientData());
 			}
 		} else {
 			Alloy alloy = AlloyManager.getAlloyById(id);
@@ -77,14 +87,16 @@ public final class AcItemLoreRefresher {
 			}
 			liveRevision = alloy.getRevision();
 			if (loreStart < 0) {
-				loreStart = IngredientLore.applyAlloyLore(lore, alloy.getData().getType(), alloy.getData().getTier());
+				loreBlock = IngredientLore.applyAlloyLore(lore, alloy.getData().getType(), alloy.getData().getTier(),
+						alloy.getData().getStatData());
 			} else {
-				IngredientLore.updateAlloyLore(lore, loreStart, alloy.getData().getType(), alloy.getData().getTier());
+				loreBlock = IngredientLore.spliceAlloyLore(lore, loreStart, oldLen, alloy.getData().getType(),
+						alloy.getData().getTier(), alloy.getData().getStatData());
 			}
 		}
 
 		meta.setLore(lore);
-		AcItemTags.write(meta, liveRevision, loreStart);
+		AcItemTags.write(meta, liveRevision, loreBlock);
 		copy.setItemMeta(meta);
 		copy.setAmount(item.getAmount());
 		return RefreshResult.updated(copy);

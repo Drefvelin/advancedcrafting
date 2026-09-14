@@ -1,10 +1,21 @@
 scrap-path: crafting.scrap
 branding-tool: m.tools.skin_branding_tool
 
+# TLibs block path for each station (iaf(...) for ItemsAdder furniture).
+crafting-station: v(ANVIL)
 alloy-station: iaf(tfmc:alloy_forge)
 ingredient-station: iaf(tfmc:ingredient_converter)
 
+# New alloy discovery roll: success% = min(max, base + sqrt(totalValue) * bonus). totalValue = sum of ingredient value fields (base + catalysts).
+alloy-forge:
+  base-success-percent: 2.0
+  success-bonus-per-sqrt-value: 4.0
+  max-success-percent: 85.0
+
 max-factor: 1.2
+
+# Raw stat lines on ingredient/alloy items. Converter GUI still shows per-template factors.
+show-ingredient-stats: true
 
 # Log stat template / ingredient revision refreshes to console ([AC][StatRefresh]).
 debug-stat-refresh: false
@@ -15,11 +26,14 @@ global-stat-offsets:
 
 stat-aliases:
     - max_item_damage->Durability
+    - max_health->Max Health
+    - health_regeneration->Health Regeneration
+    - armor->Armor
     - armor_toughness->Armor Toughness
     - damage_reduction->Damage Reduction
     - pvp_damage_reduction->PvP Damage Reduction
-    - projectile_damage_reduction->Projectile Damage Reduction 
     - physical_damage_reduction->Physical Damage Reduction
+    - projectile_damage_reduction->Projectile Damage Reduction 
     - magic_damage_reduction->Magic Damage Reduction
     - fall_damage_reduction->Fall Damage Reduction
     - fire_damage_reduction->Fire Damage Reduction
@@ -27,16 +41,16 @@ stat-aliases:
     - blunt_rating->Blunt Rating
     - blunt_power->Blunt Power
     - pvp_damage->PvP Damage
-    - projectile_damage->Projectile Damage
     - physical_damage->Physical Damage
+    - projectile_damage->Projectile Damage
+    - magic_damage->Magic Damage
     - skill_damage->Skill Damage
     - spell_vampirism->Spell Vampirism
+    - lifesteal->Lifesteal
     - critical_strike_chance->Critical Strike Chance
     - parry_rating->Parry Rating
     - dodge_rating->Dodge Rating
     - movement_speed->Movement Speed
-    - max_health->Max Health
-    - health_regeneration->Health Regeneration
     - max_mana->Max Mana
     - cooldown_reduction->Cooldown Reduction
 
@@ -48,19 +62,15 @@ combinations:
 
 permission-prefix: professions.
 
-alloy-permission-namespace: alloy
-
 permission-namespaces:
   ingredient:
     display: "#e6a817Ingredient"
-  shortbow_maker:
-    display: "#e6a817Shortbow Maker"
-  longbow_maker:
-    display: "#e6a817Longbow Maker"
-  crossbow_maker:
-    display: "#e6a817Crossbow Maker"
-  weaponsmith:
-    display: "#e6a817Weaponsmith"
-  armoursmith:
-    display: "#e6a817Armoursmith"
+  iron_smith:
+    display: "#e6a817Iron_Smith"
+  steel_smith:
+    display: "#e6a817Steel_Smith"
+  abyssalite_smith:
+    display: "#e6a817Abyssalite_Smith"
+  mythril_smith:
+    display: "#e6a817Mythril_Smith"
 

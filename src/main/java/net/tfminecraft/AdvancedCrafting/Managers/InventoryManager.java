@@ -107,7 +107,8 @@ public class InventoryManager {
 	}
 
 	private ItemStack getTemplatePreviewItem(StatData source, StatTemplate template) {
-		ItemStack item = new ItemStack(template.getIcon(), 1);
+		ItemStack icon = template.getIcon();
+		ItemStack item = icon != null ? icon.clone() : new ItemStack(Material.BARRIER, 1);
 		ItemMeta meta = item.getItemMeta();
 		meta.setDisplayName(template.getName());
 		List<String> lore = new ArrayList<>();
@@ -148,23 +149,24 @@ public class InventoryManager {
 	}
 	
 	private ItemStack getRecipeItem(CraftingRecipe r) {
-		ItemStack i = new ItemStack(Material.BARRIER, 1);
+		ItemStack fallback = new ItemStack(Material.BARRIER, 1);
 		ItemAPI api = (ItemAPI) TLibs.getApiInstance(APIType.ITEM_API);
-		ItemStack template = api.getCreator().getItemFromPath("m."+r.getTemplate());
-		if(template == null) {
-			return i;
+		String path = r.resolveMenuIconPath();
+		ItemStack base = api.getCreator().getItemFromPath(path);
+		if (base == null || (path.toLowerCase().startsWith("ia.") && base.getType() == Material.DIRT)) {
+			return fallback;
 		}
-		i.setType(template.getType());
+		ItemStack i = base.clone();
 		ItemMeta m = i.getItemMeta();
-		if(template.getItemMeta().hasCustomModelData()) {
-			m.setCustomModelData(template.getItemMeta().getCustomModelData());
+		if (m == null) {
+			return fallback;
 		}
-		m.setDisplayName("§7"+r.getCleanedName());
+		m.setDisplayName("§7" + r.getCleanedName());
 		List<String> lore = new ArrayList<>();
 		lore.add(StringFormatter.formatHex("#d1a566Recipe:"));
-		for(String s : r.getRecipe().keySet()) {
+		for (String s : r.getRecipe().keySet()) {
 			IngredientType t = TypeLoader.getIngredientTypeByString(s);
-			lore.add(StringFormatter.formatHex(t.getName()+"§7: #6dd695x"+r.getRecipe().get(s)));
+			lore.add(StringFormatter.formatHex(t.getName() + "§7: #6dd695x" + r.getRecipe().get(s)));
 		}
 		m.setLore(lore);
 		NamespacedKey key = new NamespacedKey(AdvancedCrafting.plugin, "ac_recipe");

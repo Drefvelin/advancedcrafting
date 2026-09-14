@@ -3,21 +3,26 @@ package net.tfminecraft.AdvancedCrafting.Objects.Stats;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
-import org.bukkit.Material;
+import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.inventory.ItemStack;
 
+import me.Plugins.TLibs.TLibs;
 import me.Plugins.TLibs.Objects.API.SubAPI.StringFormatter;
 
 public class StatTemplate {
 	private String id;
 	private String name;
-	private Material icon;
+	private String iconPath;
 	private List<String> stats = new ArrayList<>();
+	private Set<String> allowedIngredientStats = new HashSet<>();
 	private Map<String, Double> factors = new HashMap<>();
 	private List<StatModifier> baseStats = new ArrayList<>();
 	private Map<String, Double> baseStatAmounts = new HashMap<>();
@@ -26,13 +31,15 @@ public class StatTemplate {
 	public StatTemplate(String key, ConfigurationSection config) {
 		id = key;
 		name = StringFormatter.formatHex(config.getString("name", key));
-		String iconName = config.getString("icon", "PAPER");
-		try {
-			icon = Material.valueOf(iconName.toUpperCase());
-		} catch (IllegalArgumentException e) {
-			icon = Material.PAPER;
+		iconPath = config.getString("icon", "v.paper");
+		if (iconPath == null || !iconPath.contains(".")) {
+			Bukkit.getLogger().warning("AC: Stat template " + key
+					+ " icon must be a TLibs path (e.g. v.iron_sword), got: " + iconPath);
 		}
 		stats = config.getStringList("stats");
+		for (String statId : stats) {
+			allowedIngredientStats.add(statId.toLowerCase());
+		}
 		if (config.isConfigurationSection("factors")) {
 			for (String statKey : config.getConfigurationSection("factors").getKeys(false)) {
 				factors.put(statKey.toUpperCase(), config.getDouble("factors." + statKey));
@@ -55,12 +62,16 @@ public class StatTemplate {
 		return name;
 	}
 
-	public Material getIcon() {
-		return icon;
+	public ItemStack getIcon() {
+		return TLibs.getItemAPI().getCreator().getItemFromPath(iconPath);
 	}
 
 	public List<String> getStats() {
 		return stats;
+	}
+
+	public boolean allowsIngredientStat(String statId) {
+		return allowedIngredientStats.contains(statId.toLowerCase());
 	}
 
 	public double getFactor(String statId) {

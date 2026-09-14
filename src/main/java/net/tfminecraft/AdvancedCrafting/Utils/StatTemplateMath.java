@@ -151,11 +151,12 @@ public final class StatTemplateMath {
 	}
 
 	private static double resolveRawValue(StatData source, StatTemplate template, String statId) {
-		double fromSource = sourceHasStat(source, statId) ? getSourceAmount(source, statId) : 0;
-		if (!template.hasBaseStat(statId)) {
-			return fromSource;
+		double base = template.hasBaseStat(statId) ? template.getBaseAmount(statId) : 0;
+		if (!template.allowsIngredientStat(statId)) {
+			return base;
 		}
-		return template.getBaseAmount(statId) + fromSource;
+		double fromSource = sourceHasStat(source, statId) ? getSourceAmount(source, statId) : 0;
+		return base + fromSource;
 	}
 
 	private static boolean sourceHasStat(StatData source, String statId) {

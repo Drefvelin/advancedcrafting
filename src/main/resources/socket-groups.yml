@@ -19,10 +19,10 @@ mage_armor_runes:
     slots:
         crude: []
         common:
-            - "Common Mage Armor Rune"
+            - "Minor Armor Rune"
         rare:
-            - "Rare Mage Armor Rune"
+            - "Lesser Armor Rune"
         epic:
-            - "Epic Mage Armor Rune"
+            - "Greater Armor Rune"
         legendary:
-            - "Legendary Mage Armor Rune"
+            - "Ascendant Armor Rune"

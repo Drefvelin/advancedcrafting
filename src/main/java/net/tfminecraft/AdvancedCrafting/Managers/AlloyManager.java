@@ -130,14 +130,8 @@ public class AlloyManager implements Listener{
 		}
 		Ingredient ing = cs.getIngredient();
 		if (!ProfessionPermissions.canUseIngredient(p, ing)) {
-			int ingredientTier = ProfessionPermissions.resolveIngredientTier(ing);
-			p.sendMessage(ProfessionPermissions.missingExactTierMessage(
-					ing.getIngredientData().getPermissionNamespace(), ingredientTier));
-			return;
-		}
-		int tier = ProfessionPermissions.resolveTier(ing);
-		if (tier > 0 && !ProfessionPermissions.hasExactTierPerm(p, ProfessionPermissions.alloyNamespace(), tier)) {
-			p.sendMessage(ProfessionPermissions.missingAlloyTierMessage(tier));
+			p.sendMessage(ProfessionPermissions.missingIngredientPermissionMessage(
+					ing.getIngredientData().getPermission()));
 			return;
 		}
 		AlloyStation station = null;
@@ -177,14 +171,8 @@ public class AlloyManager implements Listener{
 		}
 		for (Ingredient ingredient : station.getIngredients()) {
 			if (!ProfessionPermissions.canUseIngredient(p, ingredient)) {
-				int ingredientTier = ProfessionPermissions.resolveIngredientTier(ingredient);
-				p.sendMessage(ProfessionPermissions.missingExactTierMessage(
-						ingredient.getIngredientData().getPermissionNamespace(), ingredientTier));
-				return;
-			}
-			int tier = ProfessionPermissions.resolveTier(ingredient);
-			if (tier > 0 && !ProfessionPermissions.hasExactTierPerm(p, ProfessionPermissions.alloyNamespace(), tier)) {
-				p.sendMessage(ProfessionPermissions.missingAlloyTierMessage(tier));
+				p.sendMessage(ProfessionPermissions.missingIngredientPermissionMessage(
+						ingredient.getIngredientData().getPermission()));
 				return;
 			}
 		}

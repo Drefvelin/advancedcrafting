@@ -1,16 +1,30 @@
 package net.tfminecraft.AdvancedCrafting.Utils;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import me.Plugins.TLibs.Objects.API.SubAPI.StringFormatter;
+import net.tfminecraft.AdvancedCrafting.Cache.Cache;
 import net.tfminecraft.AdvancedCrafting.Loaders.IngredientLoader;
 import net.tfminecraft.AdvancedCrafting.Objects.Data.AlloyRecipe;
 import net.tfminecraft.AdvancedCrafting.Objects.Data.IngredientData;
+import net.tfminecraft.AdvancedCrafting.Objects.Data.StatData;
 import net.tfminecraft.AdvancedCrafting.Objects.Ingredients.Ingredient;
 import net.tfminecraft.AdvancedCrafting.Objects.Ingredients.IngredientType;
+import net.tfminecraft.AdvancedCrafting.Objects.Stats.StatModifier;
 
 public final class IngredientLore {
 	private IngredientLore() {
+	}
+
+	public static final class Block {
+		public final int start;
+		public final int length;
+
+		public Block(int start, int length) {
+			this.start = start;
+			this.length = length;
+		}
 	}
 
 	public static String formatTypeLine(IngredientData data) {
@@ -29,46 +43,72 @@ public final class IngredientLore {
 		return StringFormatter.formatHex("§e[#d190deCatalyst§e]");
 	}
 
-	public static int applyTypeAndRole(List<String> lore, IngredientData data) {
-		int start;
-		String typeLine = formatTypeLine(data);
-		if (lore.isEmpty() || isBlankLoreLine(lore.get(0))) {
-			start = 0;
-			if (lore.isEmpty()) {
-				lore.add(typeLine);
-			} else {
-				lore.set(0, typeLine);
-			}
-		} else {
-			lore.add(" ");
-			lore.add(typeLine);
-			start = lore.size() - 1;
-		}
-		lore.add(roleLine(data));
-		return start;
+	public static Block applyTypeAndRole(List<String> lore, IngredientData data) {
+		return applyBlock(lore, formatTypeLine(data), roleLine(data), data.getStatData());
 	}
 
-	public static void updateTypeAndRole(List<String> lore, int start, IngredientData data) {
-		ensureSize(lore, start + 2);
-		lore.set(start, formatTypeLine(data));
-		lore.set(start + 1, roleLine(data));
+	public static Block spliceTypeAndRole(List<String> lore, int start, int oldLen, IngredientData data) {
+		return spliceBlock(lore, start, oldLen, formatTypeLine(data), roleLine(data), data.getStatData());
 	}
 
-	public static int applyAlloyLore(List<String> lore, IngredientType type, int tier) {
-		int start = lore.size();
-		lore.add(formatTypeLine(type));
-		lore.add(formatTierLine(tier));
-		return start;
+	public static Block applyAlloyLore(List<String> lore, IngredientType type, int tier, StatData stats) {
+		return applyBlock(lore, formatTypeLine(type), formatTierLine(tier), stats);
 	}
 
-	public static void updateAlloyLore(List<String> lore, int start, IngredientType type, int tier) {
-		ensureSize(lore, start + 2);
-		lore.set(start, formatTypeLine(type));
-		lore.set(start + 1, formatTierLine(tier));
+	public static Block spliceAlloyLore(List<String> lore, int start, int oldLen, IngredientType type, int tier,
+			StatData stats) {
+		return spliceBlock(lore, start, oldLen, formatTypeLine(type), formatTierLine(tier), stats);
 	}
 
 	public static void appendTypeAndRole(List<String> lore, IngredientData data) {
 		applyTypeAndRole(lore, data);
+	}
+
+	private static Block applyBlock(List<String> lore, String typeLine, String roleLine, StatData stats) {
+		List<String> block = buildLines(typeLine, roleLine, stats);
+		int start;
+		if (lore.isEmpty() || isBlankLoreLine(lore.get(0))) {
+			start = 0;
+			if (lore.isEmpty()) {
+				lore.addAll(block);
+			} else {
+				lore.set(0, block.get(0));
+				lore.addAll(1, block.subList(1, block.size()));
+			}
+		} else {
+			lore.add(" ");
+			start = lore.size();
+			lore.addAll(block);
+		}
+		return new Block(start, block.size());
+	}
+
+	private static Block spliceBlock(List<String> lore, int start, int oldLen, String typeLine, String roleLine,
+			StatData stats) {
+		int safeStart = Math.max(0, start);
+		int removeCount = Math.max(0, oldLen);
+		if (safeStart > lore.size()) {
+			safeStart = lore.size();
+		}
+		int end = Math.min(lore.size(), safeStart + removeCount);
+		for (int i = end - 1; i >= safeStart; i--) {
+			lore.remove(i);
+		}
+		List<String> block = buildLines(typeLine, roleLine, stats);
+		lore.addAll(safeStart, block);
+		return new Block(safeStart, block.size());
+	}
+
+	private static List<String> buildLines(String typeLine, String roleLine, StatData stats) {
+		List<String> lines = new ArrayList<>();
+		lines.add(typeLine);
+		lines.add(roleLine);
+		if (Cache.showIngredientStats && stats != null && stats.hasModifiers()) {
+			for (StatModifier modifier : stats.getModifiers()) {
+				lines.add(StatToString.getFullString(modifier));
+			}
+		}
+		return lines;
 	}
 
 	private static String roleLine(IngredientData data) {
@@ -76,12 +116,6 @@ public final class IngredientLore {
 			return formatTierLine(data.getTier());
 		}
 		return formatCatalystLine();
-	}
-
-	private static void ensureSize(List<String> lore, int size) {
-		while (lore.size() < size) {
-			lore.add("");
-		}
 	}
 
 	public static int resolveAlloyTier(AlloyRecipe recipe, String alloyId) {

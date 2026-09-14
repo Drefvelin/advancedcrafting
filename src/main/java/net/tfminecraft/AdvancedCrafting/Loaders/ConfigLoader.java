@@ -30,14 +30,23 @@ public class ConfigLoader implements LoaderInterface{
 		
 		Cache.scrap = config.getString("scrap-path");
 		
+		Cache.craftingStation = config.getString("crafting-station", "v(ANVIL)");
 		Cache.alloyStation = config.getString("alloy-station", "v(BLAST_FURNACE)");
 		Cache.ingredientStation = config.getString("ingredient-station", "v(OBSERVER)");
+
+		Cache.alloyForgeBaseSuccess = clampPercent(config.getDouble("alloy-forge.base-success-percent", 2.0));
+		Cache.alloyForgeBonusPerSqrtValue = Math.max(0.0, config.getDouble("alloy-forge.success-bonus-per-sqrt-value", 4.0));
+		Cache.alloyForgeMaxSuccess = clampPercent(config.getDouble("alloy-forge.max-success-percent", 85.0));
+		if (Cache.alloyForgeMaxSuccess < Cache.alloyForgeBaseSuccess) {
+			Cache.alloyForgeMaxSuccess = Cache.alloyForgeBaseSuccess;
+		}
 
 		Cache.brandingTool = config.getString("branding-tool", null);
 
 		Cache.maxFactor = config.getDouble("max-factor", 1.5);
 
 		Cache.debugStatRefresh = config.getBoolean("debug-stat-refresh", false);
+		Cache.showIngredientStats = config.getBoolean("show-ingredient-stats", true);
 
 		Cache.globalStatOffsets.clear();
 		if (config.isConfigurationSection("global-stat-offsets")) {
@@ -54,7 +63,6 @@ public class ConfigLoader implements LoaderInterface{
 		}
 
 		Cache.permissionPrefix = config.getString("permission-prefix", "professions.");
-		Cache.alloyPermissionNamespace = config.getString("alloy-permission-namespace", "alloy");
 		Cache.permissionNamespaces.clear();
 		if (config.isConfigurationSection("permission-namespaces")) {
 			for (String key : config.getConfigurationSection("permission-namespaces").getKeys(false)) {
@@ -105,6 +113,16 @@ public class ConfigLoader implements LoaderInterface{
 		} catch (NumberFormatException ex) {
 			// skip malformed entries
 		}
+	}
+
+	private static double clampPercent(double value) {
+		if (value < 0.0) {
+			return 0.0;
+		}
+		if (value > 100.0) {
+			return 100.0;
+		}
+		return value;
 	}
 
 }

@@ -23,7 +23,7 @@ public class IngredientData {
 	private int value;
 	private boolean base;
 	private int tier;
-	private String permissionNamespace;
+	private String permission;
 
 	private IngredientType type;
 	private NamingScheme scheme;
@@ -34,6 +34,7 @@ public class IngredientData {
 	private List<String> protectedStats = new ArrayList<>();
 
 	private String xp;
+	private String statMergeKey;
 
 	public IngredientData(ConfigurationSection config) {
 		if(config.contains("weight")) {
@@ -56,9 +57,15 @@ public class IngredientData {
 		} else {
 			tier = 0;
 		}
-		permissionNamespace = config.getString("permission-namespace", config.getString("namespace", "ingredient"));
-		if (permissionNamespace != null) {
-			permissionNamespace = permissionNamespace.toLowerCase();
+		String rawPermission = config.getString("permission", null);
+		if (rawPermission == null || rawPermission.isBlank()) {
+			rawPermission = config.getString("permission-namespace", null);
+			if (rawPermission != null && !rawPermission.isBlank()) {
+				Bukkit.getLogger().warning("AC: Ingredient uses deprecated permission-namespace; use permission instead.");
+			}
+		}
+		if (rawPermission != null && !rawPermission.isBlank()) {
+			permission = rawPermission.trim().toLowerCase();
 		}
 		type = TypeLoader.getIngredientTypeByString(config.getString("type"));
 		scheme = SchemeLoader.getNamingSchemeByString(config.getString("scheme", "default"));
@@ -76,6 +83,10 @@ public class IngredientData {
 		}
 		if(config.contains("protected-stats")) {
 			protectedStats = config.getStringList("protected-stats");
+		}
+		String rawMergeKey = config.getString("stat-merge-key", null);
+		if (rawMergeKey != null && !rawMergeKey.isBlank()) {
+			statMergeKey = rawMergeKey.trim().toLowerCase();
 		}
 	}
 
@@ -103,16 +114,27 @@ public class IngredientData {
 		return tier > 0;
 	}
 
-	public String getPermissionNamespace() {
-		return permissionNamespace;
+	public String getPermission() {
+		return permission;
 	}
 
-	public boolean hasPermissionNamespace() {
-		return permissionNamespace != null && !permissionNamespace.isBlank();
+	public boolean hasPermission() {
+		return permission != null && !permission.isBlank();
 	}
 
 	public IngredientType getType() {
 		return type;
+	}
+
+	/** Bucket id for stat averaging; falls back to ingredient type id. */
+	public String getStatMergeBucketId() {
+		if (statMergeKey != null) {
+			return statMergeKey;
+		}
+		if (type == null) {
+			return null;
+		}
+		return type.getId().toLowerCase();
 	}
 
 	public int getWeight() {
@@ -141,6 +163,8 @@ public class IngredientData {
 		sb.append("weight=").append(weight).append(';');
 		sb.append("value=").append(value).append(';');
 		sb.append("tier=").append(tier).append(';');
+		sb.append("permission=").append(permission != null ? permission : "").append(';');
+		sb.append("statMergeKey=").append(statMergeKey != null ? statMergeKey : "").append(';');
 		sb.append("xp=").append(xp != null ? xp : "").append(';');
 		List<String> stats = statData.getModifiers().stream()
 				.map(m -> m.getType() + "(" + m.getAmount() + ")")

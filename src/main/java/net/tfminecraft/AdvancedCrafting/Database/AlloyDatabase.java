@@ -131,6 +131,7 @@ public class AlloyDatabase {
 			defaults.put("name", a.getName());
 			defaults.put("model", a.getData().getModel());
 			defaults.put("type", a.getData().getType().getId());
+			defaults.put("statMergeBucketId", a.getData().getStatMergeBucketId());
 			defaults.put("scheme", a.getData().getModelScheme().getId());
 			defaults.put("colour scheme", a.getData().getColourScheme().getId());
 			if (a.getData().hasXP()) {
@@ -195,8 +196,14 @@ public class AlloyDatabase {
 		}
 		AlloyRecipe recipe = parseRecipe(json);
 		int tier = IngredientLore.resolveAlloyTier(recipe, id);
+		String statMergeBucketId = json.containsKey("statMergeBucketId")
+				? (String) json.get("statMergeBucketId")
+				: null;
+		if (statMergeBucketId == null || statMergeBucketId.isBlank()) {
+			statMergeBucketId = type != null ? type.getId() : null;
+		}
 		return new Alloy(id, name,
-				new AlloyData(colourScheme, model, type, scheme, stats, hits, xp, recipe, tier));
+				new AlloyData(colourScheme, model, type, scheme, stats, hits, xp, recipe, tier, statMergeBucketId));
 	}
 
 	@SuppressWarnings("unchecked")

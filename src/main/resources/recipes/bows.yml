@@ -5,10 +5,10 @@ shortbow:
     type: shortbow
     main-type: wood
     stat-template: shortbow
-    permission-namespace: shortbow_maker
+    socket-group: gemstones
     recipe:
-        - wood.6
-        - feather.6
+        - wood.4
+        - feather.4
 
 crossbow:
     name: "%material% Crossbow"
@@ -17,10 +17,10 @@ crossbow:
     type: crossbow
     main-type: wood
     stat-template: crossbow
-    permission-namespace: crossbow_maker
+    socket-group: gemstones
     recipe:
-        - wood.6
-        - feather.6
+        - wood.4
+        - feather.4
         
 longbow:
     name: "%material% Longbow"
@@ -29,7 +29,7 @@ longbow:
     type: longbow
     main-type: wood
     stat-template: longbow
-    permission-namespace: longbow_maker
+    socket-group: gemstones
     recipe:
-        - wood.12
-        - feather.6
+        - wood.8
+        - feather.4

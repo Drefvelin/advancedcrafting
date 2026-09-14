@@ -17,6 +17,17 @@ public final class ProfessionPermissions {
 	private ProfessionPermissions() {
 	}
 
+	public static String flatPermission(String permissionKey) {
+		return Cache.permissionPrefix + permissionKey.toLowerCase();
+	}
+
+	public static boolean hasIngredientPerm(Player player, String permissionKey) {
+		if (player == null || permissionKey == null || permissionKey.isBlank()) {
+			return false;
+		}
+		return player.hasPermission(flatPermission(permissionKey));
+	}
+
 	public static String fullPermission(String namespace, int tier) {
 		return Cache.permissionPrefix + namespace.toLowerCase() + "_" + tier;
 	}
@@ -52,10 +63,6 @@ public final class ProfessionPermissions {
 		return namespace;
 	}
 
-	public static String alloyNamespace() {
-		return Cache.alloyPermissionNamespace;
-	}
-
 	public static int resolveTier(Ingredient ingredient) {
 		if (ingredient == null) {
 			return 0;
@@ -85,11 +92,10 @@ public final class ProfessionPermissions {
 		if (data == null) {
 			return false;
 		}
-		int tier = resolveIngredientTier(data);
-		if (tier <= 0 || !data.hasPermissionNamespace()) {
+		if (!data.hasPermission()) {
 			return true;
 		}
-		return hasExactTierPerm(player, data.getPermissionNamespace(), tier);
+		return hasIngredientPerm(player, data.getPermission());
 	}
 
 	public static int resolveTier(IngredientData data) {
@@ -116,15 +122,15 @@ public final class ProfessionPermissions {
 		return resolveTier(alloy);
 	}
 
+	public static String missingIngredientPermissionMessage(String permissionKey) {
+		return "§cYou need the " + getDisplayName(permissionKey) + " permission to use this material.";
+	}
+
 	public static String missingNamespaceMessage(String namespace) {
 		return "§cYou need at least one of the " + getDisplayName(namespace) + " permissions.";
 	}
 
 	public static String missingExactTierMessage(String namespace, int tier) {
 		return "§cYou need the " + getDisplayName(namespace) + " tier " + tier + " permission to use this material.";
-	}
-
-	public static String missingAlloyTierMessage(int tier) {
-		return missingExactTierMessage(alloyNamespace(), tier);
 	}
 }

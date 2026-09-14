@@ -6,37 +6,34 @@ sword:
     main-type: metal
     stat-template: sword
     socket-group: gemstones
-    permission-namespace: weaponsmith
     recipe:
-        - metal.6
-        - leather.3
-        - wool.3
+        - metal.4
+        - leather.2
+        - wool.2
 battleaxe:
     name: "%material% Battleaxe"
     template: battleaxes.custom_battleaxe
     category: weapons
     type: battleaxe
     main-type: metal
-    stat-template: standard
+    stat-template: battleaxe
     socket-group: gemstones
-    permission-namespace: weaponsmith
     recipe:
-        - metal.6
-        - leather.3
-        - wool.3
+        - metal.4
+        - leather.2
+        - wool.2
 dagger:
     name: "%material% Dagger"
     template: daggers.custom_dagger
     category: weapons
     type: dagger
     main-type: metal
-    stat-template: standard
+    stat-template: dagger
     socket-group: gemstones
-    permission-namespace: weaponsmith
     recipe:
-        - metal.6
-        - leather.3
-        - wool.3
+        - metal.4
+        - leather.2
+        - wool.2
 warhammer:
     name: "%material% Warhammer"
     template: warhammers.custom_warhammer
@@ -45,24 +42,22 @@ warhammer:
     main-type: metal
     stat-template: warhammer
     socket-group: gemstones
-    permission-namespace: weaponsmith
     recipe:
-        - metal.6
-        - leather.3
-        - wool.3
+        - metal.4
+        - leather.2
+        - wool.2
 spear:
     name: "%material% Spear"
     template: spears.custom_spear
     category: weapons
     type: spear
     main-type: metal
-    stat-template: standard
+    stat-template: spear
     socket-group: gemstones
-    permission-namespace: weaponsmith
     recipe:
-        - metal.6
-        - leather.3
-        - wool.3
+        - metal.4
+        - leather.2
+        - wool.2
 polearm:
     name: "%material% Polearm"
     template: polearms.custom_polearm
@@ -71,11 +66,10 @@ polearm:
     main-type: metal
     stat-template: polearm
     socket-group: gemstones
-    permission-namespace: weaponsmith
     recipe:
-        - metal.6
-        - leather.3
-        - wool.3
+        - metal.8
+        - leather.2
+        - wool.2
 greathammer:
     name: "%material% Greathammer"
     template: greathammers.custom_greathammer
@@ -84,11 +78,10 @@ greathammer:
     main-type: metal
     stat-template: greathammer
     socket-group: gemstones
-    permission-namespace: weaponsmith
     recipe:
-        - metal.6
-        - leather.3
-        - wool.3
+        - metal.8
+        - leather.2
+        - wool.2
 longsword:
     name: "%material% Longsword"
     template: longswords.custom_longsword
@@ -97,11 +90,10 @@ longsword:
     main-type: metal
     stat-template: longsword
     socket-group: gemstones
-    permission-namespace: weaponsmith
     recipe:
-        - metal.6
-        - leather.3
-        - wool.3
+        - metal.8
+        - leather.2
+        - wool.2
 greataxe:
     name: "%material% Greataxe"
     template: greataxes.custom_greataxe
@@ -110,8 +102,7 @@ greataxe:
     main-type: metal
     stat-template: greataxe
     socket-group: gemstones
-    permission-namespace: weaponsmith
     recipe:
-        - metal.6
-        - leather.3
-        - wool.3
+        - metal.8
+        - leather.2
+        - wool.2

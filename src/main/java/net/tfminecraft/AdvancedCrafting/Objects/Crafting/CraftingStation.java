@@ -185,9 +185,8 @@ public class CraftingStation {
 		if(c.isIngredient()) {
 			Ingredient ing = c.getIngredient();
 			if (!ProfessionPermissions.canUseIngredient(p, ing)) {
-				int ingredientTier = ProfessionPermissions.resolveIngredientTier(ing);
-				p.sendMessage(ProfessionPermissions.missingExactTierMessage(
-						ing.getIngredientData().getPermissionNamespace(), ingredientTier));
+				p.sendMessage(ProfessionPermissions.missingIngredientPermissionMessage(
+						ing.getIngredientData().getPermission()));
 				return StationFeedback.NO_PERMS;
 			}
 			key = "ingredient."+ing.getId();

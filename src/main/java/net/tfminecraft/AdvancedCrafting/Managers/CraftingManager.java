@@ -15,6 +15,7 @@ import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
@@ -26,12 +27,17 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import dev.lone.itemsadder.api.Events.FurnitureBreakEvent;
+import io.lumine.mythic.lib.api.item.NBTItem;
 import me.Plugins.TLibs.TLibs;
+import me.Plugins.TLibs.Enums.APIType;
+import me.Plugins.TLibs.Objects.API.BlockAPI;
 import me.Plugins.TLibs.Objects.API.ItemAPI;
 import net.tfminecraft.AdvancedCrafting.AdvancedCrafting;
 import net.tfminecraft.AdvancedCrafting.Cache.Cache;
 import net.tfminecraft.AdvancedCrafting.Enums.StationFeedback;
 import net.tfminecraft.AdvancedCrafting.Loaders.CategoryLoader;
+import net.tfminecraft.AdvancedCrafting.Loaders.HitLoader;
 import net.tfminecraft.AdvancedCrafting.Loaders.RecipeLoader;
 import net.tfminecraft.AdvancedCrafting.Objects.Crafting.CraftingRecipe;
 import net.tfminecraft.AdvancedCrafting.Objects.Crafting.CraftingStation;
@@ -55,6 +61,54 @@ public class CraftingManager implements Listener{
 	private final Map<UUID, AdminCraftPending> adminCraftPending = new HashMap<>();
 
 	private ItemAPI api = TLibs.getItemAPI();
+
+	private boolean isCraftingStation(Block b) {
+		if (b == null || Cache.craftingStation == null) {
+			return false;
+		}
+		BlockAPI blockApi = (BlockAPI) TLibs.getApiInstance(APIType.BLOCK_API);
+		return blockApi.getChecker().checkBlock(b, Cache.craftingStation);
+	}
+
+	private boolean isIaFurnitureStationConfig() {
+		return Cache.craftingStation != null
+				&& Cache.craftingStation.trim().toLowerCase().startsWith("iaf(");
+	}
+
+	private String getConfiguredIaFurnitureId() {
+		if (Cache.craftingStation == null) {
+			return null;
+		}
+		String trimmed = Cache.craftingStation.trim();
+		int open = trimmed.indexOf('(');
+		int close = trimmed.indexOf(')', open + 1);
+		if (open < 0 || close <= open) {
+			return null;
+		}
+		return trimmed.substring(open + 1, close);
+	}
+
+	private boolean matchesConfiguredIaFurniture(String namespacedId) {
+		if (namespacedId == null) {
+			return false;
+		}
+		String configured = getConfiguredIaFurnitureId();
+		return configured != null && configured.equalsIgnoreCase(namespacedId);
+	}
+
+	private boolean isStationTool(ItemStack item) {
+		if (item == null || item.getType().equals(Material.AIR)) {
+			return false;
+		}
+		if (Cache.brandingTool != null && api.getChecker().checkItemWithPath(item, Cache.brandingTool)) {
+			return true;
+		}
+		NBTItem nbt = NBTItem.get(item);
+		if (!nbt.hasType()) {
+			return false;
+		}
+		return HitLoader.getByTool(nbt.getType() + "." + nbt.getString("MMOITEMS_ITEM_ID")) != null;
+	}
 	
 	public boolean hasStation(Location loc) {
 		if(stations.containsKey(loc)) return true;
@@ -108,12 +162,12 @@ public class CraftingManager implements Listener{
 			return false;
 		}
 		if (!hasStation(b.getLocation())) {
-			p.sendMessage("§cNo recipe on this anvil. Set up a craft first.");
+			p.sendMessage("§cNo recipe on this station. Set up a craft first.");
 			return true;
 		}
 		CraftingStation station = get(b.getLocation());
 		if (!station.hasRecipe()) {
-			p.sendMessage("§cNo recipe on this anvil. Select a recipe first.");
+			p.sendMessage("§cNo recipe on this station. Select a recipe first.");
 			return true;
 		}
 		if (!station.hasAllMaterials(p)) {
@@ -140,7 +194,7 @@ public class CraftingManager implements Listener{
 	public void openStation(PlayerInteractEvent e) {
 		if(!e.getAction().equals(Action.RIGHT_CLICK_BLOCK)) return;
 		Block b = e.getClickedBlock();
-		if(!b.getType().equals(Material.ANVIL)) return;
+		if(!isCraftingStation(b)) return;
 		e.setCancelled(true);
 		Player p = e.getPlayer();
 		if(cooldown.containsKey(p)) {
@@ -192,7 +246,7 @@ public class CraftingManager implements Listener{
 					break;
 				default:
 					p.playSound(p.getLocation(), Sound.BLOCK_GRINDSTONE_USE, 1f, 2f);
-					p.spawnParticle(org.bukkit.Particle.CRIT_MAGIC, station.getLoc().clone().add(0.5, 1, 0.5), 10, 0.01, 0.01, 0.01);
+					p.spawnParticle(org.bukkit.Particle.ENCHANTED_HIT, station.getLoc().clone().add(0.5, 1, 0.5), 10, 0.01, 0.01, 0.01);
 					break;
 			}
 			return;
@@ -204,26 +258,44 @@ public class CraftingManager implements Listener{
 		inv.categoryView(p);
 	}
 	
+	@EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+	public void onIaFurnitureBreak(FurnitureBreakEvent e) {
+		if (!isIaFurnitureStationConfig()) {
+			return;
+		}
+		if (!matchesConfiguredIaFurniture(e.getNamespacedID())) {
+			return;
+		}
+		if (e.getPlayer() == null || !isStationTool(e.getPlayer().getInventory().getItemInMainHand())) {
+			return;
+		}
+		e.setCancelled(true);
+	}
+
 	@EventHandler
 	public void applyHit(PlayerInteractEvent e) {
 		if (!e.getAction().equals(Action.LEFT_CLICK_BLOCK)) return;
 		Block b = e.getClickedBlock();
-		if (!b.getType().equals(Material.ANVIL)) return;
+		if (!isCraftingStation(b)) return;
 		Player p = e.getPlayer();
 		if (!hasStation(b.getLocation())) return;
 		ItemStack i = p.getInventory().getItemInMainHand();
 		if (i == null || i.getType().equals(Material.AIR)) return;
 
+		if (isIaFurnitureStationConfig() && isStationTool(i)) {
+			e.setCancelled(true);
+		}
+
 		CraftingStation station = get(b.getLocation());
 
-		if (api.getChecker().checkItemWithPath(i, Cache.brandingTool)) {
+		if (Cache.brandingTool != null && api.getChecker().checkItemWithPath(i, Cache.brandingTool)) {
 			if (p.isSneaking()) {
 				station.cancel();
 				p.sendMessage("§cProject cancelled");
 				stations.remove(station.getLoc());
 				p.getWorld().playSound(station.getLoc(), Sound.BLOCK_ANVIL_PLACE, 1f, 0.5f);
 				p.spawnParticle(
-					Particle.BLOCK_DUST,
+					Particle.BLOCK,
 					station.getLoc().clone().add(0.5, 1, 0.5),
 					20,  // amount
 					0.1, 0.2, 0.1,  // spread X,Y,Z
@@ -269,7 +341,7 @@ public class CraftingManager implements Listener{
 				// Successful hit
 				p.getWorld().playSound(station.getLoc(), Sound.BLOCK_ANVIL_USE, 1f, 1f);
 				p.spawnParticle(
-					Particle.BLOCK_DUST,
+					Particle.BLOCK,
 					station.getLoc().clone().add(0.5, 1, 0.5),
 					20,  // amount
 					0.1, 0.2, 0.1,  // spread X,Y,Z
@@ -328,11 +400,19 @@ public class CraftingManager implements Listener{
 	@EventHandler
 	public void breakStation(BlockBreakEvent e) {
 		Block b = e.getBlock();
-		if(!hasStation(b.getLocation())) return;
 		Player p = e.getPlayer();
+		if (p != null
+				&& b.getType() == Material.BARRIER
+				&& isIaFurnitureStationConfig()
+				&& isCraftingStation(b)
+				&& isStationTool(p.getInventory().getItemInMainHand())) {
+			e.setCancelled(true);
+			return;
+		}
+		if(!hasStation(b.getLocation())) return;
 		if(p != null) {
 			p.getWorld().playSound(b.getLocation(), Sound.ENTITY_ARMOR_STAND_BREAK, 1f, 1f);
-			p.getWorld().spawnParticle(Particle.SMOKE_LARGE, b.getLocation().add(0.5, 1, 0.5), 30, 0.3, 0.3, 0.3);
+			p.getWorld().spawnParticle(Particle.LARGE_SMOKE, b.getLocation().add(0.5, 1, 0.5), 30, 0.3, 0.3, 0.3);
 		}
 		CraftingStation station = get(b.getLocation());
 		station.drop();

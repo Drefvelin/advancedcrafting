@@ -71,16 +71,17 @@ public class Alloy {
             mmo.setStatHistory(ItemStats.NAME, hist);
         }
 		List<String> loreList = new ArrayList<>();
-		int loreStart = IngredientLore.applyAlloyLore(loreList, data.getType(), data.getTier());
+		IngredientLore.Block loreBlock = IngredientLore.applyAlloyLore(loreList, data.getType(), data.getTier(),
+				data.getStatData());
 		StringListData lore = new StringListData(loreList);
 		mmo.setData(ItemStats.LORE, lore);
 		ItemStack i = mmo.newBuilder().build();
 		ItemMeta m = i.getItemMeta();
-		m.addEnchant(Enchantment.DURABILITY, 1, true);
+		m.addEnchant(Enchantment.UNBREAKING, 1, true);
 		m.addItemFlags(ItemFlag.HIDE_ENCHANTS);
 		m.setCustomModelData(data.getModel());
 		m.getPersistentDataContainer().set(PDCKeys.alloyId(), PersistentDataType.STRING, id);
-		AcItemTags.write(m, revision, loreStart);
+		AcItemTags.write(m, revision, loreBlock);
 		i.setItemMeta(m);
 		return i;
 	}

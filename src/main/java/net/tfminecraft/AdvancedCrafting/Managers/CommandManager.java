@@ -145,7 +145,7 @@ public class CommandManager implements Listener, CommandExecutor, TabCompleter {
 			}
 			AdvancedCrafting.getCraftingManager().setAdminCraftPending(p, percent);
 			p.sendMessage("§aAdmin craft armed at §f" + percent + "%§a quality.");
-			p.sendMessage("§7Right-click an anvil with all materials ready (30s).");
+			p.sendMessage("§7Right-click the crafting station with all materials ready (30s).");
 			return true;
 		}
 		return false;

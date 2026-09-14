@@ -4,6 +4,8 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 
+import net.tfminecraft.AdvancedCrafting.Cache.Cache;
+
 public final class AcItemTags {
 	public enum Kind {
 		INGREDIENT,
@@ -61,7 +63,30 @@ public final class AcItemTags {
 		return start != null ? start : -1;
 	}
 
-	public static void write(ItemStack item, int revision, int loreStart) {
+	public static int getLoreLen(ItemStack item) {
+		if (!item.hasItemMeta()) {
+			return -1;
+		}
+		Integer len = item.getItemMeta().getPersistentDataContainer()
+				.get(PDCKeys.loreLen(), PersistentDataType.INTEGER);
+		return len != null ? len : -1;
+	}
+
+	public static boolean hasStatsLoreFlag(ItemStack item) {
+		return item != null && item.hasItemMeta()
+				&& item.getItemMeta().getPersistentDataContainer().has(PDCKeys.statsLore(), PersistentDataType.INTEGER);
+	}
+
+	public static boolean getStatsLore(ItemStack item) {
+		if (!item.hasItemMeta()) {
+			return false;
+		}
+		Integer flag = item.getItemMeta().getPersistentDataContainer()
+				.get(PDCKeys.statsLore(), PersistentDataType.INTEGER);
+		return flag != null && flag == 1;
+	}
+
+	public static void write(ItemStack item, int revision, IngredientLore.Block block) {
 		if (item == null) {
 			return;
 		}
@@ -69,12 +94,18 @@ public final class AcItemTags {
 		if (meta == null) {
 			return;
 		}
-		write(meta, revision, loreStart);
+		write(meta, revision, block);
 		item.setItemMeta(meta);
 	}
 
-	public static void write(ItemMeta meta, int revision, int loreStart) {
+	public static void write(ItemMeta meta, int revision, IngredientLore.Block block) {
+		write(meta, revision, block.start, block.length, Cache.showIngredientStats);
+	}
+
+	public static void write(ItemMeta meta, int revision, int loreStart, int loreLen, boolean statsLore) {
 		meta.getPersistentDataContainer().set(PDCKeys.itemRevision(), PersistentDataType.INTEGER, revision);
 		meta.getPersistentDataContainer().set(PDCKeys.loreStart(), PersistentDataType.INTEGER, loreStart);
+		meta.getPersistentDataContainer().set(PDCKeys.loreLen(), PersistentDataType.INTEGER, loreLen);
+		meta.getPersistentDataContainer().set(PDCKeys.statsLore(), PersistentDataType.INTEGER, statsLore ? 1 : 0);
 	}
 }

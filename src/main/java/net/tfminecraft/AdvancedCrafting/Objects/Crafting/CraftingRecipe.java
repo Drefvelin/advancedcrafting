@@ -15,6 +15,7 @@ public class CraftingRecipe {
 	private String id;
 	private String name;
 	private String template;
+	private String iconPath;
 	
 	private String type;
 	private String mainType;
@@ -30,6 +31,11 @@ public class CraftingRecipe {
 	public CraftingRecipe(String key, ConfigurationSection config) {
 		this.id = key;
 		this.template = config.getString("template");
+		this.iconPath = config.getString("icon");
+		if (iconPath != null && !iconPath.isBlank() && !iconPath.contains(".")) {
+			Bukkit.getLogger().warning("AC: Recipe " + key + " icon must be a TLibs path (e.g. ia.tfmc:item_id), got: "
+					+ iconPath);
+		}
 		this.name = StringFormatter.formatHex(config.getString("name"));
 		this.type = config.getString("type");
 		this.mainType = config.getString("main-type", "metal");
@@ -100,6 +106,17 @@ public class CraftingRecipe {
 
 	public String getTemplate() {
 		return template;
+	}
+
+	public String getIconPath() {
+		return iconPath;
+	}
+
+	public String resolveMenuIconPath() {
+		if (iconPath != null && !iconPath.isBlank()) {
+			return iconPath;
+		}
+		return "m." + template;
 	}
 	
 	public String getType() {

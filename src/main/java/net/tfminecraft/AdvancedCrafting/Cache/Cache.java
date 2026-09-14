@@ -10,8 +10,13 @@ import net.tfminecraft.AdvancedCrafting.Objects.Ingredients.IngredientType;
 public class Cache {
 	public static String scrap;
 	
+	public static String craftingStation;
 	public static String alloyStation;
 	public static String ingredientStation;
+
+	public static double alloyForgeBaseSuccess = 2.0;
+	public static double alloyForgeBonusPerSqrtValue = 4.0;
+	public static double alloyForgeMaxSuccess = 85.0;
 
 	public static String brandingTool;
 
@@ -21,11 +26,12 @@ public class Cache {
 
 	public static boolean debugStatRefresh;
 
+	public static boolean showIngredientStats = true;
+
 	/** Divisors applied to bucket-averaged stats before template factors (e.g. movement_speed: 100). */
 	public static Map<String, Double> globalStatOffsets = new HashMap<>();
 
 	public static String permissionPrefix = "professions.";
-	public static String alloyPermissionNamespace = "alloy";
 	public static Map<String, PermissionNamespace> permissionNamespaces = new HashMap<>();
 
 	public static boolean canCombine(IngredientType base, IngredientType type){

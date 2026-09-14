@@ -73,8 +73,8 @@ public class Ingredient {
 		if (lore == null) {
 			lore = new ArrayList<>();
 		}
-		int loreStart = IngredientLore.applyTypeAndRole(lore, data);
-		AcItemTags.write(m, revision, loreStart);
+		IngredientLore.Block loreBlock = IngredientLore.applyTypeAndRole(lore, data);
+		AcItemTags.write(m, revision, loreBlock);
 		m.setLore(lore);
 		i.setItemMeta(m);
 	}

@@ -104,16 +104,23 @@ public final class BucketStatAverager {
 			if (ing == null) {
 				return null;
 			}
-			return ing.getIngredientData().getType().getId();
+			return normalizeBucketId(ing.getIngredientData().getStatMergeBucketId());
 		}
 		if (kind.equals("alloy")) {
 			Alloy alloy = AlloyManager.getAlloyById(id);
 			if (alloy == null) {
 				return null;
 			}
-			return alloy.getData().getType().getId();
+			return normalizeBucketId(alloy.getData().getStatMergeBucketId());
 		}
 		return null;
+	}
+
+	private static String normalizeBucketId(String bucketId) {
+		if (bucketId == null || bucketId.isBlank()) {
+			return null;
+		}
+		return bucketId.toLowerCase();
 	}
 
 	private static StatData resolveStatData(String key) {

@@ -25,7 +25,8 @@ public class AlloyData {
 	private String xp;
 	private AlloyRecipe recipe;
 	private int tier;
-	
+	private String statMergeBucketId;
+
 	public AlloyData(Ingredient base, StatData stats, HashMap<CraftingHit, Integer> hits, String xp) {
 		colourScheme = base.getIngredientData().getScheme().getColourScheme();
 		model = colourScheme.randomModel();
@@ -35,11 +36,12 @@ public class AlloyData {
 		this.hits = hits;
 		this.xp = xp;
 		this.tier = base.getIngredientData().hasTier() ? base.getIngredientData().getTier() : 1;
+		this.statMergeBucketId = base.getIngredientData().getStatMergeBucketId();
 	}
-	
+
 	public AlloyData(ColourScheme colourScheme, int model, IngredientType type, ModelScheme scheme,
 			StatData stats, HashMap<CraftingHit, Integer> hits, String xp,
-			AlloyRecipe recipe, int tier) {
+			AlloyRecipe recipe, int tier, String statMergeBucketId) {
 		this.colourScheme = colourScheme;
 		this.model = model;
 		this.type = type;
@@ -49,6 +51,11 @@ public class AlloyData {
 		this.xp = xp;
 		this.recipe = recipe;
 		this.tier = tier;
+		if (statMergeBucketId != null && !statMergeBucketId.isBlank()) {
+			this.statMergeBucketId = statMergeBucketId.trim().toLowerCase();
+		} else if (type != null) {
+			this.statMergeBucketId = type.getId().toLowerCase();
+		}
 	}
 
 	public boolean hasXP() {
@@ -77,6 +84,10 @@ public class AlloyData {
 
 	public IngredientType getType() {
 		return type;
+	}
+
+	public String getStatMergeBucketId() {
+		return statMergeBucketId;
 	}
 
 	public HashMap<CraftingHit, Integer> getHits() {
@@ -108,7 +119,8 @@ public class AlloyData {
 				.sorted(String.CASE_INSENSITIVE_ORDER)
 				.collect(Collectors.toList());
 		sb.append("hits=").append(String.join(",", hitParts)).append(';');
-		sb.append("tier=").append(tier);
+		sb.append("tier=").append(tier).append(';');
+		sb.append("statMergeBucketId=").append(statMergeBucketId != null ? statMergeBucketId : "");
 		return sb.toString();
 	}
 }
