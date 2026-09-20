@@ -272,19 +272,18 @@ public class CraftingManager implements Listener{
 		e.setCancelled(true);
 	}
 
-	@EventHandler
+	@EventHandler(priority = EventPriority.HIGH)
 	public void applyHit(PlayerInteractEvent e) {
 		if (!e.getAction().equals(Action.LEFT_CLICK_BLOCK)) return;
 		Block b = e.getClickedBlock();
 		if (!isCraftingStation(b)) return;
 		Player p = e.getPlayer();
-		if (!hasStation(b.getLocation())) return;
 		ItemStack i = p.getInventory().getItemInMainHand();
-		if (i == null || i.getType().equals(Material.AIR)) return;
-
-		if (isIaFurnitureStationConfig() && isStationTool(i)) {
+		if (isStationTool(i)) {
 			e.setCancelled(true);
 		}
+		if (!hasStation(b.getLocation())) return;
+		if (i == null || i.getType().equals(Material.AIR)) return;
 
 		CraftingStation station = get(b.getLocation());
 
@@ -397,13 +396,11 @@ public class CraftingManager implements Listener{
 		
 	}
 	
-	@EventHandler
+	@EventHandler(priority = EventPriority.HIGH)
 	public void breakStation(BlockBreakEvent e) {
 		Block b = e.getBlock();
 		Player p = e.getPlayer();
 		if (p != null
-				&& b.getType() == Material.BARRIER
-				&& isIaFurnitureStationConfig()
 				&& isCraftingStation(b)
 				&& isStationTool(p.getInventory().getItemInMainHand())) {
 			e.setCancelled(true);
