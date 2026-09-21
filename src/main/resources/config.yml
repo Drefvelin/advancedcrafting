@@ -14,6 +14,11 @@ alloy-forge:
 
 max-factor: 1.2
 
+# Warn when a tool is this many percent over its requirement (16 vs 12 = 33).
+# Set to 0 or below to disable. Existing live configs keep working via loader defaults.
+hit-overshoot-warn-percent: 30.0
+hit-overshoot-warn-message: "§cYour over-reliance on %hit% ruins the result further"
+
 # Raw stat lines on ingredient/alloy items. Converter GUI still shows per-template factors.
 show-ingredient-stats: true
 

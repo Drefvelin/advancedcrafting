@@ -28,6 +28,7 @@ import net.Indyuce.mmoitems.stat.data.StringData;
 import net.Indyuce.mmoitems.stat.data.StringListData;
 import net.Indyuce.mmoitems.stat.type.NameData;
 import net.Indyuce.mmoitems.stat.type.StatHistory;
+import net.tfminecraft.AdvancedCrafting.Cache.Cache;
 import net.tfminecraft.AdvancedCrafting.Enums.StationFeedback;
 import net.tfminecraft.AdvancedCrafting.Loaders.HitLoader;
 import net.tfminecraft.AdvancedCrafting.Loaders.IngredientLoader;
@@ -354,6 +355,30 @@ public class CraftingStation {
 		}
 		return Math.round((amount/counter));
 	}
+
+	private void warnOvershootHits(Player p) {
+		if (Cache.hitOvershootWarnPercent <= 0) {
+			return;
+		}
+		String template = Cache.hitOvershootWarnMessage;
+		if (template == null || template.isBlank()) {
+			return;
+		}
+		for (CraftingHit hit : hits.keySet()) {
+			IntCounter counter = hits.get(hit);
+			int needed = counter.getNeeded();
+			int current = counter.getCurrent();
+			if (needed <= 0 || current <= needed) {
+				continue;
+			}
+			double overshoot = ((double) (current - needed) / needed) * 100.0;
+			if (overshoot < Cache.hitOvershootWarnPercent) {
+				continue;
+			}
+			p.sendMessage(template.replace("%hit%", hit.getName()));
+		}
+	}
+
 	private StationFeedback createItem(Player p, Double forcedQualityPercent) {
 		if (!checkItems(p)) {
 			return StationFeedback.LACKING_ITEMS;
@@ -424,6 +449,9 @@ public class CraftingStation {
 		Quality q = getQuality(percentage);
 		p.sendMessage("Quality: "+q.getName());
 		p.sendMessage("Hit Percenage: §e"+percentage+"%");
+		if (forcedQualityPercent == null) {
+			warnOvershootHits(p);
+		}
 		List<String> sockets = new ArrayList<String>();
 		SocketGroup socketGroup = SocketGroupLoader.getByString(recipe.getSocketGroupId());
 		if(socketGroup == null) {

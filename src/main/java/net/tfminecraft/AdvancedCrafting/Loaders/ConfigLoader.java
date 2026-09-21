@@ -45,6 +45,13 @@ public class ConfigLoader implements LoaderInterface{
 
 		Cache.maxFactor = config.getDouble("max-factor", 1.5);
 
+		Cache.hitOvershootWarnPercent = config.getDouble("hit-overshoot-warn-percent", 30.0);
+		String overshootMessage = config.getString("hit-overshoot-warn-message");
+		if (overshootMessage == null || overshootMessage.isBlank()) {
+			overshootMessage = "§cYour over-reliance on %hit% ruins the result further";
+		}
+		Cache.hitOvershootWarnMessage = overshootMessage;
+
 		Cache.debugStatRefresh = config.getBoolean("debug-stat-refresh", false);
 		Cache.showIngredientStats = config.getBoolean("show-ingredient-stats", true);
 

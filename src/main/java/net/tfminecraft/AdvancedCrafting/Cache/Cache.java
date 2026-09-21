@@ -24,6 +24,9 @@ public class Cache {
 
 	public static double maxFactor;
 
+	public static double hitOvershootWarnPercent = 30.0;
+	public static String hitOvershootWarnMessage = "§cYour over-reliance on %hit% ruins the result further";
+
 	public static boolean debugStatRefresh;
 
 	public static boolean showIngredientStats = true;
