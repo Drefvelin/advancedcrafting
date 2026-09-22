@@ -12,6 +12,7 @@ import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
+import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -266,10 +267,42 @@ public class CraftingManager implements Listener{
 		if (!matchesConfiguredIaFurniture(e.getNamespacedID())) {
 			return;
 		}
-		if (e.getPlayer() == null || !isStationTool(e.getPlayer().getInventory().getItemInMainHand())) {
+		Player breaker = e.getPlayer();
+		if (breaker != null && isStationTool(breaker.getInventory().getItemInMainHand())) {
+			e.setCancelled(true);
 			return;
 		}
-		e.setCancelled(true);
+		if (e.getBukkitEntity() == null) {
+			return;
+		}
+		Location loc = e.getBukkitEntity().getLocation().getBlock().getLocation();
+		discardBrokenStation(loc);
+	}
+
+	private void discardBrokenStation(Location loc) {
+		if (!hasStation(loc)) {
+			return;
+		}
+		CraftingStation station = get(loc);
+		World world = loc.getWorld();
+		if (world != null) {
+			world.playSound(loc, Sound.ENTITY_ARMOR_STAND_BREAK, 1f, 1f);
+			world.spawnParticle(Particle.LARGE_SMOKE, loc.clone().add(0.5, 1, 0.5), 30, 0.3, 0.3, 0.3);
+		}
+		station.drop();
+		stations.remove(loc);
+		currentStation.entrySet().removeIf(entry -> {
+			CraftingStation open = entry.getValue();
+			if (open != station && (open.getLoc() == null || !loc.equals(open.getLoc()))) {
+				return false;
+			}
+			Player viewer = entry.getKey();
+			String title = viewer.getOpenInventory().getTitle();
+			if (title.equalsIgnoreCase("§7Select Category") || title.equalsIgnoreCase("§7Select Recipe")) {
+				viewer.closeInventory();
+			}
+			return true;
+		});
 	}
 
 	@EventHandler(priority = EventPriority.HIGH)
